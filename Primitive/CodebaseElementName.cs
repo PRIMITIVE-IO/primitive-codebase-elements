@@ -35,6 +35,8 @@ namespace PrimitiveCodebaseElements.Primitive
         /// May be <c>null</c> if there is no containing element.
         /// </remarks>
         public abstract CodebaseElementName ContainmentParent { get; }
+        
+        public abstract string BranchName { get; set; }
 
         /// <summary>
         /// An element is also considered to contain itself.
@@ -51,13 +53,21 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public abstract CodebaseElementType CodebaseElementType { get; }
 
+        public virtual FileName ContainmentFile()
+        {
+            if (this is FileName) return this as FileName;
+            if (ContainmentParent == null) return null;
+            return ContainmentParent.ContainmentFile();
+        }
+
         public override bool Equals(object obj) =>
             obj is CodebaseElementName name &&
             name.FullyQualified == FullyQualified;
 
         public static bool operator ==(
             CodebaseElementName a,
-            CodebaseElementName b) => a?.FullyQualified == b?.FullyQualified;
+            CodebaseElementName b) =>
+            (a?.FullyQualified == b?.FullyQualified);
         public static bool operator !=(
             CodebaseElementName a,
             CodebaseElementName b) => !(a == b);
@@ -66,7 +76,7 @@ namespace PrimitiveCodebaseElements.Primitive
         
         static readonly Regex RegexWhitespace = new Regex(@"\s+");
 
-        public static string ReplaceWhitespace(string typeName) =>
+        protected static string ReplaceWhitespace(string typeName) =>
             RegexWhitespace.Replace(typeName, "").Replace(",", ", ");
     }
     
@@ -80,6 +90,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public readonly string JavaFullyQualified;
         public override string ShortName { get; }
         public override CodebaseElementName ContainmentParent { get; }
+        public override string BranchName { get; set; }
 
         public override PackageName Package { get; }
         public override CodebaseElementType CodebaseElementType =>
@@ -98,7 +109,7 @@ namespace PrimitiveCodebaseElements.Primitive
             ContainmentParent = parent;
             Package = parent.Package;
 
-            string paramString = "";
+            string paramString;
 
             if (!string.IsNullOrEmpty(overrideArgumentString))
             {
@@ -128,8 +139,9 @@ namespace PrimitiveCodebaseElements.Primitive
             {
                 JavaFullyQualified =
                     $"{className.JavaFullyQualified}" +
-                    $"{methodName}:" +
-                    $"({paramString}){returnType}";
+                    $"{methodName}";
+                    // TODO information loss -> this should include the params and the return type but they aren't solved fully
+                    //$"{methodName}:{paramString}){returnType}";
             }
 
             // To the user, constructors are identified by their declaring class' names.
@@ -144,15 +156,23 @@ namespace PrimitiveCodebaseElements.Primitive
         /// being stripped down to only a string, like when it is serialized.
         /// </summary>
         /// <param name="fullyQualified"></param>
-        public MethodName(string fullyQualified)
+        public MethodName(string fullyQualified, bool compilerMethod = false)
         {
             FullyQualified = fullyQualified;
+            if (string.IsNullOrEmpty(fullyQualified))
+            {
+                // root method
+                Package = new PackageName();
+                ContainmentParent = Package;
+                return;
+            }
+            
             string className = fullyQualified.Substring(
                 0,
                 fullyQualified.IndexOf(';'));
             ClassName parentClass = new ClassName(className);
             ContainmentParent = parentClass;
-            Package = new PackageName(parentClass);
+            Package = compilerMethod ? parentClass.CompilerPackage : parentClass.Package;
             
             string partAfterClassName =
                 FullyQualified.Substring(FullyQualified.IndexOf(';') + 1);
@@ -187,6 +207,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public override string FullyQualified { get; }
         public override string ShortName { get; }
         public override CodebaseElementName ContainmentParent { get; }
+        public override string BranchName { get; set; }
 
         public override PackageName Package { get; }
         public override CodebaseElementType CodebaseElementType =>
@@ -271,6 +292,7 @@ namespace PrimitiveCodebaseElements.Primitive
     {
         public override string FullyQualified { get; }
         public override string ShortName { get; }
+        public override string BranchName { get; set; }
 
         TypeName ComponentType { get; }
 
@@ -303,6 +325,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public override string FullyQualified { get; }
         public override string ShortName { get; }
+        public override string BranchName { get; set; }
 
         PrimitiveTypeName(string fullyQualified, string shortName)
         {
@@ -352,12 +375,20 @@ namespace PrimitiveCodebaseElements.Primitive
             CodebaseElementType.Class;
 
         public override CodebaseElementName ContainmentParent => IsOuterClass
-            ? (CodebaseElementName) ContainmentFile
+            ? (CodebaseElementName) containmentFile
             : ParentClass;
+
+        public override string BranchName { get; set; }
+
+        public override FileName ContainmentFile()
+        {
+            return containmentFile ?? base.ContainmentFile();
+        }
+
+        // only used if set by constructor
+        readonly FileName containmentFile;
         
-        public readonly FileName ContainmentFile;
-        
-        public override PackageName Package => new PackageName(ContainmentFile);
+        public override PackageName Package => new PackageName(ContainmentFile());
         
         public PackageName CompilerPackage => new PackageName(this);
 
@@ -386,7 +417,7 @@ namespace PrimitiveCodebaseElements.Primitive
             JavaFullyQualified = $"L{packageAndClass};";
             if (fullyQualified.Contains('|') && !fullyQualified.StartsWith("|"))
             {
-                ContainmentFile = new FileName(
+                containmentFile = new FileName(
                     fullyQualified.Substring(0, fullyQualified.IndexOf('|')));
             }
 
@@ -417,6 +448,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public override string ShortName { get; }
 
         public override CodebaseElementName ContainmentParent => Package;
+        public override string BranchName { get; set; }
 
         public override PackageName Package => new PackageName(this);
         public override CodebaseElementType CodebaseElementType =>
@@ -450,7 +482,9 @@ namespace PrimitiveCodebaseElements.Primitive
             if (FullyQualified.Length > ShortName.Length)
             {
                 // the parent is the path above this package
-                // e.g. com.org.package.child -> short name: child, parent: com.org.package
+                // e.g. com.org.package.child ->
+                //   short name:  child
+                //   parent:      com.org.package
                 return new PackageName(
                     FullyQualified.Substring(
                         0,
@@ -466,6 +500,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         // these are dead-ends
         public override CodebaseElementName ContainmentParent => null;
+        public override string BranchName { get; set; }
         public override PackageName Package => this;
 
         /// <summary>
@@ -490,12 +525,17 @@ namespace PrimitiveCodebaseElements.Primitive
                 // root
                 ShortName = "";
             }
+            else if (packageName.Contains('■'))
+            {
+                // a path FQN
+                ShortName = packageName.Substring(packageName.LastIndexOf('/') + 1);
+            }
             else if (!packageName.Contains('.') && !packageName.Contains('/'))
             {
                 // top
                 ShortName = packageName;
             }
-            else if(packageName.Contains('.'))
+            else if (packageName.Contains('.'))
             {
                 // a compiler FQN
                 ShortName = packageName.Substring(packageName.LastIndexOf('.') + 1);

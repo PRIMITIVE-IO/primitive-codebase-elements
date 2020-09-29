@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
@@ -79,6 +80,34 @@ namespace PrimitiveCodebaseElements.Primitive
         List<CodeReferenceEndpoint> ReferencesToThis { get; }
         List<CodeReferenceEndpoint> ReferencesFromThis { get; }
         SourceCodeSnippet SourceCode { get; set; }
+
+        void DiffAgainst(ICodebaseElementInfo branchInfo);
+    }
+
+    public static class CodebaseElementInfoExtensions
+    {
+        public static bool HasReferences(this ICodebaseElementInfo codebaseElementInfo)
+        {
+            return codebaseElementInfo.ReferencesToThis.Any() ||
+                   codebaseElementInfo.ReferencesFromThis.Any();
+        }
+
+        /// <summary>
+        /// A computed value representing how "long" the source code of the element whose code is present in this
+        /// collection is. The reason for not using the sum of the individual lengths is there is often redundancy
+        /// between multiple definitions of the same element, such as a partial method declaration vs. its
+        /// implementation in C#. In these cases, it's better to report the length of the implementation as the length
+        /// of the method's source code.
+        /// </summary>
+        public static int RepresentativeLength(
+            this List<SourceCodeSnippet> sourceCodeSnippets)
+        {
+            return sourceCodeSnippets.Any()
+                ? sourceCodeSnippets
+                    .Select(snippet => snippet.Text.Length)
+                    .Max()
+                : 0;
+        }
     }
     
     #endregion
@@ -109,7 +138,8 @@ namespace PrimitiveCodebaseElements.Primitive
         public SourceCodeSnippet SourceCode { get; set; }
         
         public readonly bool IsTestPackage = false;
-                
+        public Vector2 InitialPosition = Vector2.Zero;
+        
         public PackageInfo(
             PackageName name,
             List<ICodebaseElementInfo> children)
@@ -126,6 +156,8 @@ namespace PrimitiveCodebaseElements.Primitive
             ReferencesToThis = new List<CodeReferenceEndpoint>();
             ReferencesFromThis = new List<CodeReferenceEndpoint>();
         }
+        
+        public void DiffAgainst(ICodebaseElementInfo branchInfo) { }
     }
 
     public class MethodInfo : ICodebaseElementInfo
@@ -150,10 +182,12 @@ namespace PrimitiveCodebaseElements.Primitive
         public FieldInfo Field { get; set; }
         public List<CodeReferenceEndpoint> ReferencesToThis { get; }
         public List<CodeReferenceEndpoint> ReferencesFromThis { get; }
-
+        
         public SourceCodeSnippet SourceCode { get; set; }
 
         public int NumberOfRuntimeCalls;
+        public int SolvedCount = 0;
+        public int InvocationCount = 0;
 
         public MethodInfo(
             MethodName methodName,
@@ -188,6 +222,11 @@ namespace PrimitiveCodebaseElements.Primitive
         }
 
         public override int GetHashCode() => MethodName?.GetHashCode() ?? 0;
+        
+        public void DiffAgainst(ICodebaseElementInfo branchInfo)
+        {
+            SourceCode.SetBranchText(branchInfo.SourceCode.Text);
+        }
     }
 
     public class Argument
@@ -222,7 +261,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public int NumberOfRuntimeCalls =>
             Methods.Sum(methodInfo => methodInfo.NumberOfRuntimeCalls);
 
-        readonly List<string> sourceCodes;
+        readonly List<SourceCodeSnippet> sourceCodes;
         public SourceCodeSnippet SourceCode { get; set; }
 
         public FieldInfo(
@@ -252,6 +291,11 @@ namespace PrimitiveCodebaseElements.Primitive
         }
 
         public override int GetHashCode() => FieldName?.GetHashCode() ?? 0;
+        
+        public void DiffAgainst(ICodebaseElementInfo branchInfo)
+        {
+            SourceCode.SetBranchText(branchInfo.SourceCode.Text);
+        }
     }
 
     public class FileInfo : ICodebaseElementInfo
@@ -263,11 +307,13 @@ namespace PrimitiveCodebaseElements.Primitive
         public List<CodeReferenceEndpoint> ReferencesFromThis { get; }
         public SourceCodeSnippet SourceCode { get; set; }
         public string SourceUrl { get; }
-        public string LocalUrl { get; }
-        
+        public string LocalUrl { get; set; }
+        public string BranchUrl { get; set; }
+
         public long Size => SourceCode?.Text.Length ?? 0;
         public readonly string FileExtension;
-        
+
+        public bool IsParsed = false;
 
         /// <summary>
         /// A fully readable file
@@ -294,8 +340,61 @@ namespace PrimitiveCodebaseElements.Primitive
             FileExtension = ext;
             Children = new List<ICodebaseElementInfo>();
         }
+
+        public void DiffAgainst(ICodebaseElementInfo branchInfo)
+        {
+            SourceCode.SetBranchText(branchInfo.SourceCode.Text);
+        }
+
+        public void TruncateSource()
+        {
+            switch (FileExtension)
+            {
+                case ".java":
+                case ".cs":
+                    // empty source code for files in languages that have a 1:1 representation with their classes
+                    int ind = SourceCode.Text.IndexOf("class", StringComparison.Ordinal);
+                    if (ind < 0)
+                    {
+                        ind = SourceCode.Text.IndexOf("interface", StringComparison.Ordinal);
+                    }
+
+                    if (ind < 0)
+                    {
+                        ind = SourceCode.Text.IndexOf("enum", StringComparison.Ordinal);
+                    }
+
+                    if (ind >= 0)
+                    {
+                        string rest = SourceCode.Text.Substring(ind);
+                        int newlineInd = rest.IndexOf('\n');
+
+                        // substring header to first newline
+                        SourceCode = new SourceCodeSnippet(
+                            SourceCode.Text.Substring(0, ind + newlineInd),
+                            FileExtension);
+                    }
+
+                    break;
+                case ".c":
+                case ".cpp":
+                case ".cc":
+                case ".m":
+                case ".h":
+                case ".hpp":
+                case ".hxx":
+                case ".py":
+                case ".py3":
+                    // replace the now parsed code with the file fqn
+                    SourceCode = new SourceCodeSnippet(
+                        FileName.FullyQualified,
+                        SourceCodeLanguage.PlainText);
+                    break;
+            }
+        }
     }
 
+    [Serializable]
     public class ClassInfo : ICodebaseElementInfo
     {
         public readonly ClassName className;
@@ -338,6 +437,23 @@ namespace PrimitiveCodebaseElements.Primitive
             ReferencesFromThis = new List<CodeReferenceEndpoint>();
             SourceCode = headerSource;
             IsTestClass = isTestClass;
+        }
+
+        public void DiffAgainst(ICodebaseElementInfo branchInfo)
+        {
+            SourceCode.SetBranchText(branchInfo.SourceCode.Text);
+            
+            foreach (ICodebaseElementInfo branchChild in branchInfo.Children)
+            {
+                foreach (ICodebaseElementInfo originalChild in Methods)
+                {
+                    if (originalChild.Name == branchChild.Name)
+                    {
+                        originalChild.DiffAgainst(branchChild);
+                        break;
+                    }
+                }
+            }
         }
     }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PrimitiveCodebaseElements.Primitive
@@ -6,12 +7,19 @@ namespace PrimitiveCodebaseElements.Primitive
     public class SourceCodeSnippet
     {
         readonly string text;
+        string branchText;
+        string diffedText;
+        string colorizedText;
+        
         readonly SourceCodeLanguage language;
         public readonly List<CodeRangeWithReference> OutboundUsageLinks =
             new List<CodeRangeWithReference>();
 
         bool hasLoadedColorizedText;
-        string colorizedText;
+        bool isDiffedText = false;
+        public bool IsDiffedText => isDiffedText && text.Length != branchText.Length;
+        public int AbsoluteDiff => Math.Abs(text.Length - branchText.Length);
+        
         TextSpanWithReference[] selectableTokens;
 
         static readonly Dictionary<string, SourceCodeLanguage> ExtensionToLanguage =
@@ -46,8 +54,18 @@ namespace PrimitiveCodebaseElements.Primitive
                 {
                     return "<i><color=#404040>no source available</color></i>";
                 }
-                
+
+                /*
+                if (isDiffedText)
+                {
+                    diffedText = SourceCodeDiffer.GetDiffedText(
+                        text ?? "",
+                        branchText ?? "");
+                }
+                */
+
                 LoadColorSyntaxAndTokens();
+
                 return colorizedText;
             }
         }
@@ -85,19 +103,39 @@ namespace PrimitiveCodebaseElements.Primitive
             }
         }
 
+        public void SetBranchText(string branchText)
+        {
+            this.branchText = branchText ?? "";
+
+            isDiffedText = true;
+            hasLoadedColorizedText = false;
+        }
+
+        public void SetDefaultText()
+        {
+            isDiffedText = false;
+            hasLoadedColorizedText = false;
+        }
+
         void LoadColorSyntaxAndTokens()
         {
             if (hasLoadedColorizedText) return;
 
             GenerateSelectableTokens();
-            ColorTextBySyntax();
+            ColorTextBySyntax(isDiffedText ? diffedText : text);
 
             hasLoadedColorizedText = true;
         }
 
-        void ColorTextBySyntax()
+        void ColorTextBySyntax(string textToColor)
         {
+            /*
+            Insertion[] colorizerTokens =
+                SourceColorizer.GetColorTags(textToColor, language).ToArray();
             
+            colorizedText = Insertion.TextWithInsertions(textToColor, colorizerTokens);
+            */
+            colorizedText = textToColor;
         }
 
         void GenerateSelectableTokens()
@@ -141,7 +179,11 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public string Text => string.IsNullOrEmpty(text)
             ? ""
-            : text;
+            : isDiffedText
+                ? branchText
+                : text;
+
+        public SourceCodeLanguage Language => language;
 
         public IEnumerable<TextSpanWithReference> SpanOfReference(CodebaseElementName target) => SelectableTokens
             .Where(span => span.Reference == target)
