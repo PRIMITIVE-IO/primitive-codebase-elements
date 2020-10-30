@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
@@ -113,6 +112,18 @@ namespace PrimitiveCodebaseElements.Primitive
     #endregion
 
     #region ICodebaseElementInfo IMPLEMENTATIONS
+
+    public class PackageVector2
+    {
+        public float x;
+        public float y;
+
+        public PackageVector2(float x, float y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+    }
     
     public class PackageInfo : ICodebaseElementInfo
     {
@@ -138,7 +149,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public SourceCodeSnippet SourceCode { get; set; }
         
         public readonly bool IsTestPackage = false;
-        public Vector2 InitialPosition = Vector2.Zero;
+        public PackageVector2 InitialPosition = new PackageVector2(0, 0);
         
         public PackageInfo(
             PackageName name,

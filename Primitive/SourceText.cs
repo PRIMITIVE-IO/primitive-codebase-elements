@@ -54,20 +54,26 @@ namespace PrimitiveCodebaseElements.Primitive
                 {
                     return "<i><color=#404040>no source available</color></i>";
                 }
-
-                /*
+                
                 if (isDiffedText)
                 {
-                    diffedText = SourceCodeDiffer.GetDiffedText(
+                    diffedText = GetDiffedText(
                         text ?? "",
                         branchText ?? "");
                 }
-                */
 
                 LoadColorSyntaxAndTokens();
 
                 return colorizedText;
             }
+        }
+
+        /// <summary>
+        /// Overriden in Primitive using DiffPlex
+        /// </summary>
+        public virtual string GetDiffedText(string input, string input2)
+        {
+            return input;
         }
 
         public IEnumerable<TextSpanWithReference> SelectableTokens
@@ -129,13 +135,18 @@ namespace PrimitiveCodebaseElements.Primitive
 
         void ColorTextBySyntax(string textToColor)
         {
-            /*
             Insertion[] colorizerTokens =
-                SourceColorizer.GetColorTags(textToColor, language).ToArray();
+                GetColorTags(textToColor, language).ToArray();
             
             colorizedText = Insertion.TextWithInsertions(textToColor, colorizerTokens);
-            */
-            colorizedText = textToColor;
+        }
+
+        /// <summary>
+        /// Overridden in Primitive using SourceColorizer
+        /// </summary>
+        public virtual Insertion[] GetColorTags(string textToColor, SourceCodeLanguage language)
+        {
+            return new Insertion[0];
         }
 
         void GenerateSelectableTokens()
