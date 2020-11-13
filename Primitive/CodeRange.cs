@@ -1,5 +1,8 @@
-﻿namespace PrimitiveCodebaseElements.Primitive
+﻿using JetBrains.Annotations;
+
+namespace PrimitiveCodebaseElements.Primitive
 {
+    [PublicAPI]
     public class CodeRange
     {
         public readonly int Start;
@@ -16,6 +19,7 @@
         public override string ToString() => $"(Start={Start}, End={End})";
     }
 
+    [PublicAPI]
     public class CodeRangeWithReference
     {
         public readonly int Start;

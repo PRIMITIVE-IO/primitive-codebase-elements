@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
+    [PublicAPI]
     public class SourceCodeSnippet
     {
         protected string text;
@@ -13,7 +15,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public readonly List<CodeRangeWithReference> OutboundUsageLinks =
             new List<CodeRangeWithReference>();
-        
+
         static readonly Dictionary<string, SourceCodeLanguage> ExtensionToLanguage =
             new Dictionary<string, SourceCodeLanguage>
             {
@@ -85,7 +87,7 @@ namespace PrimitiveCodebaseElements.Primitive
             isDiffedText = true;
             hasLoadedColorizedText = false;
         }
-        
+
         public void SetDefaultText()
         {
             isDiffedText = false;
@@ -101,6 +103,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public SourceCodeLanguage Language => language;
     }
 
+    [PublicAPI]
     public enum SourceCodeLanguage
     {
         // These enum int values must match in:

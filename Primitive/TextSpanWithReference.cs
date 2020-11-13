@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
+    [PublicAPI]
     public class TextSpanWithReference
     {
         public int Start { get; }
@@ -23,6 +25,7 @@ namespace PrimitiveCodebaseElements.Primitive
             $"{Reference.FullyQualified}: (Start={Start}, End={End})";
     }
 
+    [PublicAPI]
     public class Insertion
     {
         readonly int Position;
@@ -39,7 +42,7 @@ namespace PrimitiveCodebaseElements.Primitive
             IEnumerable<Insertion> insertions)
         {
             if (string.IsNullOrEmpty(text)) return "";
-            
+
             StringBuilder builder = new StringBuilder();
 
             int lastInsertionPosition = 0;

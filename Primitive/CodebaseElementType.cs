@@ -1,7 +1,9 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
+    [PublicAPI]
     public static class Extensions
     {
         public static CodebaseElementName CreateElementName(
@@ -20,6 +22,8 @@ namespace PrimitiveCodebaseElements.Primitive
                     return new FileName(fullyQualifiedName);
                 case CodebaseElementType.Package:
                     return new PackageName(fullyQualifiedName);
+                case CodebaseElementType.Unknown:
+                    return null;
                 default:
                     throw new NotImplementedException(
                         "Cannot create CodebaseElementName " + $"with codebase element type of `{elementType}`.");

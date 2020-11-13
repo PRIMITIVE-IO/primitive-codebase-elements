@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
     #region CODEBASE ELEMENT TOP LEVEL
-    
+
     /// <summary>
     /// <para>A general set of access flags as defined throughout the Java class file format specification. Some flags
     /// apply to only certain types of structures, such as <c>ACC_STRICT</c> only applying to methods. However, whenever
@@ -15,6 +16,7 @@ namespace PrimitiveCodebaseElements.Primitive
     /// means. For other languages, the native access flags have been mapped to match those defined for Java.</para>
     /// </summary>
     [Flags]
+    [PublicAPI]
     public enum AccessFlags : uint
     {
         None = 0x0000,
@@ -31,7 +33,8 @@ namespace PrimitiveCodebaseElements.Primitive
         AccStrict = 0x0800,
         AccEnum = 0x4000
     }
-    
+
+    [PublicAPI]
     public static class AccessFlagsExtensions
     {
         /// <summary>
@@ -49,6 +52,7 @@ namespace PrimitiveCodebaseElements.Primitive
         }
     }
 
+    [PublicAPI]
     public static class AccessFlagExtensions
     {
         static bool HasFlagSet(
@@ -63,8 +67,7 @@ namespace PrimitiveCodebaseElements.Primitive
     }
 
     /// <summary>
-    /// Information about classes/methods/fields within the user's program. This information is loaded in by the
-    /// <see cref="StaticAnalysisReader"/> whenever a codebase is loaded.
+    /// Information about classes/methods/fields within the user's program.
     /// </summary>
     public interface ICodebaseElementInfo
     {
@@ -78,11 +81,12 @@ namespace PrimitiveCodebaseElements.Primitive
 
         List<CodeReferenceEndpoint> ReferencesToThis { get; }
         List<CodeReferenceEndpoint> ReferencesFromThis { get; }
-        SourceCodeSnippet SourceCode { get; set; }
+        SourceCodeSnippet SourceCode { get; }
 
         void DiffAgainst(ICodebaseElementInfo branchInfo);
     }
 
+    [PublicAPI]
     public static class CodebaseElementInfoExtensions
     {
         public static bool HasReferences(this ICodebaseElementInfo codebaseElementInfo)
@@ -108,11 +112,12 @@ namespace PrimitiveCodebaseElements.Primitive
                 : 0;
         }
     }
-    
+
     #endregion
 
     #region ICodebaseElementInfo IMPLEMENTATIONS
 
+    [PublicAPI]
     public class PackageVector2
     {
         public float x;
@@ -124,7 +129,8 @@ namespace PrimitiveCodebaseElements.Primitive
             this.y = y;
         }
     }
-    
+
+    [PublicAPI]
     public class PackageInfo : ICodebaseElementInfo
     {
         public CodebaseElementName Name => PackageName;
@@ -139,7 +145,7 @@ namespace PrimitiveCodebaseElements.Primitive
         /// sub-packages are laid out on the ground with connecting lines.</para>
         /// </summary>
         public List<ICodebaseElementInfo> Children { get; set; }
-        
+
         // We can get away without modeling the parent and sub-packages currently. However, these relationships
         // ultimately belong here, so if needed, they should be added to this structure.
 
@@ -147,10 +153,10 @@ namespace PrimitiveCodebaseElements.Primitive
         public List<CodeReferenceEndpoint> ReferencesToThis { get; }
         public List<CodeReferenceEndpoint> ReferencesFromThis { get; }
         public SourceCodeSnippet SourceCode { get; set; }
-        
+
         public readonly bool IsTestPackage = false;
         public PackageVector2 InitialPosition = new PackageVector2(0, 0);
-        
+
         public PackageInfo(
             PackageName name,
             List<ICodebaseElementInfo> children)
@@ -159,18 +165,19 @@ namespace PrimitiveCodebaseElements.Primitive
             Children = children;
 
             IsTestPackage = children.Any() && children
-                                .TrueForAll(child =>
-                                    child is ClassInfo classInfo &&
-                                    classInfo.IsTestClass);
+                .TrueForAll(child =>
+                    child is ClassInfo classInfo &&
+                    classInfo.IsTestClass);
 
             // Packages don't have references
             ReferencesToThis = new List<CodeReferenceEndpoint>();
             ReferencesFromThis = new List<CodeReferenceEndpoint>();
         }
-        
+
         public void DiffAgainst(ICodebaseElementInfo branchInfo) { }
     }
 
+    [PublicAPI]
     public class MethodInfo : ICodebaseElementInfo
     {
         public readonly MethodName MethodName;
@@ -193,7 +200,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public FieldInfo Field { get; set; }
         public List<CodeReferenceEndpoint> ReferencesToThis { get; }
         public List<CodeReferenceEndpoint> ReferencesFromThis { get; }
-        
+
         public SourceCodeSnippet SourceCode { get; set; }
 
         public int NumberOfRuntimeCalls;
@@ -233,13 +240,14 @@ namespace PrimitiveCodebaseElements.Primitive
         }
 
         public override int GetHashCode() => MethodName?.GetHashCode() ?? 0;
-        
+
         public void DiffAgainst(ICodebaseElementInfo branchInfo)
         {
             SourceCode.SetBranchText(branchInfo.SourceCode.Text);
         }
     }
 
+    [PublicAPI]
     public class Argument
     {
         public readonly string Name;
@@ -252,6 +260,7 @@ namespace PrimitiveCodebaseElements.Primitive
         }
     }
 
+    [PublicAPI]
     public class FieldInfo : ICodebaseElementInfo
     {
         //the most concrete class owning this field
@@ -272,7 +281,6 @@ namespace PrimitiveCodebaseElements.Primitive
         public int NumberOfRuntimeCalls =>
             Methods.Sum(methodInfo => methodInfo.NumberOfRuntimeCalls);
 
-        readonly List<SourceCodeSnippet> sourceCodes;
         public SourceCodeSnippet SourceCode { get; set; }
 
         public FieldInfo(
@@ -302,13 +310,14 @@ namespace PrimitiveCodebaseElements.Primitive
         }
 
         public override int GetHashCode() => FieldName?.GetHashCode() ?? 0;
-        
+
         public void DiffAgainst(ICodebaseElementInfo branchInfo)
         {
             SourceCode.SetBranchText(branchInfo.SourceCode.Text);
         }
     }
 
+    [PublicAPI]
     public class FileInfo : ICodebaseElementInfo
     {
         public readonly FileName FileName;
@@ -406,27 +415,28 @@ namespace PrimitiveCodebaseElements.Primitive
     }
 
     [Serializable]
+    [PublicAPI]
     public class ClassInfo : ICodebaseElementInfo
     {
         public readonly ClassName className;
         public CodebaseElementName Name => className;
         public readonly AccessFlags accessFlags;
-        public IEnumerable<ClassInfo> InnerClasses => 
+        public IEnumerable<ClassInfo> InnerClasses =>
             Children.OfType<ClassInfo>();
-        
+
         public readonly bool IsTestClass;
 
         public IEnumerable<MethodInfo> Methods =>
             Children.OfType<MethodInfo>();
         public IEnumerable<FieldInfo> Fields =>
             Children.OfType<FieldInfo>();
-        
+
         public List<ICodebaseElementInfo> Children { get; }
 
         public List<CodeReferenceEndpoint> ReferencesToThis { get; }
         public List<CodeReferenceEndpoint> ReferencesFromThis { get; }
         public SourceCodeSnippet SourceCode { get; set; }
-        
+
         public ClassInfo(
             ClassName className,
             IEnumerable<MethodInfo> methods,
@@ -453,7 +463,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public void DiffAgainst(ICodebaseElementInfo branchInfo)
         {
             SourceCode.SetBranchText(branchInfo.SourceCode.Text);
-            
+
             foreach (ICodebaseElementInfo branchChild in branchInfo.Children)
             {
                 foreach (ICodebaseElementInfo originalChild in Methods)
@@ -471,10 +481,11 @@ namespace PrimitiveCodebaseElements.Primitive
     #endregion
 
     #region CODE REFERENCE INFO
-    
+
     /// <summary>
     /// One end of a code reference edge. This allows the flexibility of representing the full edge using two endpoints.
     /// </summary>
+    [PublicAPI]
     public class CodeReferenceEndpoint
     {
         public readonly CodeReferenceType Type;
@@ -493,6 +504,7 @@ namespace PrimitiveCodebaseElements.Primitive
         }
     }
 
+    [PublicAPI]
     public enum CodeReferenceType
     {
         Undefined = -1,
@@ -502,10 +514,11 @@ namespace PrimitiveCodebaseElements.Primitive
         MethodOverride = 3
     }
 
+    [PublicAPI]
     public enum CodeReferenceDirection
     {
         Undefined = -1,
-        Outbound = 0, 
+        Outbound = 0,
         Inbound = 1
     }
 
@@ -513,6 +526,7 @@ namespace PrimitiveCodebaseElements.Primitive
     /// Represents a classification of directed edges in the code reference graph. Consists of a type and direction.
     /// Does not capture the actual endpoints, as the edge classification is usually attached to one of the endpoints.
     /// </summary>
+    [PublicAPI]
     public struct CodeReferenceEdgeType
     {
         public readonly CodeReferenceType Type;
@@ -558,7 +572,6 @@ namespace PrimitiveCodebaseElements.Primitive
 
         #endregion
     }
-    
+
     #endregion
-    
 }

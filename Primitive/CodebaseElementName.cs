@@ -2,15 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
     #region BASE
-    
+
     /// <summary>
     /// Everything in this file is essentially a wrapper for a string. There are various different naming schemes for
     /// all the different aspects of code elements that we need to use, and this is for the purpose of unifying them.
     /// </summary>
+    [PublicAPI]
     public abstract class CodebaseElementName
     {
         /// <summary>
@@ -35,7 +37,7 @@ namespace PrimitiveCodebaseElements.Primitive
         /// May be <c>null</c> if there is no containing element.
         /// </remarks>
         public abstract CodebaseElementName ContainmentParent { get; }
-        
+
         public abstract string BranchName { get; set; }
 
         /// <summary>
@@ -68,22 +70,24 @@ namespace PrimitiveCodebaseElements.Primitive
             CodebaseElementName a,
             CodebaseElementName b) =>
             (a?.FullyQualified == b?.FullyQualified);
+
         public static bool operator !=(
             CodebaseElementName a,
             CodebaseElementName b) => !(a == b);
 
         public override int GetHashCode() => FullyQualified.GetHashCode();
-        
+
         static readonly Regex RegexWhitespace = new Regex(@"\s+");
 
         protected static string ReplaceWhitespace(string typeName) =>
             RegexWhitespace.Replace(typeName, "").Replace(",", ", ");
     }
-    
+
     #endregion
 
     #region MEMBERS
 
+    [PublicAPI]
     public sealed class MethodName : CodebaseElementName
     {
         public override string FullyQualified { get; }
@@ -140,8 +144,8 @@ namespace PrimitiveCodebaseElements.Primitive
                 JavaFullyQualified =
                     $"{className.JavaFullyQualified}" +
                     $"{methodName}";
-                    // TODO information loss -> this should include the params and the return type but they aren't solved fully
-                    //$"{methodName}:{paramString}){returnType}";
+                // TODO information loss -> this should include the params and the return type but they aren't solved fully
+                //$"{methodName}:{paramString}){returnType}";
             }
 
             // To the user, constructors are identified by their declaring class' names.
@@ -155,7 +159,6 @@ namespace PrimitiveCodebaseElements.Primitive
         /// ONLY called from <see cref="CodebaseElementType"/>. This allows a MethodName to be reconstructed after
         /// being stripped down to only a string, like when it is serialized.
         /// </summary>
-        /// <param name="fullyQualified"></param>
         public MethodName(string fullyQualified, bool compilerMethod = false)
         {
             FullyQualified = fullyQualified;
@@ -166,14 +169,14 @@ namespace PrimitiveCodebaseElements.Primitive
                 ContainmentParent = Package;
                 return;
             }
-            
+
             string className = fullyQualified.Substring(
                 0,
                 fullyQualified.IndexOf(';'));
             ClassName parentClass = new ClassName(className);
             ContainmentParent = parentClass;
             Package = compilerMethod ? parentClass.CompilerPackage : parentClass.Package;
-            
+
             string partAfterClassName =
                 FullyQualified.Substring(FullyQualified.IndexOf(';') + 1);
             ShortName = partAfterClassName;
@@ -192,6 +195,7 @@ namespace PrimitiveCodebaseElements.Primitive
         }
     }
 
+    [PublicAPI]
     public sealed class FieldName : CodebaseElementName
     {
         // Suppose we have a field:
@@ -221,7 +225,7 @@ namespace PrimitiveCodebaseElements.Primitive
                 fullyQualified.IndexOf(';'));
             ContainmentParent = new ClassName(className);
             Package = ContainmentParent.Package;
-            
+
             // ...class;field:type -> field
             string fieldLongName = fullyQualified.Substring(fullyQualified.IndexOf(';') + 1);
             ShortName = fieldLongName;
@@ -238,7 +242,7 @@ namespace PrimitiveCodebaseElements.Primitive
             ContainmentParent = className;
             Package = className.Package;
         }
-        
+
         public static FieldName FieldFqnFromNames(string fieldName, string classFqn, string typeName)
         {
             return new FieldName(FieldFqn(
@@ -246,18 +250,18 @@ namespace PrimitiveCodebaseElements.Primitive
                     FieldJvmSignature(
                         fieldName,
                         TypeName.For(
-                                ReplaceWhitespace(typeName)).FullyQualified)),
+                            ReplaceWhitespace(typeName)).FullyQualified)),
                 fieldName,
                 new ClassName(classFqn));
         }
-        
+
         static string FieldJvmSignature(string fieldName, string typeName) =>
             $"{fieldName}:{typeName}";
 
         static string FieldFqn(string className, string jvmSignature) =>
             $"{className};{jvmSignature}";
     }
-    
+
     #endregion
 
     #region TYPES
@@ -283,11 +287,11 @@ namespace PrimitiveCodebaseElements.Primitive
             {
                 return primitiveTypeName;
             }
-            
+
             return new ClassName(signature);
         }
     }
-    
+
     public sealed class ArrayTypeName : TypeName
     {
         public override string FullyQualified { get; }
@@ -307,6 +311,7 @@ namespace PrimitiveCodebaseElements.Primitive
         }
     }
 
+    [PublicAPI]
     public sealed class PrimitiveTypeName : TypeName
     {
         // The "short" names of primitive types are actually longer than the fully-qualified names, but it follows the
@@ -360,11 +365,12 @@ namespace PrimitiveCodebaseElements.Primitive
             }
         }
     }
-    
+
     #endregion
 
     #region CONTAINERS
 
+    [PublicAPI]
     public sealed class ClassName : TypeName
     {
         public override string FullyQualified { get; }
@@ -387,9 +393,9 @@ namespace PrimitiveCodebaseElements.Primitive
 
         // only used if set by constructor
         readonly FileName containmentFile;
-        
+
         public override PackageName Package => new PackageName(ContainmentFile());
-        
+
         public PackageName CompilerPackage => new PackageName(this);
 
         public readonly bool IsOuterClass;
@@ -412,7 +418,7 @@ namespace PrimitiveCodebaseElements.Primitive
                 // my.class.package.class1 => class1
                 className = packageAndClass.Substring(packageAndClass.LastIndexOf('.') + 1);
             }
-            
+
             // only required to make the Java runtime trace match
             JavaFullyQualified = $"L{packageAndClass};";
             if (fullyQualified.Contains('|') && !fullyQualified.StartsWith("|"))
@@ -441,7 +447,8 @@ namespace PrimitiveCodebaseElements.Primitive
             }
         }
     }
-    
+
+    [PublicAPI]
     public sealed class FileName : CodebaseElementName
     {
         public override string FullyQualified { get; }
@@ -464,6 +471,7 @@ namespace PrimitiveCodebaseElements.Primitive
         }
     }
 
+    [PublicAPI]
     public sealed class PackageName : CodebaseElementName
     {
         public override string FullyQualified { get; }
@@ -519,7 +527,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public PackageName(string packageName)
         {
             FullyQualified = packageName;
-            
+
             if (string.IsNullOrEmpty(packageName))
             {
                 // root
@@ -578,7 +586,7 @@ namespace PrimitiveCodebaseElements.Primitive
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            
+
             if (path.Contains(separator))
             {
                 FullyQualified = path
@@ -595,7 +603,7 @@ namespace PrimitiveCodebaseElements.Primitive
                 // Class or file does not have a package, default to 'zero' package
                 FullyQualified = "";
                 ShortName = "";
-            }    
+            }
         }
 
         public List<PackageName> Lineage()
@@ -609,6 +617,6 @@ namespace PrimitiveCodebaseElements.Primitive
             return lineage;
         }
     }
-    
+
     #endregion
 }
