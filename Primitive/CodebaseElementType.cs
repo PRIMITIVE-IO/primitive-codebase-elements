@@ -1,5 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
@@ -13,11 +14,11 @@ namespace PrimitiveCodebaseElements.Primitive
             switch (elementType)
             {
                 case CodebaseElementType.Field:
-                    return new FieldName(fullyQualifiedName);
+                    return JsonConvert.DeserializeObject<FieldName>(fullyQualifiedName);
                 case CodebaseElementType.Method:
-                    return new MethodName(fullyQualifiedName);
+                    return JsonConvert.DeserializeObject<MethodName>(fullyQualifiedName);
                 case CodebaseElementType.Class:
-                    return new ClassName(fullyQualifiedName);
+                    return JsonConvert.DeserializeObject<ClassName>(fullyQualifiedName);
                 case CodebaseElementType.File:
                     return new FileName(fullyQualifiedName);
                 case CodebaseElementType.Package:

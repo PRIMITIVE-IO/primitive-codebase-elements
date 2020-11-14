@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
@@ -51,8 +53,6 @@ namespace PrimitiveCodebaseElements.Primitive
                    ContainmentParent.IsContainedIn(container);
         }
 
-        public abstract PackageName Package { get; }
-
         public abstract CodebaseElementType CodebaseElementType { get; }
 
         public virtual FileName ContainmentFile()
@@ -96,48 +96,22 @@ namespace PrimitiveCodebaseElements.Primitive
         public override CodebaseElementName ContainmentParent { get; }
         public override string BranchName { get; set; }
 
-        public override PackageName Package { get; }
         public override CodebaseElementType CodebaseElementType =>
             CodebaseElementType.Method;
 
-        /// <summary>
-        /// Called when method is loaded from a database or parsed from an analyzer
-        /// </summary>
+        string returnType;
+        IEnumerable<Argument> arguments;
+
         public MethodName(
             CodebaseElementName parent,
             string methodName,
             string returnType,
-            IEnumerable<Argument> argumentTypes,
-            string overrideArgumentString = "")
+            IEnumerable<Argument> argumentTypes)
         {
             ContainmentParent = parent;
-            Package = parent.Package;
+            this.returnType = returnType;
 
-            string paramString;
-
-            if (!string.IsNullOrEmpty(overrideArgumentString))
-            {
-                paramString = overrideArgumentString;
-                // get text between ()
-                paramString = paramString.Substring(paramString.IndexOf('(') + 1);
-                paramString = paramString.Substring(0, paramString.Length - 1);
-            }
-            else
-            {
-                paramString = argumentTypes.Aggregate("", // start with empty string to handle empty list case.
-                    (current, next) => current + next.Type.FullyQualified + " " + next.Name + ", ");
-
-                if (!string.IsNullOrEmpty(paramString))
-                {
-                    // trim last ", "
-                    paramString = paramString.Substring(0, paramString.Length - 2);
-                }
-            }
-
-            FullyQualified =
-                $"{ContainmentParent.FullyQualified};" +
-                $"{methodName}:" +
-                $"({paramString}){returnType}";
+            arguments = argumentTypes;
 
             if (parent is ClassName className && !string.IsNullOrEmpty(className.JavaFullyQualified))
             {
@@ -153,45 +127,12 @@ namespace PrimitiveCodebaseElements.Primitive
                 methodName == "<init>"
                     ? ContainmentParent.ShortName
                     : methodName;
-        }
 
-        /// <summary>
-        /// ONLY called from <see cref="CodebaseElementType"/>. This allows a MethodName to be reconstructed after
-        /// being stripped down to only a string, like when it is serialized.
-        /// </summary>
-        public MethodName(string fullyQualified, bool compilerMethod = false)
-        {
-            FullyQualified = fullyQualified;
-            if (string.IsNullOrEmpty(fullyQualified))
+            JsonSerializerSettings settings = new JsonSerializerSettings
             {
-                // root method
-                Package = new PackageName();
-                ContainmentParent = Package;
-                return;
-            }
-
-            string className = fullyQualified.Substring(
-                0,
-                fullyQualified.IndexOf(';'));
-            ClassName parentClass = new ClassName(className);
-            ContainmentParent = parentClass;
-            Package = compilerMethod ? parentClass.CompilerPackage : parentClass.Package;
-
-            string partAfterClassName =
-                FullyQualified.Substring(FullyQualified.IndexOf(';') + 1);
-            ShortName = partAfterClassName;
-            if (partAfterClassName.Contains(':'))
-            {
-                ShortName = partAfterClassName.Substring(0, partAfterClassName.IndexOf(':'));
-            }
-        }
-
-        public MethodName SwapDeclaringClass(string newClassName)
-        {
-            string partAfterClassName =
-                FullyQualified.Substring(FullyQualified.IndexOf(';') + 1);
-            return new MethodName(
-                $"{newClassName};{partAfterClassName}");
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+            FullyQualified = JsonConvert.SerializeObject(this, settings);
         }
     }
 
@@ -213,46 +154,19 @@ namespace PrimitiveCodebaseElements.Primitive
         public override CodebaseElementName ContainmentParent { get; }
         public override string BranchName { get; set; }
 
-        public override PackageName Package { get; }
         public override CodebaseElementType CodebaseElementType =>
             CodebaseElementType.Field;
 
-        public FieldName(string fullyQualified)
+        public FieldName(ClassName containmentClass, string fieldName, string fieldType)
         {
-            FullyQualified = fullyQualified;
-            string className = fullyQualified.Substring(
-                0,
-                fullyQualified.IndexOf(';'));
-            ContainmentParent = new ClassName(className);
-            Package = ContainmentParent.Package;
+            ShortName = fieldName;
+            ContainmentParent = containmentClass;
 
-            // ...class;field:type -> field
-            string fieldLongName = fullyQualified.Substring(fullyQualified.IndexOf(';') + 1);
-            ShortName = fieldLongName;
-            if (fieldLongName.Contains(':'))
+            JsonSerializerSettings settings = new JsonSerializerSettings
             {
-                ShortName = fieldLongName.Substring(0, fieldLongName.IndexOf(':'));
-            }
-        }
-
-        FieldName(string fullyQualified, string shortName, ClassName className)
-        {
-            FullyQualified = fullyQualified;
-            ShortName = shortName;
-            ContainmentParent = className;
-            Package = className.Package;
-        }
-
-        public static FieldName FieldFqnFromNames(string fieldName, string classFqn, string typeName)
-        {
-            return new FieldName(FieldFqn(
-                    classFqn,
-                    FieldJvmSignature(
-                        fieldName,
-                        TypeName.For(
-                            ReplaceWhitespace(typeName)).FullyQualified)),
-                fieldName,
-                new ClassName(classFqn));
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+            FullyQualified = JsonConvert.SerializeObject(this, settings);
         }
 
         static string FieldJvmSignature(string fieldName, string typeName) =>
@@ -272,11 +186,10 @@ namespace PrimitiveCodebaseElements.Primitive
             CodebaseElementType.Unknown;
 
         public override CodebaseElementName ContainmentParent => null;
-        public override PackageName Package => new PackageName();
 
         public static TypeName For(string signature)
         {
-            if (signature.StartsWith("["))
+            if (signature.Contains('['))
             {
                 return new ArrayTypeName(signature);
             }
@@ -288,7 +201,22 @@ namespace PrimitiveCodebaseElements.Primitive
                 return primitiveTypeName;
             }
 
-            return new ClassName(signature);
+            string packageAndClass = signature;
+
+            string packageNameString = "";
+            string classNameString = packageAndClass;
+            if (packageAndClass.Contains('.'))
+            {
+                packageNameString = packageAndClass.Substring(0, packageAndClass.LastIndexOf('.'));
+                classNameString = packageAndClass.Substring(packageAndClass.LastIndexOf('.') + 1);
+            }
+
+            PackageName packageName = new PackageName(packageNameString);
+
+            return new ClassName(
+                new FileName(""),
+                packageName,
+                classNameString);
         }
     }
 
@@ -302,7 +230,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public ArrayTypeName(string signature)
         {
-            ComponentType = For(signature.Substring(1));
+            ComponentType = For(signature.Substring(0, signature.IndexOf('[')));
             FullyQualified = signature;
 
             // Include a U+200A HAIR SPACE in order to ensure, no matter what font is used to render this name, the
@@ -393,39 +321,20 @@ namespace PrimitiveCodebaseElements.Primitive
 
         // only used if set by constructor
         readonly FileName containmentFile;
-
-        public override PackageName Package => new PackageName(ContainmentFile());
-
-        public PackageName CompilerPackage => new PackageName(this);
+        public readonly PackageName ContainmentPackage;
 
         public readonly bool IsOuterClass;
         public readonly ClassName ParentClass;
 
         // note: fullyQualified must look like:
         // dir1/dir2/filename.ext|my.class.package.OuterClass$InnerClass1$InnerClass2
-        public ClassName(string fullyQualified)
+        public ClassName(FileName containmentFile, PackageName containmentPackage, string className)
         {
-            FullyQualified = fullyQualified;
-            string packageAndClass = fullyQualified;
-            if (fullyQualified.Contains('|'))
-            {
-                packageAndClass = fullyQualified.Substring(fullyQualified.IndexOf('|') + 1);
-            }
-
-            string className = packageAndClass;
-            if (packageAndClass.Contains('.'))
-            {
-                // my.class.package.class1 => class1
-                className = packageAndClass.Substring(packageAndClass.LastIndexOf('.') + 1);
-            }
+            this.containmentFile = containmentFile;
+            ContainmentPackage = containmentPackage;
 
             // only required to make the Java runtime trace match
-            JavaFullyQualified = $"L{packageAndClass};";
-            if (fullyQualified.Contains('|') && !fullyQualified.StartsWith("|"))
-            {
-                containmentFile = new FileName(
-                    fullyQualified.Substring(0, fullyQualified.IndexOf('|')));
-            }
+            JavaFullyQualified = $"L{containmentPackage.FullyQualified}.{className};";
 
             if (className.Contains('$'))
             {
@@ -433,18 +342,22 @@ namespace PrimitiveCodebaseElements.Primitive
                 string[] innerClassSplit = className.Split('$');
                 ShortName = innerClassSplit.Last();
 
-                ParentClass =
-                    new ClassName(
-                        FullyQualified.Substring(
-                            0,
-                            // remove $ and name of inner
-                            FullyQualified.LastIndexOf('$')));
+                ParentClass = new ClassName(
+                    containmentFile,
+                    containmentPackage,
+                    className.Substring(0, className.LastIndexOf('$')));
             }
             else
             {
                 IsOuterClass = true;
                 ShortName = className;
             }
+
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+            FullyQualified = JsonConvert.SerializeObject(this, settings);
         }
     }
 
@@ -454,10 +367,9 @@ namespace PrimitiveCodebaseElements.Primitive
         public override string FullyQualified { get; }
         public override string ShortName { get; }
 
-        public override CodebaseElementName ContainmentParent => Package;
+        public override CodebaseElementName ContainmentParent { get; }
         public override string BranchName { get; set; }
 
-        public override PackageName Package => new PackageName(this);
         public override CodebaseElementType CodebaseElementType =>
             CodebaseElementType.File;
 
@@ -465,9 +377,40 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             FullyQualified = path;
 
-            ShortName = path.Contains('/')
-                ? path.Substring(path.LastIndexOf('/') + 1)
+            char separator = '/';
+            if (IsLocalFile(NormalizedPath(path)))
+            {
+                separator = '\\';
+            }
+
+            ShortName = path.Contains(separator)
+                ? path.Substring(path.LastIndexOf(separator) + 1)
                 : path;
+
+            ContainmentParent = path.Contains(separator)
+                ? new PackageName(FullyQualified.Substring(
+                    0,
+                    FullyQualified.LastIndexOf(separator)))
+                : new PackageName();
+        }
+        
+        static bool IsLocalFile(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return false;
+
+            Uri uri = new Uri(path, UriKind.RelativeOrAbsolute);
+            // see: https://docs.microsoft.com/en-us/dotnet/api/system.uri.scheme?view=netframework-4.5
+            return uri.Scheme == "file";
+        }
+        
+        static string NormalizedPath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return "";
+            
+            Uri uri = new Uri(path, UriKind.RelativeOrAbsolute);
+            return uri.IsAbsoluteUri 
+                ? uri.LocalPath 
+                : Path.GetFullPath(new Uri(Path.Combine(AppContext.BaseDirectory, path)).AbsolutePath);
         }
     }
 
@@ -509,7 +452,6 @@ namespace PrimitiveCodebaseElements.Primitive
         // these are dead-ends
         public override CodebaseElementName ContainmentParent => null;
         public override string BranchName { get; set; }
-        public override PackageName Package => this;
 
         /// <summary>
         /// The root or zero package
@@ -533,11 +475,6 @@ namespace PrimitiveCodebaseElements.Primitive
                 // root
                 ShortName = "";
             }
-            else if (packageName.Contains('■'))
-            {
-                // a path FQN
-                ShortName = packageName.Substring(packageName.LastIndexOf('/') + 1);
-            }
             else if (!packageName.Contains('.') && !packageName.Contains('/'))
             {
                 // top
@@ -555,55 +492,6 @@ namespace PrimitiveCodebaseElements.Primitive
             }
 
             ParentPackage = CreateParentPackage();
-        }
-
-        /// <summary>
-        /// Determines package or directory name based on path of an element
-        /// </summary>
-        /// <param name="elementName">Should be a <see cref="ClassName"/> or <see cref="FileName"/></param>
-        public PackageName(CodebaseElementName elementName)
-        {
-            char separator;
-            string path;
-            switch (elementName.CodebaseElementType)
-            {
-                case CodebaseElementType.File:
-                    // the directory location is just the string before the last / in the FQN
-                    // eg dir1/dir2/file.ext
-                    separator = '/';
-                    path = elementName.FullyQualified;
-                    break;
-                case CodebaseElementType.Class:
-                    // the package location is after | and before the last . in the FQN
-                    // eg dir1/dir2/file.ext|package1.package2.class
-                    separator = '.';
-                    path = elementName.FullyQualified.Substring(elementName.FullyQualified.IndexOf('|') + 1);
-                    break;
-                case CodebaseElementType.Method:
-                case CodebaseElementType.Field:
-                case CodebaseElementType.Package:
-                case CodebaseElementType.Unknown:
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            if (path.Contains(separator))
-            {
-                FullyQualified = path
-                    .Substring(0, path.LastIndexOf(separator));
-
-                ShortName = FullyQualified.Contains(separator)
-                    ? FullyQualified.Substring(FullyQualified.LastIndexOf(separator) + 1)
-                    : FullyQualified;
-
-                ParentPackage = CreateParentPackage();
-            }
-            else
-            {
-                // Class or file does not have a package, default to 'zero' package
-                FullyQualified = "";
-                ShortName = "";
-            }
         }
 
         public List<PackageName> Lineage()
