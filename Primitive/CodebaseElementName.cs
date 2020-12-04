@@ -130,7 +130,8 @@ namespace PrimitiveCodebaseElements.Primitive
 
             JsonSerializerSettings settings = new JsonSerializerSettings
             {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                Formatting = Formatting.Indented
             };
             FullyQualified = JsonConvert.SerializeObject(this, settings);
         }
@@ -164,7 +165,8 @@ namespace PrimitiveCodebaseElements.Primitive
 
             JsonSerializerSettings settings = new JsonSerializerSettings
             {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                Formatting = Formatting.Indented
             };
             FullyQualified = JsonConvert.SerializeObject(this, settings);
         }
@@ -355,7 +357,8 @@ namespace PrimitiveCodebaseElements.Primitive
 
             JsonSerializerSettings settings = new JsonSerializerSettings
             {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                Formatting = Formatting.Indented
             };
             FullyQualified = JsonConvert.SerializeObject(this, settings);
         }
