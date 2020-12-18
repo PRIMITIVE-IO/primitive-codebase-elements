@@ -292,7 +292,7 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             ParentClass = parentClass;
             FieldName = fieldName;
-            FieldType = TypeName.For(FieldName.FullyQualified.Split(':')[1]);
+            FieldType = TypeName.For(FieldName.FieldType);
             AccessFlags = accessFlags;
             Methods = new List<MethodInfo>();
             ReferencesToThis = new List<CodeReferenceEndpoint>();
@@ -406,9 +406,9 @@ namespace PrimitiveCodebaseElements.Primitive
                 case ".hxx":
                 case ".py":
                 case ".py3":
-                    // replace the now parsed code with the file fqn
+                    // replace the now parsed code with the file short name
                     SourceCode = new SourceCodeSnippet(
-                        FileName.FullyQualified,
+                        FileName.ShortName,
                         SourceCodeLanguage.PlainText);
                     break;
             }

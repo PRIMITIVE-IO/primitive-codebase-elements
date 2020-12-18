@@ -15,8 +15,6 @@ namespace PrimitiveCodebaseElements.Primitive
             Start = startPosition;
             End = endPosition;
         }
-
-        public override string ToString() => $"(Start={Start}, End={End})";
     }
 
     [PublicAPI]
@@ -34,8 +32,5 @@ namespace PrimitiveCodebaseElements.Primitive
             End = codeRange.End;
             Reference = reference;
         }
-
-        public override string ToString() =>
-            $"{Reference.FullyQualified}: (Start={Start}, End={End})";
     }
 }
