@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
@@ -15,18 +17,24 @@ namespace PrimitiveCodebaseElements.Primitive
     /// all the different aspects of code elements that we need to use, and this is for the purpose of unifying them.
     /// </summary>
     [PublicAPI]
+    [JsonConverter(typeof(BaseConverter))]
     public abstract class CodebaseElementName
     {
         /// <summary>
         /// The JSON payload containing all information about this name.
         /// </summary>
-        public string Serialized;
+        [JsonIgnore] public string Serialized;
 
         /// <summary>
         /// A human-readable representation of the name. Examples are unqualified class names and method names without
         /// their declaring class.
         /// </summary>
-        public readonly string ShortName;
+        [JsonProperty] public readonly string ShortName;
+
+        /// <summary>
+        /// Backing variable assigned in constructor
+        /// </summary>
+        [JsonProperty] protected int hashCode;
 
         /// <summary>
         /// The parent element in the containment hierarchy. In particular, packages don't "contain" one another, even
@@ -35,6 +43,7 @@ namespace PrimitiveCodebaseElements.Primitive
         /// <remarks>
         /// May be <c>null</c> if there is no containing element.
         /// </remarks>
+        [JsonProperty]
         public abstract CodebaseElementName ContainmentParent { get; }
 
         /// <summary>
@@ -42,6 +51,7 @@ namespace PrimitiveCodebaseElements.Primitive
         /// 
         /// This is re-assignable. 
         /// </summary>
+        [JsonProperty]
         public string BranchName { get; set; }
 
         /// <summary>
@@ -55,7 +65,7 @@ namespace PrimitiveCodebaseElements.Primitive
                    ContainmentParent.IsContainedIn(container);
         }
 
-        public abstract CodebaseElementType CodebaseElementType { get; }
+        [JsonProperty] public abstract CodebaseElementType CodebaseElementType { get; }
 
         protected CodebaseElementName(string shortName)
         {
@@ -77,6 +87,11 @@ namespace PrimitiveCodebaseElements.Primitive
             if (this is FileName) return this as FileName;
             if (ContainmentParent == null) return null;
             return ContainmentParent.ContainmentFile();
+        }
+        
+        public override int GetHashCode()
+        {
+            return hashCode;
         }
 
         public override bool Equals(object obj)
@@ -119,8 +134,9 @@ namespace PrimitiveCodebaseElements.Primitive
         public override CodebaseElementType CodebaseElementType =>
             CodebaseElementType.Method;
 
-        readonly string returnType;
-        readonly IEnumerable<Argument> arguments;
+        [JsonProperty] public readonly string ReturnType;
+
+        [JsonProperty] public readonly IEnumerable<Argument> Arguments;
 
         public MethodName(
             CodebaseElementName parent,
@@ -129,15 +145,11 @@ namespace PrimitiveCodebaseElements.Primitive
             IEnumerable<Argument> argumentTypes) : base(methodName)
         {
             ContainmentParent = parent;
-            this.returnType = returnType;
+            ReturnType = returnType;
 
-            arguments = argumentTypes;
+            Arguments = argumentTypes;
+            hashCode = ContainmentParent.GetHashCode() + (ShortName + Arguments + ReturnType).GetHashCode();
             Serialize();
-        }
-
-        public override int GetHashCode()
-        {
-            return ContainmentParent.GetHashCode() + (ShortName + arguments + returnType).GetHashCode();
         }
 
         public string ToJavaFullyQualified()
@@ -147,10 +159,23 @@ namespace PrimitiveCodebaseElements.Primitive
             {
                 // TODO 
                 return $"{parentJavaClass.ToJavaFullyQualified()}" +
-                       $"{ShortName}:{arguments}){returnType}";
+                       $"{ShortName}:{Arguments}){ReturnType}";
             }
 
             return "Not Java";
+        }
+
+        public string ToCSharpFullyQualified()
+        {
+            if (ContainmentParent is ClassName parentCSharpClass &&
+                !string.IsNullOrEmpty(parentCSharpClass.ToCSharpFullyQualified()))
+            {
+                // TODO 
+                return $"{parentCSharpClass.ToCSharpFullyQualified()}" +
+                       $"{ShortName}:{Arguments}){ReturnType}";
+            }
+
+            return "Not CSharp";
         }
     }
 
@@ -162,18 +187,15 @@ namespace PrimitiveCodebaseElements.Primitive
         public override CodebaseElementType CodebaseElementType =>
             CodebaseElementType.Field;
 
-        public readonly string FieldType;
+        [JsonProperty] public readonly string FieldType;
 
         public FieldName(ClassName containmentClass, string fieldName, string fieldType) : base(fieldName)
         {
             ContainmentParent = containmentClass;
             FieldType = fieldType;
+            
+            hashCode = ContainmentParent.GetHashCode() + (ShortName + FieldType).GetHashCode();
             Serialize();
-        }
-
-        public override int GetHashCode()
-        {
-            return ContainmentParent.GetHashCode() + (ShortName + FieldType).GetHashCode();
         }
 
         // Suppose we have a field:
@@ -196,6 +218,19 @@ namespace PrimitiveCodebaseElements.Primitive
 
             return "Not Java";
         }
+
+        public string ToCSharpFullyQualified()
+        {
+            if (ContainmentParent is ClassName parentCsClass &&
+                !string.IsNullOrEmpty(parentCsClass.ToCSharpFullyQualified()))
+            {
+                // TODO 
+                return $"{parentCsClass.ToCSharpFullyQualified()}" +
+                       $"{ShortName}:{FieldType}";
+            }
+
+            return "Not C#";
+        }
     }
 
     #endregion
@@ -208,7 +243,8 @@ namespace PrimitiveCodebaseElements.Primitive
             CodebaseElementType.Unknown;
 
         public override CodebaseElementName ContainmentParent => null;
-        readonly string signature;
+
+        [JsonProperty] public string Signature;
 
         public static TypeName For(string signature)
         {
@@ -244,23 +280,18 @@ namespace PrimitiveCodebaseElements.Primitive
 
         protected TypeName(string shortName) : base(shortName)
         {
-            signature = shortName;
+            Signature = shortName;
+            hashCode = Signature.GetHashCode();
             Serialize();
-        }
-
-        public override int GetHashCode()
-        {
-            return signature.GetHashCode();
         }
     }
 
     public sealed class ArrayTypeName : TypeName
     {
-        readonly string signature;
-
         public ArrayTypeName(string signature) : base(GetShortName(signature))
         {
-            this.signature = signature;
+            Signature = signature;
+            hashCode = Signature.GetHashCode();
             Serialize();
         }
 
@@ -270,11 +301,6 @@ namespace PrimitiveCodebaseElements.Primitive
             // braces don't join together visually.
             TypeName componentType = For(signature.Substring(0, signature.IndexOf('[')));
             return $"{componentType.ShortName}[\u200A]";
-        }
-
-        public override int GetHashCode()
-        {
-            return signature.GetHashCode();
         }
     }
 
@@ -295,11 +321,12 @@ namespace PrimitiveCodebaseElements.Primitive
         public static readonly PrimitiveTypeName Long = new PrimitiveTypeName("J", "long");
         public static readonly PrimitiveTypeName Double = new PrimitiveTypeName("D", "double");
 
-        readonly string fullyQualified;
+        public readonly string FullyQualified;
 
         PrimitiveTypeName(string fullyQualified, string shortName) : base(shortName)
         {
-            this.fullyQualified = fullyQualified;
+            FullyQualified = fullyQualified;
+            hashCode = FullyQualified.GetHashCode();
             Serialize();
         }
 
@@ -329,11 +356,6 @@ namespace PrimitiveCodebaseElements.Primitive
                     return null;
             }
         }
-
-        public override int GetHashCode()
-        {
-            return fullyQualified.GetHashCode();
-        }
     }
 
     #endregion
@@ -356,12 +378,15 @@ namespace PrimitiveCodebaseElements.Primitive
         }
 
         // only used if set by constructor
-        readonly FileName containmentFile;
-        public readonly PackageName ContainmentPackage;
+        [JsonProperty] readonly FileName containmentFile;
 
-        public readonly bool IsOuterClass;
-        public readonly ClassName ParentClass;
-        readonly string originalClassName;
+        [JsonProperty] public readonly PackageName ContainmentPackage;
+
+        [JsonProperty] public readonly bool IsOuterClass;
+
+        [JsonProperty] public readonly ClassName ParentClass;
+
+        [JsonProperty] readonly string originalClassName;
 
         public ClassName(FileName containmentFile, PackageName containmentPackage, string className)
             : base(GetShortName(className))
@@ -370,7 +395,7 @@ namespace PrimitiveCodebaseElements.Primitive
             ContainmentPackage = containmentPackage;
             originalClassName = className;
 
-            if (className.Contains('$'))
+            if (!string.IsNullOrEmpty(className) && className.Contains('$'))
             {
                 IsOuterClass = false;
                 ParentClass = new ClassName(
@@ -382,13 +407,14 @@ namespace PrimitiveCodebaseElements.Primitive
             {
                 IsOuterClass = true;
             }
-            
+
+            hashCode = ContainmentParent.GetHashCode() + originalClassName.GetHashCode();
             Serialize();
         }
 
         static string GetShortName(string className)
         {
-            if (className.Contains('$'))
+            if (!string.IsNullOrEmpty(className) && className.Contains('$'))
             {
                 string[] innerClassSplit = className.Split('$');
                 return innerClassSplit.Last();
@@ -397,17 +423,17 @@ namespace PrimitiveCodebaseElements.Primitive
             return className;
         }
 
-        public override int GetHashCode()
-        {
-            return ContainmentParent.GetHashCode() + originalClassName.GetHashCode();
-        }
-
         /// <summary>
         /// Lcom.example.package.OuterClass$InnerClass1$InnerClass2;
         /// </summary>
         public string ToJavaFullyQualified()
         {
             return $"L{ContainmentPackage}.{originalClassName};";
+        }
+
+        public string ToCSharpFullyQualified()
+        {
+            return $"{ContainmentPackage}.{originalClassName}";
         }
     }
 
@@ -419,25 +445,21 @@ namespace PrimitiveCodebaseElements.Primitive
         public override CodebaseElementType CodebaseElementType =>
             CodebaseElementType.File;
 
-        readonly string path;
+        [JsonProperty] public readonly string FilePath;
 
-        public FileName(string path) : base(GetShortName(path, GetSeparator(path)))
+        public FileName(string filePath) : base(GetShortName(filePath, GetSeparator(filePath)))
         {
-            this.path = path;
-            char separator = GetSeparator(path);
+            this.FilePath = filePath;
+            char separator = GetSeparator(filePath);
 
-            ContainmentParent = path.Contains(separator)
-                ? new PackageName(path.Substring(
+            ContainmentParent = filePath.Contains(separator)
+                ? new PackageName(filePath.Substring(
                     0,
-                    path.LastIndexOf(separator)))
+                    filePath.LastIndexOf(separator)))
                 : new PackageName();
-            
-            Serialize();
-        }
 
-        public override int GetHashCode()
-        {
-            return path.GetHashCode();
+            hashCode = FilePath.GetHashCode();
+            Serialize();
         }
 
         static string GetShortName(string path, char separator)
@@ -481,7 +503,36 @@ namespace PrimitiveCodebaseElements.Primitive
     [PublicAPI]
     public sealed class PackageName : CodebaseElementName
     {
-        public readonly string ParentPackage;
+        [JsonProperty] public readonly string ParentPackage;
+
+        public override CodebaseElementType CodebaseElementType =>
+            CodebaseElementType.Package;
+
+        [JsonProperty] public readonly string PackageNameString;
+
+        // these are dead-ends
+        public override CodebaseElementName ContainmentParent => null;
+
+        /// <summary>
+        /// The root or zero package
+        /// </summary>
+        public PackageName() : base("")
+        {
+            PackageNameString = "";
+            Serialize();
+        }
+
+        /// <summary>
+        /// From a package or director path -> create a package name
+        /// </summary>
+        /// <param name="packageNameString">A package or directory path</param>
+        public PackageName(string packageNameString) : base(GetShortName(packageNameString))
+        {
+            PackageNameString = packageNameString;
+            ParentPackage = CreateParentPackage().PackageNameString;
+            hashCode = PackageNameString.GetHashCode();
+            Serialize();
+        }
 
         PackageName CreateParentPackage()
         {
@@ -505,34 +556,6 @@ namespace PrimitiveCodebaseElements.Primitive
 
             // the parent of this package is the root
             return new PackageName();
-        }
-
-        public override CodebaseElementType CodebaseElementType =>
-            CodebaseElementType.Package;
-
-        public readonly string PackageNameString;
-
-        // these are dead-ends
-        public override CodebaseElementName ContainmentParent => null;
-
-        /// <summary>
-        /// The root or zero package
-        /// </summary>
-        public PackageName() : base("")
-        {
-            PackageNameString = "";
-            Serialize();
-        }
-
-        /// <summary>
-        /// From a package or director path -> create a package name
-        /// </summary>
-        /// <param name="packageNameString">A package or directory path</param>
-        public PackageName(string packageNameString) : base(GetShortName(packageNameString))
-        {
-            PackageNameString = packageNameString;
-            ParentPackage = CreateParentPackage().PackageNameString;
-            Serialize();
         }
 
         static string GetShortName(string packageName)
@@ -560,13 +583,75 @@ namespace PrimitiveCodebaseElements.Primitive
                 // a path FQN
                 return packageName.Substring(packageName.LastIndexOf('/') + 1);
             }
-            
-            return packageName.Substring(packageName.LastIndexOf('\\') + 1); 
+
+            return packageName.Substring(packageName.LastIndexOf('\\') + 1);
+        }
+    }
+
+    #endregion
+
+    #region JSON Contract Resolution
+
+    // see: https://stackoverflow.com/questions/20995865/deserializing-json-to-abstract-class
+
+    public class BaseSpecifiedConcreteClassConverter : DefaultContractResolver
+    {
+        protected override JsonConverter ResolveContractConverter(Type objectType)
+        {
+            if (typeof(CodebaseElementName).IsAssignableFrom(objectType) && !objectType.IsAbstract)
+                return null; // pretend TableSortRuleConvert is not specified (thus avoiding a stack overflow)
+            return base.ResolveContractConverter(objectType);
+        }
+    }
+
+    public class BaseConverter : JsonConverter
+    {
+        static readonly JsonSerializerSettings SpecifiedSubclassConversion = new JsonSerializerSettings
+        {
+            ContractResolver = new BaseSpecifiedConcreteClassConverter()
+        };
+
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(CodebaseElementName);
         }
 
-        public override int GetHashCode()
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
+            JsonSerializer serializer)
         {
-            return PackageNameString.GetHashCode();
+            JObject jo = JObject.Load(reader);
+            int? typeInt = jo["CodebaseElementType"]?.Value<int>();
+            if (!typeInt.HasValue) return null;
+            CodebaseElementType type = (CodebaseElementType) typeInt;
+            switch (type)
+            {
+                case CodebaseElementType.Field:
+                    return JsonConvert.DeserializeObject<FieldName>(jo.ToString(), SpecifiedSubclassConversion);
+                case CodebaseElementType.Method:
+                    return JsonConvert.DeserializeObject<MethodName>(jo.ToString(), SpecifiedSubclassConversion);
+                case CodebaseElementType.Class:
+                    return JsonConvert.DeserializeObject<ClassName>(jo.ToString(), SpecifiedSubclassConversion);
+                case CodebaseElementType.Package:
+                    return JsonConvert.DeserializeObject<PackageName>(jo.ToString(), SpecifiedSubclassConversion);
+                case CodebaseElementType.File:
+                    return JsonConvert.DeserializeObject<FileName>(jo.ToString(), SpecifiedSubclassConversion);
+                case CodebaseElementType.Unknown:
+                    break;
+                default:
+                    throw new Exception();
+            }
+
+            throw new NotImplementedException();
+        }
+
+        public override bool CanWrite
+        {
+            get { return false; }
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException(); // won't be called because CanWrite returns false
         }
     }
 
