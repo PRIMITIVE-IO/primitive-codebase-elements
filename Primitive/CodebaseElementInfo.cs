@@ -204,6 +204,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public SourceCodeSnippet SourceCode { get; set; }
 
         public int NumberOfRuntimeCalls;
+        public int RuntimeExecutionMaxTime;
         public int SolvedCount = 0;
         public int InvocationCount = 0;
 
