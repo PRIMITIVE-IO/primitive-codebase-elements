@@ -56,11 +56,7 @@ namespace PrimitiveCodebaseElements.Primitive
             string extension)
         {
             this.text = text;
-            bool success = ExtensionToLanguage.TryGetValue(extension, out language);
-            if (!success)
-            {
-                language = SourceCodeLanguage.PlainText;
-            }
+            language = LanguageFromExtension(extension);
         }
 
         /// <summary>
@@ -101,6 +97,17 @@ namespace PrimitiveCodebaseElements.Primitive
                 : text;
 
         public SourceCodeLanguage Language => language;
+
+        public static SourceCodeLanguage LanguageFromExtension(string extension)
+        {
+            bool success = ExtensionToLanguage.TryGetValue(extension, out SourceCodeLanguage extLang);
+            if (!success)
+            {
+                extLang = SourceCodeLanguage.PlainText;
+            }
+
+            return extLang;
+        }
     }
 
     [PublicAPI]
