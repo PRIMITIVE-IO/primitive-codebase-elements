@@ -148,7 +148,13 @@ namespace PrimitiveCodebaseElements.Primitive
             ReturnType = returnType;
 
             Arguments = argumentTypes;
-            hashCode = ContainmentParent.GetHashCode() + (ShortName + Arguments + ReturnType).GetHashCode();
+            string hashString = ShortName + ReturnType;
+            foreach (Argument argument in Arguments)
+            {
+                hashString += argument.Name + argument.Type.Signature;
+            }
+
+            hashCode = ContainmentParent.GetHashCode() + hashString.GetHashCode();
             Serialize();
         }
 
@@ -386,7 +392,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         [JsonProperty] public readonly ClassName ParentClass;
 
-        [JsonProperty] readonly string originalClassName;
+        [JsonProperty] public readonly string originalClassName;
 
         public ClassName(FileName containmentFile, PackageName containmentPackage, string className)
             : base(GetShortName(className))
@@ -519,6 +525,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public PackageName() : base("")
         {
             PackageNameString = "";
+            hashCode = 0;
             Serialize();
         }
 
@@ -530,7 +537,10 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             PackageNameString = packageNameString;
             ParentPackage = CreateParentPackage().PackageNameString;
-            hashCode = PackageNameString.GetHashCode();
+            hashCode = !string.IsNullOrEmpty(packageNameString) 
+                ? PackageNameString.GetHashCode() 
+                : 0; // "" hash code does not evaluate to 0
+
             Serialize();
         }
 
