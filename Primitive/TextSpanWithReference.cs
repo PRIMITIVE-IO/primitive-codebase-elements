@@ -20,9 +20,6 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public TextSpanWithReference AdjustedBy(int offset) =>
             new TextSpanWithReference(Start + offset, End + offset, Reference);
-
-        public override string ToString() =>
-            $"{Reference.FullyQualified}: (Start={Start}, End={End})";
     }
 
     [PublicAPI]
