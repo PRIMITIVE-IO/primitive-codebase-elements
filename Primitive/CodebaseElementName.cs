@@ -163,9 +163,13 @@ namespace PrimitiveCodebaseElements.Primitive
             if (ContainmentParent is ClassName parentJavaClass &&
                 !string.IsNullOrEmpty(parentJavaClass.ToJavaFullyQualified()))
             {
+                string paramString = Arguments.Aggregate(
+                    "", 
+                    (current, argument) => current + (argument.Name + " " + argument.Type.Signature + ", "));
+
                 // TODO 
                 return $"{parentJavaClass.ToJavaFullyQualified()}" +
-                       $"{ShortName}:{Arguments}){ReturnType}";
+                       $"{ShortName}:({paramString}){ReturnType}";
             }
 
             return "Not Java";
@@ -176,12 +180,33 @@ namespace PrimitiveCodebaseElements.Primitive
             if (ContainmentParent is ClassName parentCSharpClass &&
                 !string.IsNullOrEmpty(parentCSharpClass.ToCSharpFullyQualified()))
             {
+                string paramString = Arguments.Aggregate(
+                    "", 
+                    (current, argument) => current + (argument.Name + " " + argument.Type.Signature + ", "));
+                
                 // TODO 
-                return $"{parentCSharpClass.ToCSharpFullyQualified()}" +
-                       $"{ShortName}:{Arguments}){ReturnType}";
+                return $"{parentCSharpClass.ToCSharpFullyQualified()}." +
+                       $"{ShortName}:({paramString}){ReturnType}";
             }
 
-            return "Not CSharp";
+            return "Not C#";
+        }
+
+        public string ToCXFullyQualified()
+        {
+            if (ContainmentParent is ClassName parentCXClass &&
+                !string.IsNullOrEmpty(parentCXClass.ToCXFullyQualified()))
+            {
+                string paramString = Arguments.Aggregate(
+                    "", 
+                    (current, argument) => current + (argument.Name + " " + argument.Type.Signature + ", "));
+                
+                // TODO 
+                return $"{parentCXClass.ToCXFullyQualified()}." +
+                       $"{ShortName}:({paramString}){ReturnType}";
+            }
+
+            return "Not CX";
         }
     }
 
@@ -236,6 +261,19 @@ namespace PrimitiveCodebaseElements.Primitive
             }
 
             return "Not C#";
+        }
+        
+        public string ToCXFullyQualified()
+        {
+            if (ContainmentParent is ClassName parentCsClass &&
+                !string.IsNullOrEmpty(parentCsClass.ToCSharpFullyQualified()))
+            {
+                // TODO 
+                return $"{parentCsClass.ToCXFullyQualified()}" +
+                       $"{ShortName}:{FieldType}";
+            }
+
+            return "Not CX";
         }
     }
 
@@ -434,12 +472,17 @@ namespace PrimitiveCodebaseElements.Primitive
         /// </summary>
         public string ToJavaFullyQualified()
         {
-            return $"L{ContainmentPackage}.{originalClassName};";
+            return $"L{ContainmentPackage.PackageNameString}.{originalClassName};";
         }
 
         public string ToCSharpFullyQualified()
         {
-            return $"{ContainmentPackage}.{originalClassName}";
+            return $"{ContainmentPackage.PackageNameString}.{originalClassName}";
+        }
+
+        public string ToCXFullyQualified()
+        {
+            return $"{ContainmentPackage.PackageNameString}::{originalClassName}";
         }
     }
 
