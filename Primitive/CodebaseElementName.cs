@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
@@ -521,31 +520,12 @@ namespace PrimitiveCodebaseElements.Primitive
         static char GetSeparator(string path)
         {
             char separator = '/';
-            if (IsLocalFile(NormalizedPath(path)))
+            if (path.Contains('\\'))
             {
                 separator = '\\';
             }
 
             return separator;
-        }
-
-        static bool IsLocalFile(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path)) return false;
-
-            Uri uri = new Uri(path, UriKind.RelativeOrAbsolute);
-            // see: https://docs.microsoft.com/en-us/dotnet/api/system.uri.scheme?view=netframework-4.5
-            return uri.Scheme == "file";
-        }
-
-        static string NormalizedPath(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path)) return "";
-
-            Uri uri = new Uri(path, UriKind.RelativeOrAbsolute);
-            return uri.IsAbsoluteUri
-                ? uri.LocalPath
-                : Path.GetFullPath(new Uri(Path.Combine(AppContext.BaseDirectory, path)).AbsolutePath);
         }
     }
 
