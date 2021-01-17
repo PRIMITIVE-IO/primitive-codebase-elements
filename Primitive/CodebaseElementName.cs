@@ -157,6 +157,20 @@ namespace PrimitiveCodebaseElements.Primitive
             Serialize();
         }
 
+        [JsonConstructor]
+        MethodName(
+            CodebaseElementName parent,
+            string methodName,
+            string returnType,
+            IEnumerable<Argument> argumentTypes,
+            bool extra) : base(methodName)
+        {
+            ContainmentParent = parent;
+            ReturnType = returnType;
+            Arguments = argumentTypes;
+            Serialize();
+        }
+
         public string ToJavaFullyQualified()
         {
             if (ContainmentParent is ClassName parentJavaClass &&
@@ -225,6 +239,15 @@ namespace PrimitiveCodebaseElements.Primitive
             FieldType = fieldType;
             
             hashCode = ContainmentParent.GetHashCode() + (ShortName + FieldType).GetHashCode();
+            Serialize();
+        }
+        
+        [JsonConstructor]
+        FieldName(ClassName containmentClass, string fieldName, string fieldType,
+            bool extra) : base(fieldName)
+        {
+            ContainmentParent = containmentClass;
+            FieldType = fieldType;
             Serialize();
         }
 
@@ -326,6 +349,12 @@ namespace PrimitiveCodebaseElements.Primitive
             Signature = shortName;
             hashCode = Signature.GetHashCode();
             Serialize();
+        }
+
+        [JsonConstructor]
+        protected TypeName(string shortName, bool extra) : base(shortName)
+        {
+            // do nothing
         }
     }
 
@@ -454,6 +483,15 @@ namespace PrimitiveCodebaseElements.Primitive
             hashCode = ContainmentParent.GetHashCode() + originalClassName.GetHashCode();
             Serialize();
         }
+        
+        [JsonConstructor]
+        ClassName(FileName containmentFile, PackageName containmentPackage, string className, bool extra)
+            : base(GetShortName(className), extra)
+        {
+            this.containmentFile = containmentFile;
+            ContainmentPackage = containmentPackage;
+            Serialize();
+        }
 
         static string GetShortName(string className)
         {
@@ -497,7 +535,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public FileName(string filePath) : base(GetShortName(filePath, GetSeparator(filePath)))
         {
-            this.FilePath = filePath;
+            FilePath = filePath;
             char separator = GetSeparator(filePath);
 
             ContainmentParent = filePath.Contains(separator)
