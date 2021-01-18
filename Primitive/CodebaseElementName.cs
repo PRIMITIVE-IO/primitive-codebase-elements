@@ -307,7 +307,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
     public abstract class TypeName : CodebaseElementName
     {
-        public override CodebaseElementName ContainmentParent => null;
+        public override CodebaseElementName ContainmentParent => new PackageName();
 
         [JsonProperty] public string Signature;
 
