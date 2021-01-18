@@ -307,9 +307,6 @@ namespace PrimitiveCodebaseElements.Primitive
 
     public abstract class TypeName : CodebaseElementName
     {
-        public override CodebaseElementType CodebaseElementType =>
-            CodebaseElementType.Unknown;
-
         public override CodebaseElementName ContainmentParent => null;
 
         [JsonProperty] public string Signature;
@@ -362,11 +359,20 @@ namespace PrimitiveCodebaseElements.Primitive
 
     public sealed class ArrayTypeName : TypeName
     {
+        public override CodebaseElementType CodebaseElementType =>
+            CodebaseElementType.ArrayType;
+        
         public ArrayTypeName(string signature) : base(GetShortName(signature))
         {
             Signature = signature;
             hashCode = Signature.GetHashCode();
             Serialize();
+        }
+        
+        [JsonConstructor]
+        ArrayTypeName(string signature, bool extra) : base(signature)
+        {
+            // do nothing
         }
 
         static string GetShortName(string signature)
@@ -381,27 +387,36 @@ namespace PrimitiveCodebaseElements.Primitive
     [PublicAPI]
     public sealed class PrimitiveTypeName : TypeName
     {
+        public override CodebaseElementType CodebaseElementType =>
+            CodebaseElementType.PrimitiveType;
+        
         // The "short" names of primitive types are actually longer than the fully-qualified names, but it follows the
         // general pattern: the "short" is the "human-friendly" representation of the name, whereas the fully-qualified
         // name is the compiler-friendly version.
 
         public static readonly PrimitiveTypeName Boolean = new PrimitiveTypeName("Z", "boolean");
-        public static readonly PrimitiveTypeName Int = new PrimitiveTypeName("I", "int");
-        public static readonly PrimitiveTypeName Float = new PrimitiveTypeName("F", "float");
-        public static readonly PrimitiveTypeName Void = new PrimitiveTypeName("V", "void");
-        public static readonly PrimitiveTypeName Byte = new PrimitiveTypeName("B", "byte");
-        public static readonly PrimitiveTypeName Char = new PrimitiveTypeName("C", "char");
-        public static readonly PrimitiveTypeName Short = new PrimitiveTypeName("S", "short");
-        public static readonly PrimitiveTypeName Long = new PrimitiveTypeName("J", "long");
-        public static readonly PrimitiveTypeName Double = new PrimitiveTypeName("D", "double");
+        public static readonly PrimitiveTypeName Int     = new PrimitiveTypeName("I", "int");
+        public static readonly PrimitiveTypeName Float   = new PrimitiveTypeName("F", "float");
+        public static readonly PrimitiveTypeName Void    = new PrimitiveTypeName("V", "void");
+        public static readonly PrimitiveTypeName Byte    = new PrimitiveTypeName("B", "byte");
+        public static readonly PrimitiveTypeName Char    = new PrimitiveTypeName("C", "char");
+        public static readonly PrimitiveTypeName Short   = new PrimitiveTypeName("S", "short");
+        public static readonly PrimitiveTypeName Long    = new PrimitiveTypeName("J", "long");
+        public static readonly PrimitiveTypeName Double  = new PrimitiveTypeName("D", "double");
 
-        public readonly string FullyQualified;
+        [JsonProperty] public readonly string FullyQualified;
 
         PrimitiveTypeName(string fullyQualified, string shortName) : base(shortName)
         {
             FullyQualified = fullyQualified;
             hashCode = FullyQualified.GetHashCode();
             Serialize();
+        }
+        
+        [JsonConstructor]
+        PrimitiveTypeName(string fullyQualified, string shortName, bool extra) : base(shortName)
+        {
+            // do nothing
         }
 
         internal static PrimitiveTypeName ForPrimitiveTypeSignature(string signature)
@@ -708,6 +723,10 @@ namespace PrimitiveCodebaseElements.Primitive
                     return JsonConvert.DeserializeObject<PackageName>(jo.ToString(), SpecifiedSubclassConversion);
                 case CodebaseElementType.File:
                     return JsonConvert.DeserializeObject<FileName>(jo.ToString(), SpecifiedSubclassConversion);
+                case CodebaseElementType.PrimitiveType:
+                    return JsonConvert.DeserializeObject<PrimitiveTypeName>(jo.ToString(), SpecifiedSubclassConversion);
+                case CodebaseElementType.ArrayType:
+                    return JsonConvert.DeserializeObject<ArrayTypeName>(jo.ToString(), SpecifiedSubclassConversion);
                 case CodebaseElementType.Unknown:
                     break;
                 default:
