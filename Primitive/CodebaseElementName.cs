@@ -128,7 +128,8 @@ namespace PrimitiveCodebaseElements.Primitive
     [PublicAPI]
     public sealed class MethodName : CodebaseElementName
     {
-        public override CodebaseElementName ContainmentParent { get; }
+        public override CodebaseElementName ContainmentParent => containmentParent;
+        [JsonProperty] readonly CodebaseElementName containmentParent;
 
         public override CodebaseElementType CodebaseElementType =>
             CodebaseElementType.Method;
@@ -143,7 +144,7 @@ namespace PrimitiveCodebaseElements.Primitive
             string returnType,
             IEnumerable<Argument> argumentTypes) : base(methodName)
         {
-            ContainmentParent = parent;
+            containmentParent = parent;
             ReturnType = returnType;
 
             Arguments = argumentTypes;
@@ -165,7 +166,7 @@ namespace PrimitiveCodebaseElements.Primitive
             IEnumerable<Argument> argumentTypes,
             bool extra) : base(methodName)
         {
-            ContainmentParent = parent;
+            containmentParent = parent;
             ReturnType = returnType;
             Arguments = argumentTypes;
             Serialize();
@@ -226,7 +227,8 @@ namespace PrimitiveCodebaseElements.Primitive
     [PublicAPI]
     public sealed class FieldName : CodebaseElementName
     {
-        public override CodebaseElementName ContainmentParent { get; }
+        public override CodebaseElementName ContainmentParent => containmentParent;
+        [JsonProperty] readonly CodebaseElementName containmentParent;
 
         public override CodebaseElementType CodebaseElementType =>
             CodebaseElementType.Field;
@@ -235,7 +237,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public FieldName(ClassName containmentClass, string fieldName, string fieldType) : base(fieldName)
         {
-            ContainmentParent = containmentClass;
+            containmentParent = containmentClass;
             FieldType = fieldType;
             
             hashCode = ContainmentParent.GetHashCode() + (ShortName + FieldType).GetHashCode();
@@ -246,7 +248,7 @@ namespace PrimitiveCodebaseElements.Primitive
         FieldName(ClassName containmentClass, string fieldName, string fieldType,
             bool extra) : base(fieldName)
         {
-            ContainmentParent = containmentClass;
+            containmentParent = containmentClass;
             FieldType = fieldType;
             Serialize();
         }
