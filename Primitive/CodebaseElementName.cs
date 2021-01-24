@@ -22,7 +22,27 @@ namespace PrimitiveCodebaseElements.Primitive
         /// <summary>
         /// The JSON payload containing all information about this name.
         /// </summary>
-        [JsonIgnore] public string Serialized;
+        [JsonIgnore]
+        public string Serialized
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(serialized))
+                {
+                    JsonSerializerSettings settings = new JsonSerializerSettings
+                    {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                        Formatting = Formatting.Indented
+                    };
+                    serialized = JsonConvert.SerializeObject(this, settings);
+                }
+
+                return serialized;
+            }
+        }
+
+        [JsonIgnore]
+        string serialized;
 
         /// <summary>
         /// A human-readable representation of the name. Examples are unqualified class names and method names without
@@ -69,16 +89,6 @@ namespace PrimitiveCodebaseElements.Primitive
         protected CodebaseElementName(string shortName)
         {
             ShortName = shortName;
-        }
-
-        protected void Serialize()
-        {
-            JsonSerializerSettings settings = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented
-            };
-            Serialized = JsonConvert.SerializeObject(this, settings);
         }
 
         public virtual FileName ContainmentFile()
@@ -155,7 +165,6 @@ namespace PrimitiveCodebaseElements.Primitive
             }
 
             hashCode = ContainmentParent.GetHashCode() + hashString.GetHashCode();
-            Serialize();
         }
 
         [JsonConstructor]
@@ -169,7 +178,6 @@ namespace PrimitiveCodebaseElements.Primitive
             containmentParent = parent;
             ReturnType = returnType;
             Arguments = argumentTypes;
-            Serialize();
         }
 
         public string ToJavaFullyQualified()
@@ -241,7 +249,6 @@ namespace PrimitiveCodebaseElements.Primitive
             FieldType = fieldType;
             
             hashCode = ContainmentParent.GetHashCode() + (ShortName + FieldType).GetHashCode();
-            Serialize();
         }
         
         [JsonConstructor]
@@ -250,7 +257,6 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             containmentParent = containmentClass;
             FieldType = fieldType;
-            Serialize();
         }
 
         // Suppose we have a field:
@@ -347,7 +353,6 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             Signature = shortName;
             hashCode = Signature.GetHashCode();
-            Serialize();
         }
 
         [JsonConstructor]
@@ -366,7 +371,6 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             Signature = signature;
             hashCode = Signature.GetHashCode();
-            Serialize();
         }
         
         [JsonConstructor]
@@ -410,7 +414,6 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             FullyQualified = fullyQualified;
             hashCode = FullyQualified.GetHashCode();
-            Serialize();
         }
         
         [JsonConstructor]
@@ -498,7 +501,6 @@ namespace PrimitiveCodebaseElements.Primitive
             }
 
             hashCode = ContainmentParent.GetHashCode() + originalClassName.GetHashCode();
-            Serialize();
         }
         
         [JsonConstructor]
@@ -507,7 +509,6 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             this.containmentFile = containmentFile;
             ContainmentPackage = containmentPackage;
-            Serialize();
         }
 
         static string GetShortName(string className)
@@ -562,7 +563,6 @@ namespace PrimitiveCodebaseElements.Primitive
                 : new PackageName();
 
             hashCode = FilePath.GetHashCode();
-            Serialize();
         }
 
         static string GetShortName(string path, char separator)
@@ -604,7 +604,6 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             PackageNameString = "";
             hashCode = 0;
-            Serialize();
         }
 
         /// <summary>
@@ -618,8 +617,6 @@ namespace PrimitiveCodebaseElements.Primitive
             hashCode = !string.IsNullOrEmpty(packageNameString) 
                 ? PackageNameString.GetHashCode() 
                 : 0; // "" hash code does not evaluate to 0
-
-            Serialize();
         }
 
         PackageName CreateParentPackage()
