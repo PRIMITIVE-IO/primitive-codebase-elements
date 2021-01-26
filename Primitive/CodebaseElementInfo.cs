@@ -78,7 +78,8 @@ namespace PrimitiveCodebaseElements.Primitive
         /// All the children of this codebase element. This property imposes a canonical order in the set of children,
         /// and the children are expected to be shown in that order in the world.
         /// </summary>
-        [JsonProperty] List<ICodebaseElementInfo> Children { get; }
+        [JsonProperty]
+        List<ICodebaseElementInfo> Children { get; }
 
         [JsonProperty] List<CodeReferenceEndpoint> ReferencesToThis { get; }
         [JsonProperty] List<CodeReferenceEndpoint> ReferencesFromThis { get; }
@@ -156,8 +157,6 @@ namespace PrimitiveCodebaseElements.Primitive
         public List<CodeReferenceEndpoint> ReferencesToThis { get; }
         public List<CodeReferenceEndpoint> ReferencesFromThis { get; }
         public SourceCodeSnippet SourceCode { get; set; }
-        
-        public string Serialized { get; }
 
         public readonly bool IsTestPackage = false;
         public PackageVector2 InitialPosition = new PackageVector2(0, 0);
@@ -177,16 +176,25 @@ namespace PrimitiveCodebaseElements.Primitive
             // Packages don't have references
             ReferencesToThis = new List<CodeReferenceEndpoint>();
             ReferencesFromThis = new List<CodeReferenceEndpoint>();
-            
-            JsonSerializerSettings settings = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented
-            };
-            Serialized = JsonConvert.SerializeObject(this, settings);
         }
 
         public void DiffAgainst(ICodebaseElementInfo branchInfo) { }
+
+        [JsonIgnore]
+        public string Serialized
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(serialized))
+                {
+                    serialized = JsonConvert.SerializeObject(this, DefaultSerializerSettings.Default);
+                }
+
+                return serialized;
+            }
+        }
+
+        [JsonIgnore] string serialized;
     }
 
     [PublicAPI]
@@ -214,7 +222,6 @@ namespace PrimitiveCodebaseElements.Primitive
         public List<CodeReferenceEndpoint> ReferencesFromThis { get; }
 
         public SourceCodeSnippet SourceCode { get; set; }
-        public string Serialized { get; }
 
         public int NumberOfRuntimeCalls;
         public int RuntimeExecutionMaxTime;
@@ -241,13 +248,6 @@ namespace PrimitiveCodebaseElements.Primitive
             ReferencesFromThis = new List<CodeReferenceEndpoint>();
 
             SourceCode = sourceCode;
-            
-            JsonSerializerSettings settings = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented
-            };
-            Serialized = JsonConvert.SerializeObject(this, settings);
         }
 
         bool Equals(MethodInfo other) => Equals(MethodName, other.MethodName);
@@ -266,6 +266,22 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             SourceCode.SetBranchText(branchInfo.SourceCode.Text);
         }
+
+        [JsonIgnore]
+        public string Serialized
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(serialized))
+                {
+                    serialized = JsonConvert.SerializeObject(this, DefaultSerializerSettings.Default);
+                }
+
+                return serialized;
+            }
+        }
+
+        [JsonIgnore] string serialized;
     }
 
     [PublicAPI]
@@ -303,7 +319,23 @@ namespace PrimitiveCodebaseElements.Primitive
             Methods.Sum(methodInfo => methodInfo.NumberOfRuntimeCalls);
 
         public SourceCodeSnippet SourceCode { get; set; }
-        public string Serialized { get; }
+
+        [JsonIgnore]
+        public string Serialized
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(serialized))
+                {
+                    serialized = JsonConvert.SerializeObject(this, DefaultSerializerSettings.Default);
+                }
+
+                return serialized;
+            }
+        }
+
+        [JsonIgnore] string serialized;
+
 
         public FieldInfo(
             FieldName fieldName,
@@ -319,13 +351,6 @@ namespace PrimitiveCodebaseElements.Primitive
             ReferencesToThis = new List<CodeReferenceEndpoint>();
             ReferencesFromThis = new List<CodeReferenceEndpoint>();
             SourceCode = sourceCode;
-            
-            JsonSerializerSettings settings = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented
-            };
-            Serialized = JsonConvert.SerializeObject(this, settings);
         }
 
         bool Equals(FieldInfo other) => Equals(FieldName, other.FieldName);
@@ -355,7 +380,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public List<CodeReferenceEndpoint> ReferencesToThis { get; }
         public List<CodeReferenceEndpoint> ReferencesFromThis { get; }
         public SourceCodeSnippet SourceCode { get; set; }
-        public string Serialized { get; }
+
         public string SourceUrl { get; }
         public string LocalUrl { get; set; }
         public string BranchUrl { get; set; }
@@ -375,13 +400,6 @@ namespace PrimitiveCodebaseElements.Primitive
             ReferencesFromThis = new List<CodeReferenceEndpoint>();
             SourceCode = sourceText;
             Children = new List<ICodebaseElementInfo>();
-            
-            JsonSerializerSettings settings = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented
-            };
-            Serialized = JsonConvert.SerializeObject(this, settings);
         }
 
         /// <summary>
@@ -396,13 +414,6 @@ namespace PrimitiveCodebaseElements.Primitive
             LocalUrl = localUrl;
             FileExtension = ext;
             Children = new List<ICodebaseElementInfo>();
-            
-            JsonSerializerSettings settings = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented
-            };
-            Serialized = JsonConvert.SerializeObject(this, settings);
         }
 
         public void DiffAgainst(ICodebaseElementInfo branchInfo)
@@ -456,6 +467,22 @@ namespace PrimitiveCodebaseElements.Primitive
                     break;
             }
         }
+
+        [JsonIgnore]
+        public string Serialized
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(serialized))
+                {
+                    serialized = JsonConvert.SerializeObject(this, DefaultSerializerSettings.Default);
+                }
+
+                return serialized;
+            }
+        }
+
+        [JsonIgnore] string serialized;
     }
 
     [Serializable]
@@ -465,6 +492,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public readonly ClassName className;
         public CodebaseElementName Name => className;
         public readonly AccessFlags accessFlags;
+
         public IEnumerable<ClassInfo> InnerClasses =>
             Children.OfType<ClassInfo>();
 
@@ -472,6 +500,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public IEnumerable<MethodInfo> Methods =>
             Children.OfType<MethodInfo>();
+
         public IEnumerable<FieldInfo> Fields =>
             Children.OfType<FieldInfo>();
 
@@ -480,8 +509,6 @@ namespace PrimitiveCodebaseElements.Primitive
         public List<CodeReferenceEndpoint> ReferencesToThis { get; }
         public List<CodeReferenceEndpoint> ReferencesFromThis { get; }
         public SourceCodeSnippet SourceCode { get; set; }
-
-        public string Serialized { get; }
 
         public ClassInfo(
             ClassName className,
@@ -504,13 +531,6 @@ namespace PrimitiveCodebaseElements.Primitive
             ReferencesFromThis = new List<CodeReferenceEndpoint>();
             SourceCode = headerSource;
             IsTestClass = isTestClass;
-            
-            JsonSerializerSettings settings = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented
-            };
-            Serialized = JsonConvert.SerializeObject(this, settings);
         }
 
         public void DiffAgainst(ICodebaseElementInfo branchInfo)
@@ -529,6 +549,22 @@ namespace PrimitiveCodebaseElements.Primitive
                 }
             }
         }
+
+        [JsonIgnore]
+        public string Serialized
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(serialized))
+                {
+                    serialized = JsonConvert.SerializeObject(this, DefaultSerializerSettings.Default);
+                }
+
+                return serialized;
+            }
+        }
+
+        [JsonIgnore] string serialized;
     }
 
     #endregion

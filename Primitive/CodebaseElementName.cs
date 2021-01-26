@@ -29,12 +29,7 @@ namespace PrimitiveCodebaseElements.Primitive
             {
                 if (string.IsNullOrEmpty(serialized))
                 {
-                    JsonSerializerSettings settings = new JsonSerializerSettings
-                    {
-                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                        Formatting = Formatting.Indented
-                    };
-                    serialized = JsonConvert.SerializeObject(this, settings);
+                    serialized = JsonConvert.SerializeObject(this, DefaultSerializerSettings.Default);
                 }
 
                 return serialized;
@@ -742,6 +737,15 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             throw new NotImplementedException(); // won't be called because CanWrite returns false
         }
+    }
+
+    public static class DefaultSerializerSettings
+    {
+        public static readonly JsonSerializerSettings Default = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            Formatting = Formatting.Indented
+        };
     }
 
     #endregion
