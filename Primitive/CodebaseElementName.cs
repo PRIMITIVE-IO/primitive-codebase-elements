@@ -419,25 +419,39 @@ namespace PrimitiveCodebaseElements.Primitive
 
         internal static PrimitiveTypeName ForPrimitiveTypeSignature(string signature)
         {
-            switch (signature)
+            switch (signature.ToUpperInvariant())
             {
                 case "Z":
+                case "BOOL":
+                case "BOOLEAN":
                     return Boolean;
                 case "B":
+                case "BYTE":
                     return Byte;
                 case "C":
+                case "CHAR":
                     return Char;
                 case "S":
+                case "SHORT":
                     return Short;
                 case "I":
+                case "INT":
+                case "INTEGER":
+                case "INT16":
+                case "INT32":
+                case "INT64":
                     return Int;
                 case "J":
+                case "LONG":
                     return Long;
                 case "F":
+                case "FLOAT":
                     return Float;
                 case "D":
+                case "DOUBLE":
                     return Double;
                 case "V":
+                case "VOID":
                     return Void;
                 default:
                     return null;
