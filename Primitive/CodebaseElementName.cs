@@ -180,33 +180,10 @@ namespace PrimitiveCodebaseElements.Primitive
             if (ContainmentParent is ClassName parentJavaClass &&
                 !string.IsNullOrEmpty(parentJavaClass.ToJavaFullyQualified()))
             {
-                string paramString = Arguments.Aggregate(
-                    "", 
-                    (current, argument) => current + (argument.Name + " " + argument.Type.Signature + ", "));
-
-                // TODO 
-                return $"{parentJavaClass.ToJavaFullyQualified()}" +
-                       $"{ShortName}:({paramString}){ReturnType}";
+                return $"{parentJavaClass.ToJavaFullyQualified()}.{ShortName}({CommaSeparatedArguments()})";
             }
 
             return "Not Java";
-        }
-
-        public string ToCSharpFullyQualified()
-        {
-            if (ContainmentParent is ClassName parentCSharpClass &&
-                !string.IsNullOrEmpty(parentCSharpClass.ToCSharpFullyQualified()))
-            {
-                string paramString = Arguments.Aggregate(
-                    "", 
-                    (current, argument) => current + (argument.Name + " " + argument.Type.Signature + ", "));
-                
-                // TODO 
-                return $"{parentCSharpClass.ToCSharpFullyQualified()}." +
-                       $"{ShortName}:({paramString}){ReturnType}";
-            }
-
-            return "Not C#";
         }
 
         public string ToCXFullyQualified()
@@ -214,16 +191,26 @@ namespace PrimitiveCodebaseElements.Primitive
             if (ContainmentParent is ClassName parentCXClass &&
                 !string.IsNullOrEmpty(parentCXClass.ToCXFullyQualified()))
             {
-                string paramString = Arguments.Aggregate(
-                    "", 
-                    (current, argument) => current + (argument.Name + " " + argument.Type.Signature + ", "));
-                
                 // TODO 
                 return $"{parentCXClass.ToCXFullyQualified()}." +
-                       $"{ShortName}:({paramString}){ReturnType}";
+                       $"{ShortName}:({CommaSeparatedArguments()}){ReturnType}";
             }
 
             return "Not CX";
+        }
+
+        string CommaSeparatedArguments()
+        {
+            string paramString = Arguments.Aggregate(
+                "",
+                (current, argument) => current + $"{argument.Name} {argument.Type.Signature}, ");
+
+            if (!string.IsNullOrEmpty(paramString))
+            {
+                paramString = paramString.Substring(0, paramString.Length - 2); // remove last ", "
+            }
+
+            return paramString;
         }
     }
 
@@ -268,34 +255,19 @@ namespace PrimitiveCodebaseElements.Primitive
                 !string.IsNullOrEmpty(parentJavaClass.ToJavaFullyQualified()))
             {
                 // TODO 
-                return $"{parentJavaClass.ToJavaFullyQualified()}" +
-                       $"{ShortName}:{FieldType}";
+                return $"{parentJavaClass.ToJavaFullyQualified()}.{ShortName}:{FieldType}";
             }
 
             return "Not Java";
-        }
-
-        public string ToCSharpFullyQualified()
-        {
-            if (ContainmentParent is ClassName parentCsClass &&
-                !string.IsNullOrEmpty(parentCsClass.ToCSharpFullyQualified()))
-            {
-                // TODO 
-                return $"{parentCsClass.ToCSharpFullyQualified()}" +
-                       $"{ShortName}:{FieldType}";
-            }
-
-            return "Not C#";
         }
         
         public string ToCXFullyQualified()
         {
             if (ContainmentParent is ClassName parentCsClass &&
-                !string.IsNullOrEmpty(parentCsClass.ToCSharpFullyQualified()))
+                !string.IsNullOrEmpty(parentCsClass.ToCXFullyQualified()))
             {
                 // TODO 
-                return $"{parentCsClass.ToCXFullyQualified()}" +
-                       $"{ShortName}:{FieldType}";
+                return $"{parentCsClass.ToCXFullyQualified()}{ShortName}:{FieldType}";
             }
 
             return "Not CX";
@@ -314,7 +286,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public static TypeName For(string signature)
         {
-            if (signature.Contains('['))
+            if (signature.EndsWith("[]"))
             {
                 return new ArrayTypeName(signature);
             }
@@ -361,25 +333,17 @@ namespace PrimitiveCodebaseElements.Primitive
     {
         public override CodebaseElementType CodebaseElementType =>
             CodebaseElementType.ArrayType;
-        
-        public ArrayTypeName(string signature) : base(GetShortName(signature))
+
+        public ArrayTypeName(string signature) : base(signature)
         {
             Signature = signature;
             hashCode = Signature.GetHashCode();
         }
-        
+
         [JsonConstructor]
         ArrayTypeName(string signature, bool extra) : base(signature)
         {
             // do nothing
-        }
-
-        static string GetShortName(string signature)
-        {
-            // Include a U+200A HAIR SPACE in order to ensure, no matter what font is used to render this name, the
-            // braces don't join together visually.
-            TypeName componentType = For(signature.Substring(0, signature.IndexOf('[')));
-            return $"{componentType.ShortName}[\u200A]";
         }
     }
 
@@ -388,71 +352,39 @@ namespace PrimitiveCodebaseElements.Primitive
     {
         public override CodebaseElementType CodebaseElementType =>
             CodebaseElementType.PrimitiveType;
-        
-        // The "short" names of primitive types are actually longer than the fully-qualified names, but it follows the
-        // general pattern: the "short" is the "human-friendly" representation of the name, whereas the fully-qualified
-        // name is the compiler-friendly version.
 
-        public static readonly PrimitiveTypeName Boolean = new PrimitiveTypeName("Z", "boolean");
-        public static readonly PrimitiveTypeName Int     = new PrimitiveTypeName("I", "int");
-        public static readonly PrimitiveTypeName Float   = new PrimitiveTypeName("F", "float");
-        public static readonly PrimitiveTypeName Void    = new PrimitiveTypeName("V", "void");
-        public static readonly PrimitiveTypeName Byte    = new PrimitiveTypeName("B", "byte");
-        public static readonly PrimitiveTypeName Char    = new PrimitiveTypeName("C", "char");
-        public static readonly PrimitiveTypeName Short   = new PrimitiveTypeName("S", "short");
-        public static readonly PrimitiveTypeName Long    = new PrimitiveTypeName("J", "long");
-        public static readonly PrimitiveTypeName Double  = new PrimitiveTypeName("D", "double");
-
-        [JsonProperty] public readonly string FullyQualified;
-
-        PrimitiveTypeName(string fullyQualified, string shortName) : base(shortName)
+        PrimitiveTypeName(string signature) : base(signature)
         {
-            FullyQualified = fullyQualified;
-            hashCode = FullyQualified.GetHashCode();
+            Signature = signature;
+            hashCode = Signature.GetHashCode();
         }
-        
+
         [JsonConstructor]
-        PrimitiveTypeName(string fullyQualified, string shortName, bool extra) : base(shortName)
+        PrimitiveTypeName(string signature, bool extra) : base(signature)
         {
             // do nothing
         }
 
         internal static PrimitiveTypeName ForPrimitiveTypeSignature(string signature)
         {
-            switch (signature.ToUpperInvariant())
+            switch (signature.ToLowerInvariant())
             {
-                case "Z":
-                case "BOOL":
-                case "BOOLEAN":
-                    return Boolean;
-                case "B":
-                case "BYTE":
-                    return Byte;
-                case "C":
-                case "CHAR":
-                    return Char;
-                case "S":
-                case "SHORT":
-                    return Short;
-                case "I":
-                case "INT":
-                case "INTEGER":
-                case "INT16":
-                case "INT32":
-                case "INT64":
-                    return Int;
-                case "J":
-                case "LONG":
-                    return Long;
-                case "F":
-                case "FLOAT":
-                    return Float;
-                case "D":
-                case "DOUBLE":
-                    return Double;
-                case "V":
-                case "VOID":
-                    return Void;
+                case "v":
+                case "void":
+                case "bool":
+                case "boolean":
+                case "byte":
+                case "char":
+                case "short":
+                case "int":
+                case "integer":
+                case "int16":
+                case "int32":
+                case "int64":
+                case "long":
+                case "float":
+                case "double":
+                    return new PrimitiveTypeName(signature);
                 default:
                     return null;
             }
@@ -535,11 +467,6 @@ namespace PrimitiveCodebaseElements.Primitive
         /// Lcom.example.package.OuterClass$InnerClass1$InnerClass2;
         /// </summary>
         public string ToJavaFullyQualified()
-        {
-            return $"L{ContainmentPackage.PackageNameString}.{originalClassName};";
-        }
-
-        public string ToCSharpFullyQualified()
         {
             return $"{ContainmentPackage.PackageNameString}.{originalClassName}";
         }
