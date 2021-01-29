@@ -180,7 +180,7 @@ namespace PrimitiveCodebaseElements.Primitive
             if (ContainmentParent is ClassName parentJavaClass &&
                 !string.IsNullOrEmpty(parentJavaClass.ToJavaFullyQualified()))
             {
-                return $"{parentJavaClass.ToJavaFullyQualified()}.{ShortName}({CommaSeparatedArguments()})";
+                return $"{parentJavaClass.ToJavaFullyQualified()}.{ShortName}({CommaSeparatedArguments(false)})";
             }
 
             return "Not Java";
@@ -199,17 +199,22 @@ namespace PrimitiveCodebaseElements.Primitive
             return "Not CX";
         }
 
-        string CommaSeparatedArguments()
+        string CommaSeparatedArguments(bool includeArgNames = true)
         {
+            Func<string, Argument, string> argsWithoutNamesFunc = (current, argument) => current + $"{argument.Type.Signature}, ";
+            Func<string, Argument, string> argsWithNamesFunc = (current, argument) => current + $"{argument.Name} {argument.Type.Signature}, ";
+
+            Func<string, Argument, string> argFunction = includeArgNames ? argsWithNamesFunc : argsWithoutNamesFunc;
+        
             string paramString = Arguments.Aggregate(
                 "",
-                (current, argument) => current + $"{argument.Name} {argument.Type.Signature}, ");
-
+                argFunction);
+        
             if (!string.IsNullOrEmpty(paramString))
             {
                 paramString = paramString.Substring(0, paramString.Length - 2); // remove last ", "
             }
-
+        
             return paramString;
         }
     }
