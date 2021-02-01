@@ -201,21 +201,12 @@ namespace PrimitiveCodebaseElements.Primitive
 
         string CommaSeparatedArguments(bool includeArgNames = true)
         {
-            Func<string, Argument, string> argsWithoutNamesFunc = (current, argument) => current + $"{argument.Type.Signature}, ";
-            Func<string, Argument, string> argsWithNamesFunc = (current, argument) => current + $"{argument.Name} {argument.Type.Signature}, ";
+            Func<Argument, string> argsWithoutNamesFunc = (argument) => argument.Type.Signature;
+            Func<Argument, string> argsWithNamesFunc = (argument) => $"{argument.Name} {argument.Type.Signature}";
 
-            Func<string, Argument, string> argFunction = includeArgNames ? argsWithNamesFunc : argsWithoutNamesFunc;
-        
-            string paramString = Arguments.Aggregate(
-                "",
-                argFunction);
-        
-            if (!string.IsNullOrEmpty(paramString))
-            {
-                paramString = paramString.Substring(0, paramString.Length - 2); // remove last ", "
-            }
-        
-            return paramString;
+            Func<Argument, string> argFunction = includeArgNames ? argsWithNamesFunc : argsWithoutNamesFunc;
+
+            return string.Join(",", Arguments.Select(argFunction).ToList());
         }
     }
 
