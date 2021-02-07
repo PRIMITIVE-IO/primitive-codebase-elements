@@ -427,6 +427,7 @@ namespace PrimitiveCodebaseElements.Primitive
             {
                 case ".java":
                 case ".cs":
+                case ".kt":
                     // empty source code for files in languages that have a 1:1 representation with their classes
                     int ind = SourceCode.Text.IndexOf("class", StringComparison.Ordinal);
                     if (ind < 0)
@@ -460,6 +461,8 @@ namespace PrimitiveCodebaseElements.Primitive
                 case ".hxx":
                 case ".py":
                 case ".py3":
+                case ".js":
+                case ".jsx":
                     // replace the now parsed code with the file short name
                     SourceCode = new SourceCodeSnippet(
                         FileName.ShortName,
