@@ -36,6 +36,7 @@ namespace PrimitiveCodebaseElements.Primitive
                 {".cc", SourceCodeLanguage.Cpp},
                 {".m", SourceCodeLanguage.Cpp},
                 {".rs", SourceCodeLanguage.Rust},
+                {".ts", SourceCodeLanguage.TypeScript},
 
                 {".sol", SourceCodeLanguage.Solidity}
             };
@@ -135,6 +136,7 @@ namespace PrimitiveCodebaseElements.Primitive
         CWithClasses = 12,
         ObjC = 13,
         Rust = 14,
+        TypeScript = 15,
 
         // Non-core, specialized languages
         Solidity = 100
