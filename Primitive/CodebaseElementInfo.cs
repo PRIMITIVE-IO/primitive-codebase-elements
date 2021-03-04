@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -399,6 +400,7 @@ namespace PrimitiveCodebaseElements.Primitive
             ReferencesToThis = new List<CodeReferenceEndpoint>();
             ReferencesFromThis = new List<CodeReferenceEndpoint>();
             SourceCode = sourceText;
+            FileExtension = Path.GetExtension(name.ShortName);
             Children = new List<ICodebaseElementInfo>();
         }
 
