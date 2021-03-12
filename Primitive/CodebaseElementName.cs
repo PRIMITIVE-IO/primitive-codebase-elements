@@ -199,10 +199,23 @@ namespace PrimitiveCodebaseElements.Primitive
             return "Not CX";
         }
 
+        string GetArgumentType(Argument argument)
+        {
+            if (argument.Type is ClassName argumentType)
+            {
+                if (!string.IsNullOrEmpty(argumentType.ContainmentPackage.PackageNameString))
+                {
+                    return $"{argumentType.ContainmentPackage.PackageNameString}.{argumentType.Signature}";
+                }
+            }
+
+            return argument.Type.Signature;
+        }
+
         string CommaSeparatedArguments(bool includeArgNames = true)
         {
-            Func<Argument, string> argsWithoutNamesFunc = (argument) => argument.Type.Signature;
-            Func<Argument, string> argsWithNamesFunc = (argument) => $"{argument.Name} {argument.Type.Signature}";
+            Func<Argument, string> argsWithoutNamesFunc = GetArgumentType;
+            Func<Argument, string> argsWithNamesFunc = (argument) => $"{argument.Name} { GetArgumentType(argument)}";
 
             Func<Argument, string> argFunction = includeArgNames ? argsWithNamesFunc : argsWithoutNamesFunc;
 
