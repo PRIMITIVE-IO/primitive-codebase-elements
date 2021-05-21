@@ -228,6 +228,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public int RuntimeExecutionMaxTime;
         public int SolvedCount = 0;
         public int InvocationCount = 0;
+        public int CycloScore = 0;
 
         public MethodInfo(
             MethodName methodName,
