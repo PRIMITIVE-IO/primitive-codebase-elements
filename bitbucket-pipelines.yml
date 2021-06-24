@@ -1,0 +1,11 @@
+image: mcr.microsoft.com/dotnet/core/sdk:3.1
+pipelines:
+  default:
+    - step:
+        caches:
+          - dotnetcore
+        script: 
+          - export SOLUTION_NAME=PrimitiveCodebaseElements          
+          - export CONFIGURATION=Debug
+          - dotnet restore SOLUTION_NAME.sln
+          - dotnet build --no-restore $SOLUTION_NAME.sln --configuration $CONFIGURATION
