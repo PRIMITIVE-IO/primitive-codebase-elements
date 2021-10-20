@@ -495,6 +495,10 @@ namespace PrimitiveCodebaseElements.Primitive
     [PublicAPI]
     public class ClassInfo : ICodebaseElementInfo
     {
+        public Dictionary<string, List<ICodebaseElementInfo>> AddedElementsByBranchName { get; } = new Dictionary<string, List<ICodebaseElementInfo>>();
+        public Dictionary<string, List<ICodebaseElementInfo>> ModifiedElementsByBranchName { get; } = new Dictionary<string, List<ICodebaseElementInfo>>();
+        public Dictionary<string, List<ICodebaseElementInfo>> DeletedElementsByBranchName { get; } = new Dictionary<string, List<ICodebaseElementInfo>>();
+
         public readonly ClassName className;
         public CodebaseElementName Name => className;
         public readonly AccessFlags accessFlags;
