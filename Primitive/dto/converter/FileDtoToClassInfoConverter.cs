@@ -19,17 +19,18 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
             ILookup<string, ClassReferenceDto> incomingClassReferencesByFqn = classReferences
                 .ToLookup(it => it.ToFqn);
 
-            Dictionary<string, ClassName> fqnToClassName = fileDtos.SelectMany(fileDto =>
+            Dictionary<string, ClassName> fqnToClassName = ToDictionarySkipDuplicates(fileDtos.SelectMany(fileDto =>
                 fileDto.Classes.Select(classDto => Tuple.Create(classDto.FullyQualifiedName, new ClassName(
                         containmentFile: new FileName(filePath: fileDto.Path),
                         containmentPackage: new PackageName(packageNameString: classDto.PackageName),
                         className: classDto.Name
                     ))
                 )
-            ).ToDictionary(it => it.Item1, it => it.Item2);
+            ));
 
-            Dictionary<string, MethodName> methodSignatureToMethodName = fileDtos.SelectMany(fileDto =>
-                fileDto.Classes.SelectMany(classDto =>
+            Dictionary<string, MethodName> methodSignatureToMethodName = ToDictionarySkipDuplicates(fileDtos
+                .SelectMany(fileDto => fileDto.Classes)
+                .SelectMany(classDto =>
                     classDto.Methods.Select(methodDto => Tuple.Create(methodDto.Signature, new MethodName(
                         parent: fqnToClassName[classDto.FullyQualifiedName],
                         methodName: methodDto.Name,
@@ -38,7 +39,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
                             new Argument(argumentDto.Name, TypeName.For(argumentDto.Type)))
                     )))
                 )
-            ).ToDictionary(it => it.Item1, it => it.Item2);
+            );
 
             List<Tuple<string, string>> methodReferences = fileDtos.SelectMany(fileDto => fileDto.Classes)
                 .SelectMany(classDto => classDto.Methods)
@@ -52,7 +53,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
             ILookup<string, string> incomingMethodReferences = methodReferences
                 .ToLookup(it => it.Item2, it => it.Item1);
 
-            Dictionary<string, ClassInfo> classInfosByFqn = fileDtos
+            Dictionary<string, ClassInfo> classInfosByFqn = ToDictionarySkipDuplicates(fileDtos
                 .SelectMany(fileDto =>
                     fileDto.Classes.Select(classDto =>
                         Tuple.Create(classDto.FullyQualifiedName, ConstructClassInfo(fileDto,
@@ -66,7 +67,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
                         ))
                     )
                 )
-                .ToDictionary(it => it.Item1, it => it.Item2);
+            );
 
             foreach (KeyValuePair<string, ClassInfo> fqnToClassInfo in classInfosByFqn)
             {
@@ -82,6 +83,24 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
                 .Where(fqnToClassInfo => !fqnToClassInfo.Key.Contains("$"))
                 .Select(it => it.Value)
                 .ToList();
+        }
+
+        private static Dictionary<string, T> ToDictionarySkipDuplicates<T>(
+            IEnumerable<Tuple<string, T>> tuples)
+        {
+            Dictionary<string, List<T>> grouped = tuples
+                .GroupBy(it => it.Item1, it => it.Item2)
+                .ToDictionary(it => it.Key, it => it.ToList());
+
+            List<KeyValuePair<string,List<T>>> duplicates = grouped.Where(it => it.Value.Count > 1).ToList();
+
+            if (duplicates.Count > 0)
+            {
+                PrimitiveLogger.Logger.Instance().Error("Skip duplicates: " + string.Join(", ", duplicates));
+            }
+
+            return grouped.Where(it => it.Value.Count == 1)
+                .ToDictionary(it => it.Key, it => it.Value.First());
         }
 
         private static ClassInfo ConstructClassInfo(
