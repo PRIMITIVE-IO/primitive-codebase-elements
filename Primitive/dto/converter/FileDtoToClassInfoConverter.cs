@@ -114,10 +114,13 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
             ILookup<string, ClassReferenceDto> incomingClassReferencesByFqn)
         {
             ClassName className = fqnToClassName[classDto.FullyQualifiedName];
+            List<MethodDto> missingMethods = classDto.Methods.Where(x => !methodSignatureToMethodName.ContainsKey(x.Signature)).ToList();
+
+            missingMethods.ForEach(method => PrimitiveLogger.Logger.Instance().Error($"Missing method signature for {classDto.Path}: {method.Signature}"));
 
             ClassInfo classInfo = new ClassInfo(
                 className: className,
-                methods: classDto.Methods.Select(methodDto => ConstructMethodInfo(
+                methods: classDto.Methods.Where(methodDto => !missingMethods.Contains(methodDto)).Select(methodDto => ConstructMethodInfo(
                         methodSignatureToMethodName: methodSignatureToMethodName,
                         methodDto: methodDto,
                         className: className,
