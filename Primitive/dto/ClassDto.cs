@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive.dto
 {
@@ -11,10 +13,18 @@ namespace PrimitiveCodebaseElements.Primitive.dto
         public readonly List<MethodDto> Methods;
         public readonly List<FieldDto> Fields;
         public readonly AccessFlags Modifier;
+        //char index in file
+        [Obsolete("CodeRange should be used instead")]
         public readonly int StartIdx;
+        //char index in file
+        [Obsolete("CodeRange should be used instead")]
         public readonly int EndIdx;
+        [Obsolete("Header should be extracted from file (FileDto.Text) using CodeRange")] 
         public readonly string Header;
         public readonly List<ClassReferenceDto> ReferencesFromThis;
+        // line/column coordinates in file
+        // nullable for backward compatibility. Should be Non-null after removing all Idx
+        [CanBeNull] public readonly CodeRange CodeRange;
 
         public ClassDto(
             string path,
@@ -26,7 +36,8 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             AccessFlags modifier,
             int startIdx,
             int endIdx,
-            string header,
+            string header, 
+            CodeRange codeRange = default, 
             List<ClassReferenceDto> referencesFromThis = null)
         {
             Path = path;
@@ -39,6 +50,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             StartIdx = startIdx;
             EndIdx = endIdx;
             Header = header;
+            CodeRange = codeRange;
             ReferencesFromThis = referencesFromThis ?? new List<ClassReferenceDto>();
         }
 
@@ -55,6 +67,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
                 startIdx: StartIdx,
                 endIdx: EndIdx,
                 header: Header,
+                codeRange: CodeRange,
                 referencesFromThis: referencesFromThis ?? ReferencesFromThis
             );
         }

@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive.dto
 {
@@ -11,9 +13,16 @@ namespace PrimitiveCodebaseElements.Primitive.dto
         public readonly List<ArgumentDto> Arguments;
         public readonly string ReturnType;
         public readonly string SourceCode;
+        //char index in file
+        [Obsolete("CodeRange should be used instead")]
         public readonly int StartIdx;
+        //char index in file
+        [Obsolete("CodeRange should be used instead")]
         public readonly int EndIdx;
         public readonly List<MethodReferenceDto> MethodReferences;
+        // line/column coordinates in file
+        // nullable for backward compatibility. Should be Non-null after removing all Idx
+        [CanBeNull] public readonly CodeRange CodeRange;
 
         public MethodDto(
             string signature,
@@ -24,6 +33,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             string sourceCode,
             int startIdx,
             int endIdx,
+            CodeRange codeRange = default,
             List<MethodReferenceDto> methodReferences = default)
         {
             Signature = signature;
@@ -35,6 +45,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             EndIdx = endIdx;
             StartIdx = startIdx;
             MethodReferences = methodReferences ?? new List<MethodReferenceDto>();
+            CodeRange = codeRange;
         }
         
         public static string MethodSignature(string classFqn, string methodName, List<ArgumentDto> arguments)
@@ -54,7 +65,8 @@ namespace PrimitiveCodebaseElements.Primitive.dto
                 startIdx: StartIdx,
                 endIdx: EndIdx,
                 methodReferences: methodReferences,
-                signature: Signature
+                signature: Signature,
+                codeRange: CodeRange
             );
         }
     }
