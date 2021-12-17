@@ -44,7 +44,8 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
             List<Tuple<string, string>> methodReferences = fileDtos.SelectMany(fileDto => fileDto.Classes)
                 .SelectMany(classDto => classDto.Methods)
                 .SelectMany(methodDto => methodDto.MethodReferences)
-                .Select(methodReference => Tuple.Create(methodReference.FromMethodSignature, methodReference.ToMethodSignature))
+                .Select(methodReference =>
+                    Tuple.Create(methodReference.FromMethodSignature, methodReference.ToMethodSignature))
                 .ToList();
 
             ILookup<string, string> outgoingMethodReferences = methodReferences
@@ -69,9 +70,16 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
                 )
             );
 
+            var classFqnToParentClassFqn = fileDtos
+                .SelectMany(it => it.Classes)
+                .ToDictionary(it => it.FullyQualifiedName, it => it.ParentClassFqn);
+
             foreach (KeyValuePair<string, ClassInfo> fqnToClassInfo in classInfosByFqn)
             {
-                string outerClassFqn = OuterClassFqn(fqnToClassInfo.Key);
+
+                classFqnToParentClassFqn.TryGetValue(fqnToClassInfo.Key, out string explicitOuterClassFqn);
+                
+                string outerClassFqn = explicitOuterClassFqn ?? ExtractOuterClassFqnFromFqn(fqnToClassInfo.Key);
                 if (outerClassFqn != null)
                 {
                     classInfosByFqn[outerClassFqn].Children.Add(fqnToClassInfo.Value);
@@ -92,7 +100,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
                 .GroupBy(it => it.Item1, it => it.Item2)
                 .ToDictionary(it => it.Key, it => it.ToList());
 
-            List<KeyValuePair<string,List<T>>> duplicates = grouped.Where(it => it.Value.Count > 1).ToList();
+            List<KeyValuePair<string, List<T>>> duplicates = grouped.Where(it => it.Value.Count > 1).ToList();
 
             if (duplicates.Count > 0)
             {
@@ -114,13 +122,17 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
             ILookup<string, ClassReferenceDto> incomingClassReferencesByFqn)
         {
             ClassName className = fqnToClassName[classDto.FullyQualifiedName];
-            List<MethodDto> missingMethods = classDto.Methods.Where(x => !methodSignatureToMethodName.ContainsKey(x.Signature)).ToList();
+            List<MethodDto> missingMethods =
+                classDto.Methods.Where(x => !methodSignatureToMethodName.ContainsKey(x.Signature)).ToList();
 
-            missingMethods.ForEach(method => PrimitiveLogger.Logger.Instance().Error($"Missing method signature for {classDto.Path}: {method.Signature}"));
+            missingMethods.ForEach(method =>
+                PrimitiveLogger.Logger.Instance()
+                    .Error($"Missing method signature for {classDto.Path}: {method.Signature}"));
 
             ClassInfo classInfo = new ClassInfo(
                 className: className,
-                methods: classDto.Methods.Where(methodDto => !missingMethods.Contains(methodDto)).Select(methodDto => ConstructMethodInfo(
+                methods: classDto.Methods.Where(methodDto => !missingMethods.Contains(methodDto)).Select(methodDto =>
+                    ConstructMethodInfo(
                         methodSignatureToMethodName: methodSignatureToMethodName,
                         methodDto: methodDto,
                         className: className,
@@ -145,13 +157,15 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
                 isTestClass: fileDto.IsTest
             );
 
-            IEnumerable<CodeReferenceEndpoint> classReferencesFromThis = outgoingClassReferencesByFqn[classDto.FullyQualifiedName]
-                .Select(it => new CodeReferenceEndpoint(it.Type, fqnToClassName[it.ToFqn]));
+            IEnumerable<CodeReferenceEndpoint> classReferencesFromThis =
+                outgoingClassReferencesByFqn[classDto.FullyQualifiedName]
+                    .Select(it => new CodeReferenceEndpoint(it.Type, fqnToClassName[it.ToFqn]));
 
             classInfo.ReferencesFromThis.AddRange(classReferencesFromThis);
 
-            IEnumerable<CodeReferenceEndpoint> classReferencesToThis = incomingClassReferencesByFqn[classDto.FullyQualifiedName]
-                .Select(it => new CodeReferenceEndpoint(it.Type, fqnToClassName[it.FromFqn]));
+            IEnumerable<CodeReferenceEndpoint> classReferencesToThis =
+                incomingClassReferencesByFqn[classDto.FullyQualifiedName]
+                    .Select(it => new CodeReferenceEndpoint(it.Type, fqnToClassName[it.FromFqn]));
 
             classInfo.ReferencesToThis.AddRange(classReferencesToThis);
 
@@ -159,7 +173,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
         }
 
         [CanBeNull]
-        private static string OuterClassFqn(string classDtoFullyQualifiedName)
+        private static string ExtractOuterClassFqnFromFqn(string classDtoFullyQualifiedName)
         {
             int lastIndexOfDollarSign = classDtoFullyQualifiedName.LastIndexOf('$');
             if (lastIndexOfDollarSign == -1) return null;

@@ -25,13 +25,14 @@ namespace PrimitiveCodebaseElements.Primitive.dto
                 .Select(line =>
                 {
                     string acc = line;
-                    if (idxCounter == 0) //clip the first line
+                    if (idxCounter == lastIdx) // clip end of the last line
+                    {
+                        acc = acc.Substring(0, End.Column - 1);
+                    }
+
+                    if (idxCounter == 0) //clip begin of the first line
                     {
                         acc = acc.Substring(Start.Column - 1);
-                    }
-                    else if (idxCounter == lastIdx) // clip the last line
-                    {
-                        acc = acc.Substring(0, End.Column);
                     }
 
                     idxCounter++;

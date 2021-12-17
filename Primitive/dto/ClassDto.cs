@@ -25,6 +25,10 @@ namespace PrimitiveCodebaseElements.Primitive.dto
         // line/column coordinates in file
         // nullable for backward compatibility. Should be Non-null after removing all Idx
         [CanBeNull] public readonly CodeRange CodeRange;
+        // Is used for restore parent-child relationship, avoiding parsing class separators ("$") in class FQN.
+        // The problem with parsing FQNs is in fake file-classes: their FQN does not contain a namespace (unlike their
+        // child classes), so it is hard to find fake-class FQN based on "nested" class FQN. 
+        [CanBeNull] public readonly string ParentClassFqn;
 
         public ClassDto(
             string path,
@@ -38,7 +42,8 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             int endIdx,
             string header, 
             CodeRange codeRange = default, 
-            List<ClassReferenceDto> referencesFromThis = null)
+            List<ClassReferenceDto> referencesFromThis = null,
+            string parentClassFqn = null)
         {
             Path = path;
             PackageName = packageName;
@@ -52,9 +57,13 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             Header = header;
             CodeRange = codeRange;
             ReferencesFromThis = referencesFromThis ?? new List<ClassReferenceDto>();
+            ParentClassFqn = parentClassFqn;
         }
 
-        public ClassDto With(List<MethodDto> methods = null, List<ClassReferenceDto> referencesFromThis = null)
+        public ClassDto With(
+            List<MethodDto> methods = null, 
+            List<ClassReferenceDto> referencesFromThis = null,
+            [CanBeNull] string parentClassFqn = null)
         {
             return new ClassDto(
                 path: Path,
@@ -68,7 +77,8 @@ namespace PrimitiveCodebaseElements.Primitive.dto
                 endIdx: EndIdx,
                 header: Header,
                 codeRange: CodeRange,
-                referencesFromThis: referencesFromThis ?? ReferencesFromThis
+                referencesFromThis: referencesFromThis ?? ReferencesFromThis,
+                parentClassFqn: parentClassFqn ?? ParentClassFqn
             );
         }
     }
