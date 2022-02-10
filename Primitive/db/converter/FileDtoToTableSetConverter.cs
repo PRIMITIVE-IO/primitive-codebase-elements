@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.dto;
 
 namespace PrimitiveCodebaseElements.Primitive.db.converter
 {
+    [PublicAPI]
     public static class FileDtoToTableSetConverter
     {
-        public static TableSet ConvertToTableSet(List<FileDto> fileDtos)
+        public static TableSet ConvertToTableSet(List<FileDto> fileDtos, IReadOnlyDictionary<string, int> fileIdsByPath)
         {
             IEnumerable<string> types = fileDtos
                 .SelectMany(parsingResultDto => parsingResultDto.Classes)
@@ -24,7 +26,6 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 .Select((type, id) => Tuple.Create(type, id))
                 .ToDictionary(it => it.Item1, it => it.Item2);
 
-            int fileId = 1;
             int classId = 1;
             int methodId = 1;
             int argumentId = 1;
@@ -42,6 +43,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
 
             foreach (FileDto fileDto in fileDtos)
             {
+                int fileId = fileIdsByPath[fileDto.Path.Replace('\\', '/')];
                 dbFiles.Add(new DbFile(
                     id: fileId,
                     directoryId: -1,
@@ -161,8 +163,6 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
 
                     classId++;
                 }
-
-                fileId++;
             }
 
             List<DbClassReference> classReferences = new List<DbClassReference>();
