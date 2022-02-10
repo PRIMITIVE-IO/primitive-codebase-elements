@@ -86,7 +86,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                 startIdx: classIndex.StartIdx,
                                 endIdx: classIndex.EndIdx,
                                 codeRange: CodeRange(classIndex),
-                                header: dbClass.HeaderSource,
+                                header: string.Empty,
                                 referencesFromThis: classReferences,
                                 parentClassFqn: ParenClassFqn(dbClass.Fqn)
                             );
@@ -144,7 +144,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 field.Name,
                 type: types[field.TypeId].Signature,
                 (AccessFlags)field.AccessFlags,
-                sourceCode: field.SourceCode,
+                sourceCode: string.Empty,
                 startIdx: index.StartIdx,
                 endIdx: index.EndIdx,
                 codeRange: CodeRange(index)
@@ -188,7 +188,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 accFlag: (AccessFlags)method.AccessFlags,
                 arguments: args,
                 returnType: types[method.ReturnTypeId].Signature,
-                sourceCode: method.SourceCode,
+                sourceCode: string.Empty,
                 startIdx: dbSourceIndex.StartIdx,
                 endIdx: dbSourceIndex.EndIdx,
                 codeRange: CodeRange(dbSourceIndex),

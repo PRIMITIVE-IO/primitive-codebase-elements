@@ -1,22 +1,17 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbField
     {
-        public readonly int Id;
-        public readonly int ParentType;
-        public readonly int ParentId;
+        public readonly int Id, ParentType, ParentId, TypeId, AccessFlags, Language;
         public readonly string Name;
-        public readonly int TypeId;
-        public readonly int AccessFlags;
-        public readonly string SourceCode;
-        public readonly int Language;
 
-        public DbField(int id, int parentType, int parentId, string name, int typeId, int accessFlags,
-            string sourceCode, int language)
+        public DbField(int id, int parentType, int parentId, string name, int typeId, int accessFlags, int language)
         {
             Id = id;
             ParentType = parentType;
@@ -24,7 +19,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
             Name = name;
             TypeId = typeId;
             AccessFlags = accessFlags;
-            SourceCode = sourceCode;
             Language = language;
         }
 
@@ -35,8 +29,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 parent_id INTEGER NOT NULL, 
                 name TEXT NOT NULL, 
                 type_id INTEGER NOT NULL, 
-                access_flags INTEGER NOT NULL, 
-                source_code TEXT, 
+                access_flags INTEGER NOT NULL,
                 language INTEGER, 
                 FOREIGN KEY(parent_id) REFERENCES classes(id) ON UPDATE CASCADE, 
                 FOREIGN KEY(type_id) REFERENCES types(id) ON UPDATE CASCADE
@@ -54,8 +47,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           parent_id, 
                           name, 
                           type_id, 
-                          access_flags, 
-                          source_code, 
+                          access_flags,
                           language 
                       ) VALUES ( 
                           @Id,
@@ -63,8 +55,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           @ParentId, 
                           @Name, 
                           @TypeId, 
-                          @AccessFlags, 
-                          @SourceCode, 
+                          @AccessFlags,
                           @Language)";
 
             foreach (DbField field in fields)
@@ -74,7 +65,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 cmd.AddParameter(System.Data.DbType.String, "@Name", field.Name);
                 cmd.AddParameter(System.Data.DbType.Int32, "@TypeId", field.TypeId);
                 cmd.AddParameter(System.Data.DbType.UInt32, "@AccessFlags", field.AccessFlags);
-                cmd.AddParameter(System.Data.DbType.String, "@SourceCode", field.SourceCode);
                 cmd.AddParameter(System.Data.DbType.Int32, "@Language", field.Language);
 
                 cmd.ExecuteNonQuery();
@@ -87,7 +77,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbField> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                     SELECT
                           id,
                           parent_type, 
@@ -107,7 +97,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 name: row.GetString("name"),
                 typeId: row.GetInt32("type_id"),
                 accessFlags: row.GetInt32("access_flags"),
-                sourceCode: row.GetString("source_code"),
                 language: row.GetInt32("language")
             ));
         }

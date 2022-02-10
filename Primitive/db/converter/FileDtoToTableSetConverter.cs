@@ -63,7 +63,6 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                         parentId: fileId,
                         fqn: classDto.FullyQualifiedName,
                         accessFlags: (int)classDto.Modifier,
-                        headerSource: classDto.Header,
                         language: (int)fileDto.Language,
                         isTestClass: fileDto.IsTest ? 1 : 0
                     ));
@@ -79,7 +78,6 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                             name: methodDto.Name,
                             returnTypeId: typeToId[methodDto.ReturnType],
                             accessFlags: (int)methodDto.AccFlag,
-                            sourceCode: methodDto.SourceCode,
                             language: (int)fileDto.Language,
                             cyclomaticScore: 0
                         ));
@@ -125,7 +123,6 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                             name: fieldDto.Name,
                             typeId: typeToId[fieldDto.Type],
                             accessFlags: (int)fieldDto.AccFlag,
-                            sourceCode: fieldDto.SourceCode,
                             language: (int)fileDto.Language
                         ));
                         if (fieldDto.StartIdx != -1)

@@ -1,24 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbMethod
     {
-        public readonly int Id;
-        public readonly int ParentType;
-        public readonly int ParentId;
+        public readonly int Id, ParentType, ParentId, ReturnTypeId, AccessFlags, Language, CyclomaticScore;
         public readonly string Name;
-        public readonly int ReturnTypeId;
-        public readonly int AccessFlags;
-        public readonly string SourceCode;
-        public readonly int Language;
-        public readonly int CyclomaticScore;
 
         public DbMethod(int id, int parentType, int parentId, string name, int returnTypeId, int accessFlags,
-            string sourceCode, int language, int cyclomaticScore)
+            int language, int cyclomaticScore)
         {
             Id = id;
             ParentType = parentType;
@@ -26,7 +21,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
             Name = name;
             ReturnTypeId = returnTypeId;
             AccessFlags = accessFlags;
-            SourceCode = sourceCode;
             Language = language;
             CyclomaticScore = cyclomaticScore;
         }
@@ -40,7 +34,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 return_type_id INTEGER NOT NULL, 
                 access_flags INTEGER NOT NULL, 
                 field_id TEXT, 
-                source_code TEXT, 
                 language INTEGER,
                 cyclomatic_score SMALLINT,
                 FOREIGN KEY(parent_id) REFERENCES classes(id) ON UPDATE CASCADE
@@ -57,8 +50,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           parent_id, 
                           name, 
                           return_type_id, 
-                          access_flags, 
-                          source_code, 
+                          access_flags,
                           language,
                           cyclomatic_score
                       ) VALUES ( 
@@ -67,8 +59,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           @ParentId, 
                           @Name, 
                           @ReturnTypeId, 
-                          @AccessFlags, 
-                          @SourceCode, 
+                          @AccessFlags,
                           @Language,
                           @CyclomaticScore
                       )";
@@ -87,7 +78,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 insertMethodCmd.AddParameter(System.Data.DbType.String, "@Name", method.Name);
                 insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@ReturnTypeId", method.ReturnTypeId);
                 insertMethodCmd.AddParameter(System.Data.DbType.UInt32, "@AccessFlags", method.AccessFlags);
-                insertMethodCmd.AddParameter(System.Data.DbType.String, "@SourceCode", method.SourceCode);
                 insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@Language", method.Language);
 
                 insertMethodCmd.ExecuteNonQuery();
@@ -121,7 +111,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 name: row.GetString("name"),
                 returnTypeId: row.GetInt32("return_type_id"),
                 accessFlags: row.GetInt32("access_flags"),
-                sourceCode: row.GetString("source_code"),
                 language: row.GetInt32("language"),
                 cyclomaticScore: row.GetInt32("cyclomatic_score")
             ));
