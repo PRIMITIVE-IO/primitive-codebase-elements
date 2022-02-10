@@ -15,7 +15,7 @@ namespace PrimitiveCodebaseElements.Tests
         [Fact]
         public void Test1()
         {
-            var output = "test";
+            string output = "test";
 
             //Ver
             output.Should().Be("test");

@@ -70,7 +70,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
                 )
             );
 
-            var classFqnToParentClassFqn = fileDtos
+            Dictionary<string, string> classFqnToParentClassFqn = fileDtos
                 .SelectMany(it => it.Classes)
                 .ToDictionary(it => it.FullyQualifiedName, it => it.ParentClassFqn);
 

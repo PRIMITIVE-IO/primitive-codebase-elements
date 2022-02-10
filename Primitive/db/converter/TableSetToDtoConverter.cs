@@ -5,6 +5,7 @@ using PrimitiveCodebaseElements.Primitive.dto;
 
 namespace PrimitiveCodebaseElements.Primitive.db.converter
 {
+    [PublicAPI]
     public static class TableSetToDtoConverter
     {
         public static List<FileDto> ToFileDto(TableSet tableSet)
@@ -24,11 +25,11 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 .Where(it => it.Type == "METHOD")
                 .ToDictionary(it => it.ElementId);
 
-            var fieldIndices = tableSet.SourceIndices
+            Dictionary<int, DbSourceIndex> fieldIndices = tableSet.SourceIndices
                 .Where(it => it.Type == "FIELD")
                 .ToDictionary(it => it.ElementId);
 
-            var classIndices = tableSet.SourceIndices
+            Dictionary<int, DbSourceIndex> classIndices = tableSet.SourceIndices
                 .Where(it => it.Type == "CLASS")
                 .ToDictionary(it => it.ElementId);
 
@@ -105,8 +106,11 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 .ToList();
         }
 
-        static string Signature(DbMethod method, Dictionary<int, DbClass> classes, List<DbArgument> args,
-            Dictionary<int, DbType> types)
+        static string Signature(
+            DbMethod method, 
+            IReadOnlyDictionary<int, DbClass> classes, 
+            IEnumerable<DbArgument> args,
+            IReadOnlyDictionary<int, DbType> types)
         {
             string argsString = string.Join(",", args.Select(it => types[it.TypeId]));
             string classFqn = classes[method.ParentId].Fqn;
@@ -117,25 +121,22 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
         [CanBeNull]
         static string PackageName(string fqn)
         {
-            if (!fqn.Contains('.')) return null;
-            return fqn.SubstringBeforeLast(".");
+            return !fqn.Contains('.') ? null : fqn.SubstringBeforeLast(".");
         }
 
         static string ClassName(string fqn)
         {
-            if (fqn.Contains("$")) return fqn.SubstringAfterLast("$");
-            return fqn.SubstringAfterLast(".");
+            return fqn.SubstringAfterLast(fqn.Contains("$") ? "$" : ".");
         }
 
         static string ParenClassFqn(string fqn)
         {
-            if (fqn.Contains("$")) return fqn.SubstringBeforeLast("$");
-            return null;
+            return fqn.Contains('$') ? fqn.SubstringBeforeLast("$") : null;
         }
 
         static FieldDto ToFieldDto(
             DbField field,
-            Dictionary<int, DbType> types,
+            IReadOnlyDictionary<int, DbType> types,
             DbSourceIndex index
         )
         {

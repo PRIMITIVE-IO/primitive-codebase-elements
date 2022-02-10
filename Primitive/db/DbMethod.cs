@@ -100,7 +100,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbMethod> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                     SELECT
                         id,
                         parent_type, 
