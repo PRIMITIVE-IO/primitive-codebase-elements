@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
