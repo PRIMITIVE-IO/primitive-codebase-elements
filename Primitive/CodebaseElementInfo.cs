@@ -445,12 +445,12 @@ namespace PrimitiveCodebaseElements.Primitive
 
                     if (ind >= 0)
                     {
-                        string rest = SourceCode.Text.Substring(ind);
+                        string rest = SourceCode.Text[ind..];
                         int newlineInd = rest.IndexOf('\n');
 
                         // substring header to first newline
                         SourceCode = new SourceCodeSnippet(
-                            SourceCode.Text.Substring(0, ind + newlineInd),
+                            SourceCode.Text[..(ind + newlineInd)],
                             FileExtension);
                     }
 

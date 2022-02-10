@@ -26,12 +26,12 @@ namespace PrimitiveCodebaseElements.Primitive.dto
                     string acc = line;
                     if (idxCounter == lastIdx) // clip end of the last line
                     {
-                        acc = acc.Substring(0, End.Column - 1);
+                        acc = acc[..(End.Column - 1)];
                     }
 
                     if (idxCounter == 0) //clip begin of the first line
                     {
-                        acc = acc.Substring(Start.Column - 1);
+                        acc = acc[(Start.Column - 1)..];
                     }
 
                     idxCounter++;

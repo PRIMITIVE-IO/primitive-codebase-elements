@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
+    [PublicAPI]
     public static class StringUtil
     {
         public static string SubstringAfterLast(this string s, string sub)
@@ -49,7 +51,7 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             if (firstNonWhitespaceIndex < line.Length)
             {
-                if (line.Substring(0, firstNonWhitespaceIndex).Trim().Length != 0)
+                if (line[..firstNonWhitespaceIndex].Trim().Length != 0)
                 {
                     //indentation contains some chars (if this is first line)
                     return line;
@@ -100,14 +102,14 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public static string SubstringBefore(this string s, string part)
         {
-            return s.Substring(0, s.IndexOf(part, StringComparison.Ordinal));
+            return s[..s.IndexOf(part, StringComparison.Ordinal)];
         }
 
         public static string SubstringBeforeLast(this string s, string part)
         {
             int lastIdx = s.LastIndexOf(part, StringComparison.Ordinal);
             int len = lastIdx == -1 ? s.Length : lastIdx;
-            return s.Substring(0, len);
+            return s[..len];
         }
 
         public static string SubstringAfter(this string s, string part)

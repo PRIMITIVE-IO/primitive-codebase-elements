@@ -58,7 +58,7 @@ namespace PrimitiveCodebaseElements.Primitive
                 lastInsertionPosition = insertion.Position;
             }
 
-            builder.Append(text.Substring(lastInsertionPosition));
+            builder.Append(text[lastInsertionPosition..]);
 
             return builder.ToString();
         }

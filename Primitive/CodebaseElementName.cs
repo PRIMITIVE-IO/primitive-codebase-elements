@@ -313,8 +313,8 @@ namespace PrimitiveCodebaseElements.Primitive
             string classNameString = packageAndClass;
             if (packageAndClass.Contains('.'))
             {
-                packageNameString = packageAndClass.Substring(0, packageAndClass.LastIndexOf('.'));
-                classNameString = packageAndClass.Substring(packageAndClass.LastIndexOf('.') + 1);
+                packageNameString = packageAndClass[..packageAndClass.LastIndexOf('.')];
+                classNameString = packageAndClass[(packageAndClass.LastIndexOf('.') + 1)..];
             }
 
             PackageName packageName = new PackageName(packageNameString);
@@ -443,7 +443,7 @@ namespace PrimitiveCodebaseElements.Primitive
                 ParentClass = new ClassName(
                     containmentFile,
                     containmentPackage,
-                    className.Substring(0, className.LastIndexOf('$')));
+                    className[..className.LastIndexOf('$')]);
             }
             else
             {
@@ -502,9 +502,7 @@ namespace PrimitiveCodebaseElements.Primitive
             char separator = GetSeparator(filePath);
 
             ContainmentParent = filePath.Contains(separator)
-                ? new PackageName(filePath.Substring(
-                    0,
-                    filePath.LastIndexOf(separator)))
+                ? new PackageName(filePath[..filePath.LastIndexOf(separator)])
                 : new PackageName();
 
             hashCode = FilePath.GetHashCode();
@@ -513,7 +511,7 @@ namespace PrimitiveCodebaseElements.Primitive
         static string GetShortName(string path, char separator)
         {
             return path.Contains(separator)
-                ? path.Substring(path.LastIndexOf(separator) + 1)
+                ? path[(path.LastIndexOf(separator) + 1)..]
                 : path;
         }
 
@@ -579,9 +577,7 @@ namespace PrimitiveCodebaseElements.Primitive
                 //   short name:  child
                 //   parent:      com.org.package
                 return new PackageName(
-                    PackageNameString.Substring(
-                        0,
-                        PackageNameString.Length - ShortName.Length - 1));
+                    PackageNameString[..(PackageNameString.Length - ShortName.Length - 1)]);
             }
 
             // the parent of this package is the root
@@ -605,16 +601,16 @@ namespace PrimitiveCodebaseElements.Primitive
             if (packageName.Contains('.'))
             {
                 // a compiler FQN
-                return packageName.Substring(packageName.LastIndexOf('.') + 1);
+                return packageName[(packageName.LastIndexOf('.') + 1)..];
             }
 
             if (packageName.Contains('/'))
             {
                 // a path FQN
-                return packageName.Substring(packageName.LastIndexOf('/') + 1);
+                return packageName[(packageName.LastIndexOf('/') + 1)..];
             }
 
-            return packageName.Substring(packageName.LastIndexOf('\\') + 1);
+            return packageName[(packageName.LastIndexOf('\\') + 1)..];
         }
     }
 

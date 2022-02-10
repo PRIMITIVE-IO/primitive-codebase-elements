@@ -177,7 +177,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
         {
             int lastIndexOfDollarSign = classDtoFullyQualifiedName.LastIndexOf('$');
             if (lastIndexOfDollarSign == -1) return null;
-            return classDtoFullyQualifiedName.Substring(0, lastIndexOfDollarSign);
+            return classDtoFullyQualifiedName[..lastIndexOfDollarSign];
         }
 
         private static MethodInfo ConstructMethodInfo(
