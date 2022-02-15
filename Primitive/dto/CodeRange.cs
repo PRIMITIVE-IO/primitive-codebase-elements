@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace PrimitiveCodebaseElements.Primitive.dto
 {
@@ -16,30 +17,47 @@ namespace PrimitiveCodebaseElements.Primitive.dto
 
         public string Of(string text)
         {
-            int idxCounter = 0;
-            int lastIdx = End.Line - Start.Line;
-            IEnumerable<string> lines = text.Split('\n')
-                .Skip(Start.Line - 1)
-                .Take(End.Line - Start.Line + 1)
-                .Select(line =>
+            int lineCounter = 1;
+            int lastLineBreakIdx = -1;
+            StringBuilder res = new StringBuilder();
+            for (int i = 0; i < text.Length; i++)
+            {
+                char currentChar = text[i];
+
+                bool isFirstLine = Start.Line == lineCounter;
+                bool isOneliner = Start.Line == End.Line;
+                bool fartherThanStartColumn = Start.Column <= i - lastLineBreakIdx;
+                bool closerThanEndColumn = i - lastLineBreakIdx <= End.Column;
+                bool isLastLine = End.Line == lineCounter;
+                
+                if (
+                    isOneliner && isFirstLine && fartherThanStartColumn && closerThanEndColumn ||
+                    !isOneliner && isFirstLine && fartherThanStartColumn ||
+                    Start.Line < lineCounter && lineCounter < End.Line ||
+                    !isOneliner && isLastLine && closerThanEndColumn
+                )
                 {
-                    string acc = line;
-                    if (idxCounter == lastIdx) // clip end of the last line
-                    {
-                        acc = acc[..(End.Column - 1)];
-                    }
+                    res.Append(currentChar);
+                }
 
-                    if (idxCounter == 0) //clip begin of the first line
-                    {
-                        acc = acc[(Start.Column - 1)..];
-                    }
+                if (currentChar == '\n')
+                {
+                    lineCounter++;
+                }
 
-                    idxCounter++;
+                if (currentChar == '\r' || currentChar == '\n')
+                {
+                    lastLineBreakIdx = i;
+                }
 
-                    return acc;
-                });
+                if (End.Line < lineCounter ||
+                    End.Line == lineCounter && End.Column < i - lastLineBreakIdx)
+                {
+                    break;
+                }
+            }
 
-            return string.Join("\n", lines);
+            return res.ToString();
         }
 
         protected bool Equals(CodeRange other)
@@ -66,6 +84,11 @@ namespace PrimitiveCodebaseElements.Primitive.dto
         public override string ToString()
         {
             return $"{nameof(Start)}: {Start}, {nameof(End)}: {End}";
+        }
+
+        public static CodeRange Of(int startLine, int startColumn, int endLine, int endColumn)
+        {
+            return new CodeRange(new CodeLocation(startLine, startColumn), new CodeLocation(endLine, endColumn));
         }
     }
 }

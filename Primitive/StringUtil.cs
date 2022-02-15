@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using PrimitiveCodebaseElements.Primitive.dto;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
@@ -120,7 +121,68 @@ namespace PrimitiveCodebaseElements.Primitive
                 return s;
             }
 
-            return s.Substring(Tuple.Create(i + part.Length, s.Length));
+            return s.Substring(Tuple.Create(i + part.Length, s.Length - 1));
+        }
+
+        [CanBeNull]
+        public static CodeLocation LocationIn(this string s, PrimitiveCodebaseElements.Primitive.dto.CodeRange range,
+            char c)
+        {
+            CodeLocation location = range.Of(s).LocationOf(c);
+            if (location == null) return null;
+
+            int column;
+            if (location.Line == 1)
+            {
+                column = location.Column + range.Start.Column - 1;
+            }
+            else
+            {
+                column = location.Column;
+            }
+
+            return new CodeLocation(location.Line + range.Start.Line - 1, column);
+        }
+
+        public static int[] LineColIndex(this string s)
+        {
+            return s.Split('\n').Select(it => it.Length).ToArray();
+        }
+
+        public static CodeLocation OneCharLeft(this CodeLocation location, string s)
+        {
+            if (location.Line == 1 && location.Column == 1) throw new Exception($"Cannot shift left");
+            if (location.Column > 1) return new CodeLocation(location.Line, location.Column - 1);
+
+            return new CodeLocation(location.Line - 1, LineColIndex(s)[location.Line - 2]);
+        }
+
+        [CanBeNull]
+        public static CodeLocation LocationOf(this string s, char c)
+        {
+            int idx = s.IndexOf(c);
+            if (idx == -1) return null;
+
+            int lineCounter = 1;
+            int lastLineBreakIdx = -1;
+
+            for (int i = 0; i < idx; i++)
+            {
+                char currentChar = s[i];
+                if (currentChar == '\n')
+                {
+                    lineCounter++;
+                }
+
+                if (currentChar == '\r' || currentChar == '\n')
+                {
+                    lastLineBreakIdx = i;
+                }
+            }
+
+            int col = idx - lastLineBreakIdx;
+
+            return new CodeLocation(lineCounter, col);
         }
     }
 }

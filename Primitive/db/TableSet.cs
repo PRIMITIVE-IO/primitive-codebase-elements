@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
     public class TableSet
     {
-        
         public readonly List<DbDirectory> Directories;
         public readonly List<DbArgument> Arguments;
         public readonly List<DbClass> Classes;
@@ -19,21 +19,28 @@ namespace PrimitiveCodebaseElements.Primitive.db
         public readonly List<DbSourceIndex> SourceIndices;
 
         public TableSet(
-            List<DbDirectory> directories,
-            List<DbArgument> arguments, List<DbClass> classes, List<DbClassReference> classReferences,
-            List<DbField> fields, List<DbFile> files, List<DbMethod> methods, List<DbMethodReference> methodReferences,
-            List<DbType> types, List<DbSourceIndex> sourceIndices)
+            [CanBeNull] List<DbDirectory> directories = null,
+            [CanBeNull] List<DbArgument> arguments = null,
+            [CanBeNull] List<DbClass> classes = null,
+            [CanBeNull] List<DbClassReference> classReferences = null,
+            [CanBeNull] List<DbField> fields = null,
+            [CanBeNull] List<DbFile> files = null,
+            [CanBeNull] List<DbMethod> methods = null,
+            [CanBeNull] List<DbMethodReference> methodReferences = null,
+            [CanBeNull] List<DbType> types = null,
+            [CanBeNull] List<DbSourceIndex> sourceIndices = null
+        )
         {
-            Directories = directories;
-            Arguments = arguments;
-            Classes = classes;
-            ClassReferences = classReferences;
-            Fields = fields;
-            Files = files;
-            Methods = methods;
-            MethodReferences = methodReferences;
-            Types = types;
-            SourceIndices = sourceIndices;
+            Directories = directories ?? new List<DbDirectory>();
+            Arguments = arguments ?? new List<DbArgument>();
+            Classes = classes ?? new List<DbClass>();
+            ClassReferences = classReferences ?? new List<DbClassReference>();
+            Fields = fields ?? new List<DbField>();
+            Files = files ?? new List<DbFile>();
+            Methods = methods ?? new List<DbMethod>();
+            MethodReferences = methodReferences ?? new List<DbMethodReference>();
+            Types = types ?? new List<DbType>();
+            SourceIndices = sourceIndices ?? new List<DbSourceIndex>();
         }
 
         public static TableSet ReadAll(IDbConnection conn)
@@ -51,23 +58,23 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 sourceIndices: DbSourceIndex.ReadAll(conn)
             );
         }
-        
-        static void CreateTables(IDbConnection conn)
+
+        public static void CreateTables(IDbConnection conn)
         {
-            conn.ExecuteNonQuery(@"PRAGMA foreign_keys = ON;");            
-            conn.ExecuteNonQuery(DbDirectory.CreateTable);            
-            conn.ExecuteNonQuery(DbFile.CreateTable);            
-            conn.ExecuteNonQuery(DbClass.CreateTable);            
-            conn.ExecuteNonQuery(DbType.CreateTable);            
-            conn.ExecuteNonQuery(DbMethod.CreateTable);            
-            conn.ExecuteNonQuery(DbArgument.CreateTable);            
-            conn.ExecuteNonQuery(DbField.CreateTable);            
-            conn.ExecuteNonQuery(DbMethodReference.CreateTable);            
-            conn.ExecuteNonQuery(DbClassReference.CreateTable);                        
-            conn.ExecuteNonQuery(DbSourceIndex.CreateTable);                        
+            conn.ExecuteNonQuery(@"PRAGMA foreign_keys = ON;");
+            conn.ExecuteNonQuery(DbDirectory.CreateTable);
+            conn.ExecuteNonQuery(DbFile.CreateTable);
+            conn.ExecuteNonQuery(DbClass.CreateTable);
+            conn.ExecuteNonQuery(DbType.CreateTable);
+            conn.ExecuteNonQuery(DbMethod.CreateTable);
+            conn.ExecuteNonQuery(DbArgument.CreateTable);
+            conn.ExecuteNonQuery(DbField.CreateTable);
+            conn.ExecuteNonQuery(DbMethodReference.CreateTable);
+            conn.ExecuteNonQuery(DbClassReference.CreateTable);
+            conn.ExecuteNonQuery(DbSourceIndex.CreateTable);
         }
 
-        static void Save(TableSet tableSet, IDbConnection conn)
+        public static void Save(TableSet tableSet, IDbConnection conn)
         {
             DbDirectory.SaveAll(tableSet.Directories, conn);
             DbFile.SaveAll(tableSet.Files, conn);

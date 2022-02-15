@@ -59,7 +59,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             Arguments = arguments ?? Enumerable.Empty<DbDiffArgument>();
         }
 
-        static void CreateTables(IDbConnection conn)
+        public static void CreateTables(IDbConnection conn)
         {
             conn.ExecuteNonQuery(@"PRAGMA foreign_keys = ON;");
 
@@ -80,7 +80,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             conn.ExecuteNonQuery(DbDiffArgument.CreateTable);
         }
 
-        static void Save(DiffTableSet tableSet, IDbConnection conn)
+        public static void Save(DiffTableSet tableSet, IDbConnection conn)
         {
             DbBranch.SaveAll(tableSet.Branches, conn);
             DbDiffDirectoryAdded.SaveAll(tableSet.DirectoryAded, conn);
