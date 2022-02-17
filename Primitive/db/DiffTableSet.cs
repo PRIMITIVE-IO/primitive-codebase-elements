@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
-
     public class DiffTableSet
     {
         public readonly IEnumerable<DbBranch> Branches;
@@ -23,6 +23,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
         public readonly IEnumerable<DbDiffMethodDeleted> MethodDeleted;
         public readonly IEnumerable<DbDiffMethod> Methods;
         public readonly IEnumerable<DbDiffArgument> Arguments;
+        public readonly IEnumerable<DbDiffDirectoryCoordinates> Layout;
 
         public DiffTableSet(
             IEnumerable<DbBranch> branches = null,
@@ -39,7 +40,8 @@ namespace PrimitiveCodebaseElements.Primitive.db
             IEnumerable<DbDiffField> fields = null,
             IEnumerable<DbDiffMethodDeleted> methodDeletes = null,
             IEnumerable<DbDiffMethod> methods = null,
-            IEnumerable<DbDiffArgument> arguments = null
+            IEnumerable<DbDiffArgument> arguments = null,
+            IEnumerable<DbDiffDirectoryCoordinates> layout = null
         )
         {
             Branches = branches ?? Enumerable.Empty<DbBranch>();
@@ -57,6 +59,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             MethodDeleted = methodDeletes ?? Enumerable.Empty<DbDiffMethodDeleted>();
             Methods = methods ?? Enumerable.Empty<DbDiffMethod>();
             Arguments = arguments ?? Enumerable.Empty<DbDiffArgument>();
+            Layout = layout ?? Enumerable.Empty<DbDiffDirectoryCoordinates>();
         }
 
         public static void CreateTables(IDbConnection conn)
@@ -69,7 +72,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
             conn.ExecuteNonQuery(DbDiffFileAdded.CreateTable);
             conn.ExecuteNonQuery(DbDiffFileDeleted.CreateTable);
             conn.ExecuteNonQuery(DbDiffFileModified.CreateTable);
-            conn.ExecuteNonQuery(DbType.CreateTable);
             conn.ExecuteNonQuery(DbDiffClassDeleted.CreateTable);
             conn.ExecuteNonQuery(DbDiffClass.CreateTable);
             conn.ExecuteNonQuery(DbDiffClassModifiedProperty.CreateTable);
@@ -78,6 +80,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             conn.ExecuteNonQuery(DbDiffMethodDeleted.CreateTable);
             conn.ExecuteNonQuery(DbDiffMethod.CreateTable);
             conn.ExecuteNonQuery(DbDiffArgument.CreateTable);
+            conn.ExecuteNonQuery(DbDiffDirectoryCoordinates.CreateTable);
         }
 
         public static void Save(DiffTableSet tableSet, IDbConnection conn)
@@ -97,6 +100,29 @@ namespace PrimitiveCodebaseElements.Primitive.db
             DbDiffMethodDeleted.SaveAll(tableSet.MethodDeleted, conn);
             DbDiffMethod.SaveAll(tableSet.Methods, conn);
             DbDiffArgument.SaveAll(tableSet.Arguments, conn);
+            DbDiffDirectoryCoordinates.SaveAll(tableSet.Layout, conn);
+        }
+
+        public static DiffTableSet ReadAll(DbConnection conn)
+        {
+            return new DiffTableSet(
+                branches: DbBranch.ReadAll(conn),
+                directoryAdds: DbDiffDirectoryAdded.ReadAll(conn),
+                directoryDeletes: DbDiffDirectoryDeleted.ReadAll(conn),
+                fileAdds: DbDiffFileAdded.ReadAll(conn),
+                fileDeletes: DbDiffFileDeleted.ReadAll(conn),
+                fileModifications: DbDiffFileModified.ReadAll(conn),
+                types: DbType.ReadAll(conn),
+                classDeletes: DbDiffClassDeleted.ReadAll(conn),
+                classes: DbDiffClass.ReadAll(conn),
+                classModifiedProperties: DbDiffClassModifiedProperty.ReadAll(conn),
+                fieldDeletes: DbDiffFieldDeleted.ReadAll(conn),
+                fields: DbDiffField.ReadAll(conn),
+                methodDeletes: DbDiffMethodDeleted.ReadAll(conn),
+                methods: DbDiffMethod.ReadAll(conn),
+                arguments: DbDiffArgument.ReadAll(conn),
+                layout: DbDiffDirectoryCoordinates.ReadAll(conn)
+            );
         }
     }
 }

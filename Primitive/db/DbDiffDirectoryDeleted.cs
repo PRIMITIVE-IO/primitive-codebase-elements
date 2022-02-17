@@ -20,7 +20,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           directory_id INTEGER NOT NULL,
 						  branch_id INTEGER NOT NULL,
 						  FOREIGN KEY(directory_id) REFERENCES directories(id) ON UPDATE CASCADE,
-						  FOREIGN KEY(branch_id) REFERENCES diff_branches(id) ON UPDATE CASCADE)
+						  FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE)
 		";
         
         
@@ -60,7 +60,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
             return conn.Execute(query).TransformRows(row => new DbDiffDirectoryDeleted(
                 directoryId: row.GetInt32("directory_id"),
-                branchId: row.GetInt32("fqn")
+                branchId: row.GetInt32("branch_id")
             ));
         }
     }

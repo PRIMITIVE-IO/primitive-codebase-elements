@@ -46,7 +46,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 						  branch_id INTEGER NOT NULL,
                           FOREIGN KEY(parent_id) REFERENCES files(id) ON UPDATE CASCADE,
 						  FOREIGN KEY(parent_id_diff) REFERENCES diff_files_added(id) ON UPDATE CASCADE,
-						  FOREIGN KEY(branch_id) REFERENCES diff_branches(id) ON UPDATE CASCADE)";
+						  FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE)";
 
 
         public static void SaveAll(IEnumerable<DbDiffClass> directories, IDbConnection conn)

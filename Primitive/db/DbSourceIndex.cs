@@ -110,7 +110,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             ";
 
             return conn.Execute(query).TransformRows(row => new DbSourceIndex(
-                elementId: row.GetInt32("element_id "),
+                elementId: row.GetInt32("element_id"),
                 fileId: row.GetInt32("file_id"),
                 type: row.GetString("type"),
                 startIdx: row.GetInt32("start_idx"),

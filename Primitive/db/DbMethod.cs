@@ -9,11 +9,12 @@ namespace PrimitiveCodebaseElements.Primitive.db
     [PublicAPI]
     public class DbMethod
     {
-        public readonly int Id, ParentType, ParentId, ReturnTypeId, AccessFlags, Language, CyclomaticScore;
+        public readonly int Id, ParentType, ParentId, ReturnTypeId, AccessFlags, Language;
+        public readonly int? CyclomaticScore;
         public readonly string Name;
 
         public DbMethod(int id, int parentType, int parentId, string name, int returnTypeId, int accessFlags,
-            int language, int cyclomaticScore)
+            int language, int? cyclomaticScore)
         {
             Id = id;
             ParentType = parentType;
@@ -35,7 +36,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 access_flags INTEGER NOT NULL, 
                 field_id TEXT, 
                 language INTEGER,
-                cyclomatic_score SMALLINT,
+                cyclomatic_score INTEGER,
                 FOREIGN KEY(parent_id) REFERENCES classes(id) ON UPDATE CASCADE
             )";
 
@@ -64,7 +65,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           @CyclomaticScore
                       )";
 
-
             foreach (DbMethod method in methods)
             {
                 insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@Id", method.Id);
@@ -73,7 +73,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 bool isCycloDefined = method.CyclomaticScore > 0;
                 object cycloScore = isCycloDefined ? (object)method.CyclomaticScore : DBNull.Value;
 
-                insertMethodCmd.AddParameter(System.Data.DbType.Int16, "@CyclomaticScore", cycloScore);
+                insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@CyclomaticScore", cycloScore);
                 insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@ParentId", method.ParentId);
                 insertMethodCmd.AddParameter(System.Data.DbType.String, "@Name", method.Name);
                 insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@ReturnTypeId", method.ReturnTypeId);
@@ -98,7 +98,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                         name, 
                         return_type_id, 
                         access_flags, 
-                        source_code, 
                         language,
                         cyclomatic_score
                     FROM methods
@@ -112,7 +111,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 returnTypeId: row.GetInt32("return_type_id"),
                 accessFlags: row.GetInt32("access_flags"),
                 language: row.GetInt32("language"),
-                cyclomaticScore: row.GetInt32("cyclomatic_score")
+                cyclomaticScore: row.GetIntOrNull("cyclomatic_score")
             ));
         }
     }

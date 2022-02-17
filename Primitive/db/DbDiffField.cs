@@ -46,7 +46,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                          language INTEGER,
 						 original_field_id INT NULL,
 						 branch_id INT,
-						 FOREIGN KEY(branch_id) REFERENCES diff_branches(id) ON UPDATE CASCADE,
+						 FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE,
                          FOREIGN KEY(parent_id) REFERENCES classes(id) ON UPDATE CASCADE,
 						 FOREIGN KEY(parent_id_diff) REFERENCES diff_classes(id) ON UPDATE CASCADE,
 						 FOREIGN KEY(original_field_id) REFERENCES fields(id) ON UPDATE CASCADE,

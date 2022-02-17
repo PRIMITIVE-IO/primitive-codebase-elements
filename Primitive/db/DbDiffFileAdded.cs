@@ -35,7 +35,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                          directory_id_diff INTEGER NULL,
                          content INTEGER NOT NULL,
                          language_id INTEGER NOT NULL,
-                         FOREIGN KEY(branch_id) REFERENCES diff_branches(id) ON UPDATE CASCADE,
+                         FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE,
                          FOREIGN KEY(directory_id_diff) REFERENCES diff_directories_added (id) ON UPDATE CASCADE,
                          FOREIGN KEY(directory_id) REFERENCES directories(id) ON UPDATE CASCADE)";
         

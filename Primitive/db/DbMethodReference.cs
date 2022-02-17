@@ -129,7 +129,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             ";
 
             return conn.Execute(query).TransformRows(row => new DbMethodReference(
-                id: row.GetInt32("id "),
+                id: row.GetInt32("id"),
                 type: row.GetInt32("type"),
                 fromId: row.GetInt32("from_id"),
                 toId: row.GetInt32("to_id"),

@@ -10,11 +10,11 @@ namespace PrimitiveCodebaseElements.Primitive.db
         public readonly int OriginalDirectoryId;
         public readonly int AddedDirectoryId;
         public readonly int IsDeleted;
-        public readonly int PositionX;
-        public readonly int PositionY;
+        public readonly float PositionX;
+        public readonly float PositionY;
 
         public DbDiffDirectoryCoordinates(int branchId, int originalDirectoryId, int addedDirectoryId, int isDeleted,
-            int positionX, int positionY)
+            float positionX, float positionY)
         {
             BranchId = branchId;
             OriginalDirectoryId = originalDirectoryId;
@@ -32,7 +32,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                          is_deleted byte NOT NULL DEFAULT 0,
                          position_x REAL NOT NULL,
                          position_y REAL NOT NULL,
-                         FOREIGN KEY(branch_id) REFERENCES diff_branches(id) ON UPDATE CASCADE,
+                         FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE,
                          FOREIGN KEY(added_directory_id) REFERENCES diff_directories_added (id) ON UPDATE CASCADE,
                          FOREIGN KEY(original_directory_id) REFERENCES directories(id) ON UPDATE CASCADE);
               CREATE INDEX diff_directories_coordinates_branch_id ON diff_directories_coordinates (branch_id);";
@@ -65,8 +65,8 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 cmd.AddParameter(System.Data.DbType.Int32, "@OriginalDirectoryId", dir.OriginalDirectoryId);
                 cmd.AddParameter(System.Data.DbType.Int32, "@AddedDirectoryId", dir.AddedDirectoryId);
                 cmd.AddParameter(System.Data.DbType.Int32, "@IsDeleted", dir.IsDeleted);
-                cmd.AddParameter(System.Data.DbType.Int32, "@PositionX", dir.PositionX);
-                cmd.AddParameter(System.Data.DbType.Int32, "@PositionY", dir.PositionY);
+                cmd.AddParameter(System.Data.DbType.Decimal, "@PositionX", dir.PositionX);
+                cmd.AddParameter(System.Data.DbType.Decimal, "@PositionY", dir.PositionY);
                 cmd.ExecuteNonQuery();
             }
 
@@ -93,8 +93,8 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 originalDirectoryId: row.GetInt32("original_directory_id"),
                 addedDirectoryId: row.GetInt32("added_directory_id"),
                 isDeleted: row.GetInt32("is_deleted"),
-                positionX: row.GetInt32("position_x"),
-                positionY: row.GetInt32("position_y")
+                positionX: row.GetFloat("position_x"),
+                positionY: row.GetFloat("position_y")
             ));
         }
     }

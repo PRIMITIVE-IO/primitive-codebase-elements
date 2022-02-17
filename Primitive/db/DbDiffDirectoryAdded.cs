@@ -22,7 +22,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                          id INTEGER PRIMARY KEY ASC, 
                          fqn TEXT NOT NULL, 
                          branch_id INTEGER NOT NULL,
-                         FOREIGN KEY(branch_id) REFERENCES diff_branches(id) ON UPDATE CASCADE)
+                         FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE)
                          ";
         
         
@@ -38,8 +38,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                       ) VALUES (
                           @Id,
                           @FQN,
-                          @BranchId,
-                          @PositionY
+                          @BranchId
                       )";
 
             foreach (DbDiffDirectoryAdded dir in directories)

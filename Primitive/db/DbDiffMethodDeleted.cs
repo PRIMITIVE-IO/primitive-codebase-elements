@@ -20,7 +20,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           method_id INTEGER NOT NULL,
 						  branch_id INTEGER NOT NULL,
 						  FOREIGN KEY(method_id) REFERENCES methods(id) ON UPDATE CASCADE,
-						  FOREIGN KEY(branch_id) REFERENCES diff_branches(id) ON UPDATE CASCADE)";
+						  FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE)";
         
         
         public static void SaveAll(IEnumerable<DbDiffMethodDeleted> methods, IDbConnection conn)

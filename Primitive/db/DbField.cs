@@ -85,13 +85,12 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           name, 
                           type_id, 
                           access_flags, 
-                          source_code, 
                           language 
                     FROM fields
                    ";
 
             return conn.Execute(query).TransformRows(row => new DbField(
-                id: row.GetInt32("id "),
+                id: row.GetInt32("id"),
                 parentType: row.GetInt32("parent_type"),
                 parentId: row.GetInt32("parent_id"),
                 name: row.GetString("name"),

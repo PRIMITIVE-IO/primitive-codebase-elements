@@ -22,7 +22,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                          id INTEGER PRIMARY KEY ASC,
                          branch_id INTEGER NOT NULL,
                          file_id INTEGER NOT NULL,
-                         FOREIGN KEY(branch_id) REFERENCES diff_branches(id) ON UPDATE CASCADE,
+                         FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE,
                          FOREIGN KEY(file_id) REFERENCES files(id) ON UPDATE CASCADE)";
         
 

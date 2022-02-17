@@ -25,7 +25,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           header_source TEXT,
 						  branch_id INT NOT NULL,
                           FOREIGN KEY(original_class_id) REFERENCES classes(id) ON UPDATE CASCADE,
-						  FOREIGN KEY(branch_id) REFERENCES diff_branches(id) ON UPDATE CASCADE)";
+						  FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE)";
         
         
         public static void SaveAll(IEnumerable<DbDiffClassModifiedProperty> props, IDbConnection conn)

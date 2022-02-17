@@ -20,7 +20,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           field_id INTEGER NOT NULL,
 						  branch_id INT,
 						  FOREIGN KEY(field_id) REFERENCES fields(id) ON UPDATE CASCADE,
-						  FOREIGN KEY(branch_id) REFERENCES diff_branches(id) ON UPDATE CASCADE)";
+						  FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE)";
         
         
         public static void SaveAll(IEnumerable<DbDiffFieldDeleted> fields, IDbConnection conn)
@@ -28,7 +28,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             IDbCommand cmd = conn.CreateCommand();
             IDbTransaction transaction = conn.BeginTransaction();
             cmd.CommandText =
-                @"INSERT INTO diff_fields (
+                @"INSERT INTO diff_fields_deleted (
                         field_id,
                         branch_id
                       ) VALUES (
@@ -54,7 +54,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                     SELECT
                         field_id,
                         branch_id
-                    FROM diff_fields
+                    FROM diff_fields_deleted
             ";
 
             return conn.Execute(query).TransformRows(row => new DbDiffFieldDeleted(
