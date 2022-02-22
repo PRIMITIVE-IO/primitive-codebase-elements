@@ -56,7 +56,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           cyclomatic_score
                       ) VALUES ( 
                           @Id,
-                          2, 
+                          @ParentType, 
                           @ParentId, 
                           @Name, 
                           @ReturnTypeId, 
@@ -68,6 +68,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             foreach (DbMethod method in methods)
             {
                 insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@Id", method.Id);
+                insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@ParentType", method.ParentType);
 
                 // the MIN value of Cyclomatic Complexity Score is 1, so 0 means it's not defined
                 bool isCycloDefined = method.CyclomaticScore > 0;

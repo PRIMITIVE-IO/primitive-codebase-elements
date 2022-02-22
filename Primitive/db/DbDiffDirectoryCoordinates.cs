@@ -7,13 +7,13 @@ namespace PrimitiveCodebaseElements.Primitive.db
     public class DbDiffDirectoryCoordinates
     {
         public readonly int BranchId;
-        public readonly int OriginalDirectoryId;
-        public readonly int AddedDirectoryId;
+        public readonly int? OriginalDirectoryId;
+        public readonly int? AddedDirectoryId;
         public readonly int IsDeleted;
         public readonly float PositionX;
         public readonly float PositionY;
 
-        public DbDiffDirectoryCoordinates(int branchId, int originalDirectoryId, int addedDirectoryId, int isDeleted,
+        public DbDiffDirectoryCoordinates(int branchId, int? originalDirectoryId, int? addedDirectoryId, int isDeleted,
             float positionX, float positionY)
         {
             BranchId = branchId;
@@ -90,8 +90,8 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
             return conn.Execute(query).TransformRows(row => new DbDiffDirectoryCoordinates(
                 branchId: row.GetInt32("branch_id"),
-                originalDirectoryId: row.GetInt32("original_directory_id"),
-                addedDirectoryId: row.GetInt32("added_directory_id"),
+                originalDirectoryId: row.GetIntOrNull("original_directory_id"),
+                addedDirectoryId: row.GetIntOrNull("added_directory_id"),
                 isDeleted: row.GetInt32("is_deleted"),
                 positionX: row.GetFloat("position_x"),
                 positionY: row.GetFloat("position_y")

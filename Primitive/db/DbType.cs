@@ -45,7 +45,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             string query = @"
                 SELECT
                     id,
-                       signature
+                    signature
                 FROM types
             ";
 

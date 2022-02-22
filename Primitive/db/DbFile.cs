@@ -38,7 +38,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           language 
                       ) VALUES ( 
                           @Id,
-                          -1, 
+                          @DirectoryId, 
                           @Name, 
                           @Path, 
                           @SourceText, 
@@ -47,6 +47,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             foreach (DbFile file in files)
             {
                 cmd.AddParameter(System.Data.DbType.Int32, "@Id", file.Id);
+                cmd.AddParameter(System.Data.DbType.Int32, "@DirectoryId", file.DirectoryId);
                 cmd.AddParameter(System.Data.DbType.String, "@Name", file.Name);
                 cmd.AddParameter(System.Data.DbType.String, "@Path", file.Path);
                 cmd.AddParameter(System.Data.DbType.String, "@SourceText", file.SourceText);
