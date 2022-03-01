@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 
 namespace PrimitiveCodebaseElements.Primitive.db.util
@@ -13,13 +13,10 @@ namespace PrimitiveCodebaseElements.Primitive.db.util
             this.reader = reader;
             this.cmd = cmd;
         }
-        
-        /// <summary>
-        /// BUG compiler shows warning:
-        /// BUG: Change ReaderWrapper.Dispose() to call GC.SuppressFinalize(object). This will prevent derived types that introduce a finalizer from needing to re-implement 'IDisposable' to call it.
-        /// </summary>
+
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             reader.Dispose();
             cmd.Dispose();
         }
