@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive.dto
 {
+    [PublicAPI]
     public class CodeRange
     {
         public readonly CodeLocation Start;

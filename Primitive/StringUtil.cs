@@ -45,7 +45,7 @@ namespace PrimitiveCodebaseElements.Primitive
             if (firstNonWhitespaceIndex == -1) return s;
 
             IEnumerable<string> unindentedLines = lines.Select(it => UnindentLine(it, firstNonWhitespaceIndex));
-            return String.Join("\n", unindentedLines);
+            return string.Join("\n", unindentedLines);
         }
 
         static string UnindentLine(string line, int firstNonWhitespaceIndex)

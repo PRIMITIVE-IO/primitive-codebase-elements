@@ -1,5 +1,8 @@
-﻿namespace PrimitiveCodebaseElements.Primitive.dto
+﻿using JetBrains.Annotations;
+
+namespace PrimitiveCodebaseElements.Primitive.dto
 {
+    [PublicAPI]
     public class CodeLocation
     {
         //1-based

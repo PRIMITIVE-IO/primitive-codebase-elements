@@ -1,4 +1,3 @@
-using System;
 using FluentAssertions;
 using PrimitiveCodebaseElements.Primitive;
 using PrimitiveCodebaseElements.Primitive.dto;

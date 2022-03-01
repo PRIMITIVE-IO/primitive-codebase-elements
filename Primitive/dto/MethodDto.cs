@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive.dto
 {
+    [PublicAPI]
     public class MethodDto
     {
         public readonly string Signature;

@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbDiffDirectoryCoordinates
     {
         public readonly int BranchId;
@@ -24,7 +26,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             PositionY = positionY;
         }
 
-        public static readonly string CreateTable =
+        public const string CreateTable =
             @"CREATE TABLE diff_directories_coordinates (
                          branch_id INTEGER NOT NULL,
                          original_directory_id INTEGER NULL,
@@ -36,8 +38,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                          FOREIGN KEY(added_directory_id) REFERENCES diff_directories_added (id) ON UPDATE CASCADE,
                          FOREIGN KEY(original_directory_id) REFERENCES directories(id) ON UPDATE CASCADE);
               CREATE INDEX diff_directories_coordinates_branch_id ON diff_directories_coordinates (branch_id);";
-        
-        
+
         public static void SaveAll(IEnumerable<DbDiffDirectoryCoordinates> directories, IDbConnection conn)
         {
             IDbCommand cmd = conn.CreateCommand();
@@ -77,7 +78,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbDiffDirectoryCoordinates> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                     SELECT
                         branch_id,
                         original_directory_id,

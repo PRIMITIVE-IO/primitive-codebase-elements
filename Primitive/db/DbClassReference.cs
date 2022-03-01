@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbClassReference
     {
         public readonly int Id;
@@ -36,7 +38,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             EndColumn = endColumn;
         }
 
-        public static readonly string CreateTable = @"
+        public const string CreateTable = @"
             CREATE TABLE class_reference ( 
                 id INTEGER PRIMARY KEY ASC, 
                 type INTEGER NOT NULL, 
@@ -110,7 +112,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbClassReference> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                     SELECT
                           id,
                           type, 

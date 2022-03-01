@@ -22,7 +22,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             IsTestClass = isTestClass;
         }
 
-        public static readonly string CreateTable = @"CREATE TABLE classes ( 
+        public const string CreateTable = @"CREATE TABLE classes ( 
                           id INTEGER PRIMARY KEY ASC, 
                           parent_type INTEGER NOT NULL, 
                           parent_id INTEGER NOT NULL, 

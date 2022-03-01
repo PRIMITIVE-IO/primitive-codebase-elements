@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive.dto
 {
+    [PublicAPI]
     public class ClassReferenceDto
     {
         public readonly CodeReferenceType Type;

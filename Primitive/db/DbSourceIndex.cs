@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbSourceIndex
     {
         public readonly int ElementId;
@@ -78,7 +80,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             cmd.Dispose();
         }
 
-        public static readonly string CreateTable = @"
+        public const string CreateTable = @"
             CREATE TABLE source_index (
                         element_id   INTEGER NOT NULL,
                         file_id      INTEGER NOT NULL,
@@ -95,7 +97,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbSourceIndex> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                     SELECT
                           element_id,
                           file_id,

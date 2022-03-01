@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbDirectory
     {
         public readonly int Id;
@@ -19,7 +21,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             PositionY = positionY;
         }
 
-        public static string CreateTable = @"
+        public const string CreateTable = @"
             CREATE TABLE directories (
                 id INTEGER PRIMARY KEY ASC,
                 fqn        TEXT NOT NULL,
@@ -60,7 +62,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbDirectory> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                     SELECT
                           id,
                           fqn,

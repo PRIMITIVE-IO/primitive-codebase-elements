@@ -1,5 +1,8 @@
-﻿namespace PrimitiveCodebaseElements.Primitive.db.util
+﻿using JetBrains.Annotations;
+
+namespace PrimitiveCodebaseElements.Primitive.db.util
 {
+    [PublicAPI]
     public class Param
     {
         public readonly System.Data.DbType Type;

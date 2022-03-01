@@ -35,11 +35,11 @@ namespace PrimitiveCodebaseElements.Primitive
             Func<T, V> valueTransformer,
             Action<T> onKeyDuplication = null)
         {
-            var dict = new Dictionary<K, V>();
-            foreach (var elem in elems)
+            Dictionary<K, V> dict = new Dictionary<K, V>();
+            foreach (T elem in elems)
             {
-                var key = keyExtractor(elem);
-                var value = valueTransformer(elem);
+                K key = keyExtractor(elem);
+                V value = valueTransformer(elem);
                 if (!dict.ContainsKey(key))
                 {
                     dict.Add(key, value);

@@ -5,6 +5,7 @@ using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+	[PublicAPI]
     public class DbDiffMethod
     {
         public readonly int Id;
@@ -36,7 +37,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             BranchId = branchId;
         }
         
-        public static readonly string CreateTable =
+        public const string CreateTable =
                 @"CREATE TABLE diff_methods ( 
                          id INTEGER PRIMARY KEY ASC, 
                          parent_type INTEGER NOT NULL, 

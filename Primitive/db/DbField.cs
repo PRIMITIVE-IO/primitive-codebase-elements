@@ -22,7 +22,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             Language = language;
         }
 
-        public static readonly string CreateTable = @"
+        public const string CreateTable = @"
             CREATE TABLE fields ( 
                 id INTEGER PRIMARY KEY ASC, 
                 parent_type INTEGER NOT NULL, 

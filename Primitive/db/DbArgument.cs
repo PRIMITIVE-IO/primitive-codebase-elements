@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbArgument
     {
         public readonly int Id;
@@ -21,7 +23,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             TypeId = typeId;
         }
 
-        public static readonly string CreateTable = @"
+        public const string CreateTable = @"
             CREATE TABLE method_arguments ( 
                 id INTEGER PRIMARY KEY ASC, 
                 method_id INTEGER NOT NULL, 
@@ -72,7 +74,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbArgument> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                 SELECT
                           id,
                           method_id, 

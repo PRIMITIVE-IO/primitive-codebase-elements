@@ -6,7 +6,7 @@ namespace PrimitiveCodebaseElements.Tests
 {
     public class SourceCodeSnippetTests
     {
-        private SourceCodeSnippet _snippet; 
+        SourceCodeSnippet _snippet; 
 
         public SourceCodeSnippetTests()
         {

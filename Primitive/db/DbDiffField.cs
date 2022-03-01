@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbDiffField
     {
         public readonly int Id;
@@ -33,7 +35,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             BranchId = branchId;
         }
         
-        public static readonly string CreateTable =
+        public const string CreateTable =
             @"CREATE TABLE diff_fields (
                          id INTEGER PRIMARY KEY ASC,
                          parent_type INTEGER NOT NULL,
@@ -51,7 +53,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
 						 FOREIGN KEY(parent_id_diff) REFERENCES diff_classes(id) ON UPDATE CASCADE,
 						 FOREIGN KEY(original_field_id) REFERENCES fields(id) ON UPDATE CASCADE,
                          FOREIGN KEY(type_id) REFERENCES types(id) ON UPDATE CASCADE)";
-        
         
         public static void SaveAll(IEnumerable<DbDiffField> directories, IDbConnection conn)
         {
@@ -107,7 +108,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbDiffField> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                     SELECT
                         id,
                         parent_type,

@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbFile
     {
         public readonly int Id;
@@ -61,7 +63,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             cmd.Dispose();
         }
 
-        public static readonly string CreateTable = @"
+        public const string CreateTable = @"
             CREATE TABLE files ( 
                 id INTEGER PRIMARY KEY ASC, 
                 directory_id INTEGER NOT NULL, 

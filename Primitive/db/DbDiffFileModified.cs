@@ -21,7 +21,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             OldName = oldName;
         }
 
-        public static readonly string CreateTable =
+        public const string CreateTable =
             @"CREATE TABLE diff_files_modified (
                          id INTEGER PRIMARY KEY ASC,
                          branch_id INTEGER NOT NULL,

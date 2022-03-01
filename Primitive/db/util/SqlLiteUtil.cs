@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive.db.util
 {
+    [PublicAPI]
     public static class SqLiteUtil
     {
         public static ReaderWrapper Execute(this IDbConnection conn, string sql, params Param[] parameters)
@@ -59,7 +61,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.util
             return res;
         }
 
-        public static void AddParameter(this IDbCommand cmd, System.Data.DbType type, string name, Object value)
+        public static void AddParameter(this IDbCommand cmd, System.Data.DbType type, string name, object value)
         {
             IDbDataParameter p = cmd.CreateParameter();
             p.DbType = type;

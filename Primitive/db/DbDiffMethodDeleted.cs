@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+	[PublicAPI]
     public class DbDiffMethodDeleted
     {
         public readonly int MethodId;
@@ -15,7 +17,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             BranchId = branchId;
         }
         
-        public static readonly string CreateTable =
+        public const string CreateTable =
             @"CREATE TABLE diff_methods_deleted (
                           method_id INTEGER NOT NULL,
 						  branch_id INTEGER NOT NULL,
@@ -50,7 +52,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbDiffMethodDeleted> ReadAll(IDbConnection conn)
         {
-	        string query = @"
+	        const string query = @"
                     SELECT
 						method_id,
 						branch_id

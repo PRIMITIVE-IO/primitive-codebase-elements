@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbDiffClass
     {
         public readonly int Id;
@@ -32,8 +34,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             BranchId = branchId;
         }
 
-        public static readonly string CreateTable =
-            @"CREATE TABLE diff_classes (
+        public const string CreateTable = @"CREATE TABLE diff_classes (
                           id INTEGER PRIMARY KEY ASC,
                           parent_type INTEGER NOT NULL,
                           parent_id INTEGER NULL,
@@ -100,7 +101,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbDiffClass> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                     SELECT
                         id,
                         parent_type,

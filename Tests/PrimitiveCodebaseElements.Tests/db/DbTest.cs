@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SQLite;
@@ -14,14 +13,14 @@ public class DbTest
     [Fact]
     public void DbReadWrite()
     {
-        var dbPath = Path.GetTempFileName();
+        string dbPath = Path.GetTempFileName();
         try
         {
             using (DbConnection conn = new SQLiteConnection($"URI=file:{dbPath}"))
             {
                 conn.Open();
                 // @formatter:off
-                var ts = new TableSet(
+                TableSet ts = new TableSet(
                     files: new List<DbFile> { new(id: 1, directoryId: 1, name: "", path: "", sourceText: "", language: 1) },
                     types: new List<DbType> { new(id: 1, signature: "") },
                     classes: new List<DbClass> { new(id: 1, parentType: 1, parentId: 1, fqn: "", accessFlags: 1, language: 1, isTestClass: 1) },
@@ -39,7 +38,7 @@ public class DbTest
                 // @formatter:on
                 TableSet.CreateTables(conn);
                 TableSet.Save(ts, conn);
-                var readTs = TableSet.ReadAll(conn);
+                TableSet readTs = TableSet.ReadAll(conn);
 
                 readTs.Directories.Should().HaveCount(1);
                 readTs.Arguments.Should().HaveCount(1);
@@ -54,7 +53,7 @@ public class DbTest
                 readTs.SourceIndices.Should().HaveCount(1);
 
                 // @formatter:off
-                var dts = new DiffTableSet(
+                DiffTableSet dts = new DiffTableSet(
                         branches: new List<DbBranch>{new(1, "")},
                         directoryAdds: new List<DbDiffDirectoryAdded>{new(id:1, fqn: "", branchId:1)},
                         directoryDeletes: new List<DbDiffDirectoryDeleted>{new(directoryId:1, branchId:1)},
@@ -75,7 +74,7 @@ public class DbTest
                 // @formatter:on
                 DiffTableSet.CreateTables(conn);
                 DiffTableSet.Save(dts, conn);
-                var readDts = DiffTableSet.ReadAll(conn);
+                DiffTableSet readDts = DiffTableSet.ReadAll(conn);
 
                 readDts.Branches.Should().HaveCount(1);
                 readDts.DirectoryDeleted.Should().HaveCount(1);

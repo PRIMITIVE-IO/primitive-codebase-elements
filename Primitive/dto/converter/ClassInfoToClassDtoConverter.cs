@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive.dto.converter
 {
+    [PublicAPI]
     public class ClassInfoToClassDtoConverter
     {
         public static FileDto ToParsingResultDto(List<ClassInfo> classInfos, string sourceText, string path)
@@ -12,7 +14,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
                 path: path,
                 text: sourceText,
                 isTest: classInfos.Any(it => it.IsTestClass),
-                classes: classInfos.SelectMany(it => ToClassDtos(it)).ToList(),
+                classes: classInfos.SelectMany(ToClassDtos).ToList(),
                 language: SourceCodeSnippet.LanguageFromExtension(Path.GetExtension(path))
             );
         }
@@ -28,8 +30,8 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
                             packageName: classInfo.className.ContainmentPackage.PackageNameString,
                             name: classInfo.className.originalClassName,
                             fullyQualifiedName: classInfo.className.ToJavaFullyQualified(),
-                            methods: classInfo.Methods.Select(it => ToMethodDto(it)).ToList(),
-                            fields: classInfo.Fields.Select(it => ToFieldDto(it)).ToList(),
+                            methods: classInfo.Methods.Select(ToMethodDto).ToList(),
+                            fields: classInfo.Fields.Select(ToFieldDto).ToList(),
                             modifier: classInfo.accessFlags,
                             startIdx: -1,
                             endIdx: -1,
@@ -60,24 +62,17 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
                 accFlag: methodInfo.accessFlags,
                 startIdx: -1,
                 endIdx: -1,
-                arguments: ToArgumentDto(methodInfo.Arguments.ToList()),
+                arguments: ToArgumentDto(methodInfo.Arguments),
                 returnType: methodInfo.ReturnType.Signature
             );
         }
 
-        static List<ArgumentDto> ToArgumentDto(List<Argument> arguments)
+        static List<ArgumentDto> ToArgumentDto(IEnumerable<Argument> arguments)
         {
-            List<ArgumentDto> acc = new List<ArgumentDto>();
-            for (int i = 0; i < arguments.Count; i++)
-            {
-                acc.Add(new ArgumentDto(
-                    index: i,
-                    name: arguments[i].Name,
-                    type: arguments[i].Type.Signature
-                ));
-            }
-
-            return acc;
+            return arguments.Select((t, i) => new ArgumentDto(
+                index: i, 
+                name: t.Name,
+                type: t.Type.Signature)).ToList();
         }
     }
 }

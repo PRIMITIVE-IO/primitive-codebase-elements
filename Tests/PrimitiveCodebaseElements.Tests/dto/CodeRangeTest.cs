@@ -15,7 +15,7 @@ namespace PrimitiveCodebaseElements.Tests.dto
             CodeRange.Of(1, 1, 1, 5).Of("12345").Should().Be("12345");
             CodeRange.Of(1, 2, 1, 4).Of("12345").Should().Be("234");
             
-            var s = @"12345
+            string s = @"12345
                            67890
                            12345".TrimIndent();
             

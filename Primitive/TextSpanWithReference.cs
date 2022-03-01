@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using JetBrains.Annotations;
+using System;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
@@ -49,7 +50,7 @@ namespace PrimitiveCodebaseElements.Primitive
                 // All insertion positions are based on the original text positions, so we should always get substrings
                 // of the original text.
                 builder.Append(
-                    text.Substring(
+                    text.AsSpan(
                         lastInsertionPosition,
                         insertion.Position - lastInsertionPosition));
 

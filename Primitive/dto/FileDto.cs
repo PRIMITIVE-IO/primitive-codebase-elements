@@ -1,11 +1,12 @@
-using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive.dto
 {
+    [PublicAPI]
     public class FileDto
     {
-        public readonly String Text;
+        public readonly string Text;
         public readonly string Path;
         public readonly bool IsTest;
         public readonly List<ClassDto> Classes;

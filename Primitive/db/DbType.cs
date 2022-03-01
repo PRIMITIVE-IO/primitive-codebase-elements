@@ -1,15 +1,17 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbType
     {
         public readonly int Id;
         public readonly string Signature;
 
-        public static readonly string CreateTable = @"
+        public const string CreateTable = @"
             CREATE TABLE types ( 
                id INTEGER PRIMARY KEY ASC, 
                signature TEXT NOT NULL
@@ -42,7 +44,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbType> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                 SELECT
                     id,
                     signature

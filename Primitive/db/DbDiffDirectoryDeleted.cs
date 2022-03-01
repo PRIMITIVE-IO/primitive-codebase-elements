@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbDiffDirectoryDeleted
     {
         public readonly int DirectoryId;
@@ -15,14 +17,12 @@ namespace PrimitiveCodebaseElements.Primitive.db
             BranchId = branchId;
         }
 
-        public static string CreateTable = @"
+        public const string CreateTable = @"
             CREATE TABLE diff_directories_deleted (
                           directory_id INTEGER NOT NULL,
 						  branch_id INTEGER NOT NULL,
 						  FOREIGN KEY(directory_id) REFERENCES directories(id) ON UPDATE CASCADE,
-						  FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE)
-		";
-        
+						  FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE)";
         
         public static void SaveAll(IEnumerable<DbDiffDirectoryDeleted> directories, IDbConnection conn)
         {
@@ -51,7 +51,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbDiffDirectoryDeleted> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                     SELECT
                           directory_id,
                           branch_id

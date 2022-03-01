@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbModifiedAndDeletedFiles
     {
         public readonly int Id;
@@ -24,7 +26,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             OldName = oldName;
         }
 
-        public static string CreateTable = @"
+        public const string CreateTable = @"
             CREATE TABLE modified_and_deleted_files (
                          id INTEGER PRIMARY KEY ASC,
                          branch_id INTEGER NOT NULL,
@@ -75,7 +77,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbModifiedAndDeletedFiles> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                     SELECT
                           id,
                           branch_id,

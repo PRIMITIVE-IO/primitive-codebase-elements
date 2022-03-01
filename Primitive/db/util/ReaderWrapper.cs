@@ -1,8 +1,10 @@
-using System;
+﻿using System;
 using System.Data;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive.db.util
 {
+    [PublicAPI]
     public class ReaderWrapper : IDisposable
     {
         readonly IDataReader reader;

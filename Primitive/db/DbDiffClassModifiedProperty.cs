@@ -18,7 +18,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             HeaderSource = headerSource;
             BranchId = branchId;
         }
-        public static readonly string CreateTable =
+        public const string CreateTable =
             @"CREATE TABLE diff_class_modified_properties (
                           original_class_id INTEGER NOT NULL,
                           access_flags INTEGER NOT NULL,

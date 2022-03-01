@@ -15,7 +15,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             BranchId = branchId;
         }
         
-        public static readonly string CreateTable =
+        public const string CreateTable =
             @"CREATE TABLE diff_classes_deleted (
                           class_id INTEGER NOT NULL,
 						  branch_id INTEGER NOT NULL,

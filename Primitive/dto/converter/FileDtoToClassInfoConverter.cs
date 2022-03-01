@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive.dto.converter
 {
+    [PublicAPI]
     public class FileDtoToClassInfoConverter
     {
         public static List<ClassInfo> ToClassInfos(List<FileDto> fileDtos)
@@ -93,7 +94,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
                 .ToList();
         }
 
-        private static Dictionary<string, T> ToDictionarySkipDuplicates<T>(
+        static Dictionary<string, T> ToDictionarySkipDuplicates<T>(
             IEnumerable<Tuple<string, T>> tuples)
         {
             Dictionary<string, List<T>> grouped = tuples
@@ -111,11 +112,11 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
                 .ToDictionary(it => it.Key, it => it.Value.First());
         }
 
-        private static ClassInfo ConstructClassInfo(
+        static ClassInfo ConstructClassInfo(
             FileDto fileDto,
             ClassDto classDto,
-            Dictionary<string, ClassName> fqnToClassName,
-            Dictionary<string, MethodName> methodSignatureToMethodName,
+            IReadOnlyDictionary<string, ClassName> fqnToClassName,
+            IReadOnlyDictionary<string, MethodName> methodSignatureToMethodName,
             ILookup<string, string> incomingMethodReferences,
             ILookup<string, string> outgoingMethodReferences,
             ILookup<string, ClassReferenceDto> outgoingClassReferencesByFqn,
@@ -173,20 +174,20 @@ namespace PrimitiveCodebaseElements.Primitive.dto.converter
         }
 
         [CanBeNull]
-        private static string ExtractOuterClassFqnFromFqn(string classDtoFullyQualifiedName)
+        static string ExtractOuterClassFqnFromFqn(string classDtoFullyQualifiedName)
         {
             int lastIndexOfDollarSign = classDtoFullyQualifiedName.LastIndexOf('$');
             if (lastIndexOfDollarSign == -1) return null;
             return classDtoFullyQualifiedName[..lastIndexOfDollarSign];
         }
 
-        private static MethodInfo ConstructMethodInfo(
-            Dictionary<string, MethodName> methodSignatureToMethodName,
+        static MethodInfo ConstructMethodInfo(
+            IReadOnlyDictionary<string, MethodName> methodSignatureToMethodName,
             MethodDto methodDto,
             ClassName className,
             FileDto fileDto,
-            List<string> incomingMethodReferences,
-            List<string> outgoingMethodReferences)
+            IEnumerable<string> incomingMethodReferences,
+            IEnumerable<string> outgoingMethodReferences)
         {
             MethodInfo methodInfo = new MethodInfo(
                 methodName: methodSignatureToMethodName[methodDto.Signature],

@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbBranch
     {
         public readonly int Id;
@@ -15,7 +17,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             Name = name;
         }
 
-        public static string CreateTable = @"
+        public const string CreateTable = @"
             CREATE TABLE branches (
                          id INTEGER PRIMARY KEY ASC,
                          name TEXT NOT NULL)
@@ -47,7 +49,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbBranch> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                     SELECT
                           id,
                           name

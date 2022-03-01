@@ -26,7 +26,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             CyclomaticScore = cyclomaticScore;
         }
 
-        public static readonly string CreateTable = @"
+        public const string CreateTable = @"
             CREATE TABLE methods ( 
                 id INTEGER PRIMARY KEY ASC, 
                 parent_type INTEGER NOT NULL, 
