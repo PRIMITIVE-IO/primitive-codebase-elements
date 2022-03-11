@@ -234,12 +234,12 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
 
             return new TableSet(
                 directories: new List<DbDirectory>(),
-                files: dbFiles,
-                classes: dbClasses,
-                methods: dbMethods,
                 arguments: dbArguments,
+                classes: dbClasses,
                 classReferences: classReferences,
                 fields: dbFields,
+                files: dbFiles,
+                methods: dbMethods,
                 methodReferences: methodReferences,
                 types: dbTypes,
                 sourceIndices: dbSourceIndices

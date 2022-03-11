@@ -338,7 +338,6 @@ namespace PrimitiveCodebaseElements.Primitive
 
         [JsonIgnore] string serialized;
 
-
         public FieldInfo(
             FieldName fieldName,
             ClassName parentClass,
@@ -549,14 +548,8 @@ namespace PrimitiveCodebaseElements.Primitive
 
             foreach (ICodebaseElementInfo branchChild in branchInfo.Children)
             {
-                foreach (ICodebaseElementInfo originalChild in Methods)
-                {
-                    if (originalChild.Name == branchChild.Name)
-                    {
-                        originalChild.DiffAgainst(branchChild);
-                        break;
-                    }
-                }
+                ICodebaseElementInfo original = Children.Find(child => child.Name == branchChild.Name);
+                original?.DiffAgainst(branchChild);
             }
         }
 
