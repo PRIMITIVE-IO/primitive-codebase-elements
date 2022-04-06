@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using JetBrains.Annotations;
@@ -71,12 +72,21 @@ namespace PrimitiveCodebaseElements.Primitive.db
                     FROM directories
             ";
 
-            return conn.Execute(query).TransformRows(row => new DbDirectory(
-                id: row.GetInt32("id"),
-                fqn: row.GetString("fqn"),
-                positionX: row.GetDouble("position_x"),
-                positionY: row.GetDouble("position_y")
-            ));
+            try
+            {
+                return conn.Execute(query).TransformRows(row => new DbDirectory(
+                    id: row.GetInt32("id"),
+                    fqn: row.GetString("fqn"),
+                    positionX: row.GetDouble("position_x"),
+                    positionY: row.GetDouble("position_y")
+                ));
+            }
+            catch (Exception ex)
+            {
+                PrimitiveLogger.Logger.Instance()
+                    .Warn($"Cannot read directories: {ex.Message}", ex);
+                return new List<DbDirectory>();
+            }
         }
     }
 }

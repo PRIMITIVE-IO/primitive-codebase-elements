@@ -64,5 +64,11 @@ namespace PrimitiveCodebaseElements.Primitive
                 onKeyDuplication: onKeyDuplication
             );
         }
+        
+        public static R MaxOrDefault<T, R>(this List<T> list, Func<T, R> extractor)
+        {
+            if (!list.Any()) return default;
+            return list.Max(extractor);
+        }
     }
 }
