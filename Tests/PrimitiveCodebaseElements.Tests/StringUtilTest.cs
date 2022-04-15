@@ -44,6 +44,16 @@ namespace PrimitiveCodebaseElements.Tests
             "abc".SubstringBeforeLast("d").Should().Be("abc");
             "abac".SubstringBeforeLast("a").Should().Be("ab");
         }
+        
+        [Fact]
+        public static void SubstringBeforeTest()
+        {
+            "abc".SubstringBefore("a").Should().Be("");
+            "abc".SubstringBefore("b").Should().Be("a");
+            "abc".SubstringBefore("c").Should().Be("ab");
+            "abc".SubstringBefore("d").Should().Be("abc");
+            "abac".SubstringBefore("a").Should().Be("");
+        }
 
     }
 }

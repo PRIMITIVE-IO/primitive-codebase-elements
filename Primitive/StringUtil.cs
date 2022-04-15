@@ -103,14 +103,21 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public static string SubstringBefore(this string s, string part)
         {
-            return s[..s.IndexOf(part, StringComparison.Ordinal)];
+            int idx = s.IndexOf(part, StringComparison.Ordinal);
+            if (idx == -1) return s;
+            return s[..idx];
         }
 
         public static string SubstringBeforeLast(this string s, string part)
         {
+            return s.SubstringBeforeLastOr(part, s);
+        }
+        
+        public static string SubstringBeforeLastOr(this string s, string part, [CanBeNull] string or)
+        {
             int lastIdx = s.LastIndexOf(part, StringComparison.Ordinal);
-            int len = lastIdx == -1 ? s.Length : lastIdx;
-            return s[..len];
+            if (lastIdx == -1) return or;
+            return s[..lastIdx];
         }
 
         public static string SubstringAfter(this string s, string part)
