@@ -8,6 +8,20 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
     [PublicAPI]
     public static class TableSetToDtoConverter
     {
+        public static List<DirectoryDto> ToDirectoryDto(TableSet tableSet)
+        {
+            ILookup<string, FileDto> parentPathToFileDtos = ToFileDto(tableSet)
+                .ToLookup(file => file.Path.SubstringBeforeLast("/"));
+
+            return tableSet.Directories.Select(dir => new DirectoryDto(
+                    dir.Fqn,
+                    dir.PositionX,
+                    dir.PositionY,
+                    parentPathToFileDtos[dir.Fqn].ToList()
+                ))
+                .ToList();
+        }
+
         public static List<FileDto> ToFileDto(TableSet tableSet)
         {
             ILookup<int, DbClass> classesByFileId = tableSet.Classes.ToLookup(it => it.ParentId);
@@ -107,8 +121,8 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
         }
 
         static string Signature(
-            DbMethod method, 
-            IReadOnlyDictionary<int, DbClass> classes, 
+            DbMethod method,
+            IReadOnlyDictionary<int, DbClass> classes,
             IEnumerable<DbArgument> args,
             IReadOnlyDictionary<int, DbType> types)
         {
@@ -192,7 +206,8 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 startIdx: dbSourceIndex.StartIdx,
                 endIdx: dbSourceIndex.EndIdx,
                 codeRange: CodeRange(dbSourceIndex),
-                methodReferences: methodReferenceDtos
+                methodReferences: methodReferenceDtos,
+                cyclomaticScore: method.CyclomaticScore
             );
         }
 

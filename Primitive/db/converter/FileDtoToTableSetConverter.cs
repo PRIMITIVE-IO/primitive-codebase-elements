@@ -79,7 +79,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                             returnTypeId: typeToId[methodDto.ReturnType],
                             accessFlags: (int)methodDto.AccFlag,
                             language: (int)fileDto.Language,
-                            cyclomaticScore: 0
+                            cyclomaticScore: methodDto.CyclomaticScore
                         ));
                         int argIndex = 0;
                         foreach (ArgumentDto argumentDto in methodDto.Arguments)

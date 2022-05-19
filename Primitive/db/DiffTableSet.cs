@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Linq;
 using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
@@ -105,8 +104,10 @@ namespace PrimitiveCodebaseElements.Primitive.db
             DbDiffDirectoryCoordinates.SaveAll(tableSet.Layout, conn);
         }
 
-        public static DiffTableSet ReadAll(DbConnection conn)
+        public static DiffTableSet ReadAll(IDbConnection conn)
         {
+            if (!TableExists(conn)) return new DiffTableSet();
+            
             return new DiffTableSet(
                 branches: DbBranch.ReadAll(conn),
                 directoryAdds: DbDiffDirectoryAdded.ReadAll(conn),
@@ -125,6 +126,19 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 arguments: DbDiffArgument.ReadAll(conn),
                 layout: DbDiffDirectoryCoordinates.ReadAll(conn)
             );
+        }
+
+        static bool TableExists(IDbConnection conn)
+        {
+            using IDbCommand cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+                SELECT name              
+                FROM sqlite_master
+                WHERE type = 'table' AND name = 'branches'
+            ";
+
+            using IDataReader reader = cmd.ExecuteReader();
+            return reader.Read();
         }
     }
 }

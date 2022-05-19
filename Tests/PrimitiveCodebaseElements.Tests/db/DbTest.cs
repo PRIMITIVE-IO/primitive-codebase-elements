@@ -1,10 +1,11 @@
 using System.Collections.Generic;
-using System.Data.Common;
+using System.Data;
 using System.Data.SQLite;
 using System.IO;
 using FluentAssertions;
 using PrimitiveCodebaseElements.Primitive.db;
 using Xunit;
+using DbType = PrimitiveCodebaseElements.Primitive.db.DbType;
 
 namespace PrimitiveCodebaseElements.Tests.db;
 
@@ -16,7 +17,7 @@ public class DbTest
         string dbPath = Path.GetTempFileName();
         try
         {
-            using (DbConnection conn = new SQLiteConnection($"URI=file:{dbPath}"))
+            using (IDbConnection conn = new SQLiteConnection($"URI=file:{dbPath}"))
             {
                 conn.Open();
                 // @formatter:off

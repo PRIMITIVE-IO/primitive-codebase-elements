@@ -24,6 +24,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
         // line/column coordinates in file
         // nullable for backward compatibility. Should be Non-null after removing all Idx
         [CanBeNull] public readonly CodeRange CodeRange;
+        public readonly int? CyclomaticScore;
 
         public MethodDto(
             string signature,
@@ -35,7 +36,8 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             int startIdx,
             int endIdx,
             CodeRange codeRange = default,
-            List<MethodReferenceDto> methodReferences = default)
+            List<MethodReferenceDto> methodReferences = default,
+            int? cyclomaticScore = default)
         {
             Signature = signature;
             Name = name;
@@ -47,6 +49,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             StartIdx = startIdx;
             MethodReferences = methodReferences ?? new List<MethodReferenceDto>();
             CodeRange = codeRange;
+            CyclomaticScore = cyclomaticScore;
         }
         
         public static string MethodSignature(string classFqn, string methodName, List<ArgumentDto> arguments)
@@ -67,7 +70,8 @@ namespace PrimitiveCodebaseElements.Primitive.dto
                 endIdx: EndIdx,
                 methodReferences: methodReferences,
                 signature: Signature,
-                codeRange: CodeRange
+                codeRange: CodeRange,
+                cyclomaticScore: CyclomaticScore
             );
         }
     }
