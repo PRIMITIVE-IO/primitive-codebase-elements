@@ -40,11 +40,8 @@ namespace PrimitiveCodebaseElements.Primitive
             {
                 K key = keyExtractor(elem);
                 V value = valueTransformer(elem);
-                if (!dict.ContainsKey(key))
-                {
-                    dict.Add(key, value);
-                }
-                else
+                
+                if (!dict.TryAdd(key, value))
                 {
                     onKeyDuplication?.Invoke(elem);
                 }
