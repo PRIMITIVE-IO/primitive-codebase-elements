@@ -134,7 +134,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 accessFlags: row.GetInt32("access_flags"),
                 sourceCode: row.GetString("source_code"),
                 language: row.GetInt32("language"),
-                originalFieldId: row.GetInt32("original_field_id"),
+                originalFieldId: row.GetIntOrNull("original_field_id"),
                 branchId: row.GetInt32("branch_id")
             ));
         }

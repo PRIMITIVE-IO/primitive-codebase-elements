@@ -99,8 +99,8 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 id: row.GetInt32("id"),
                 branchId: row.GetInt32("branch_id"),
                 path: row.GetString("path"),
-                directoryId: row.GetInt32("directory_id"),
-                directoryIdDiff: row.GetInt32("directory_id_diff"),
+                directoryId: row.GetIntOrNull("directory_id"),
+                directoryIdDiff: row.GetIntOrNull("directory_id_diff"),
                 content: row.GetString("content")       ,
                 languageId: row.GetInt32("language_id")
             ));
