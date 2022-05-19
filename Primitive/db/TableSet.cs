@@ -43,19 +43,43 @@ namespace PrimitiveCodebaseElements.Primitive.db
             SourceIndices = sourceIndices ?? new List<DbSourceIndex>();
         }
 
-        public static TableSet ReadAll(IDbConnection conn)
+        public static TableSet ReadAll(IDbConnection conn, ProgressTracker tracker = default)
         {
+            tracker ??= ProgressTracker.Dummy;
+            ProgressStepper stepper = tracker.Steps(10);
+
+            List<DbDirectory> directories = DbDirectory.ReadAll(conn);
+            stepper.Step();
+            List<DbArgument> arguments = DbArgument.ReadAll(conn);
+            stepper.Step();
+            List<DbClass> classes = DbClass.ReadAll(conn);
+            stepper.Step();
+            List<DbClassReference> classReferences = DbClassReference.ReadAll(conn);
+            stepper.Step();
+            List<DbField> fields = DbField.ReadAll(conn);
+            stepper.Step();
+            List<DbFile> files = DbFile.ReadAll(conn);
+            stepper.Step();
+            List<DbMethod> methods = DbMethod.ReadAll(conn);
+            stepper.Step();
+            List<DbMethodReference> methodReferences = DbMethodReference.ReadAll(conn);
+            stepper.Step();
+            List<DbType> types = DbType.ReadAll(conn);
+            stepper.Step();
+            List<DbSourceIndex> sourceIndices = DbSourceIndex.ReadAll(conn);
+            stepper.Step();
+
             return new TableSet(
-                directories: DbDirectory.ReadAll(conn),
-                arguments: DbArgument.ReadAll(conn),
-                classes: DbClass.ReadAll(conn),
-                classReferences: DbClassReference.ReadAll(conn),
-                fields: DbField.ReadAll(conn),
-                files: DbFile.ReadAll(conn),
-                methods: DbMethod.ReadAll(conn),
-                methodReferences: DbMethodReference.ReadAll(conn),
-                types: DbType.ReadAll(conn),
-                sourceIndices: DbSourceIndex.ReadAll(conn)
+                directories: directories,
+                arguments: arguments,
+                classes: classes,
+                classReferences: classReferences,
+                fields: fields,
+                files: files,
+                methods: methods,
+                methodReferences: methodReferences,
+                types: types,
+                sourceIndices: sourceIndices
             );
         }
 

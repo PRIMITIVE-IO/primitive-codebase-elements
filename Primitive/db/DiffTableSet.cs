@@ -104,27 +104,66 @@ namespace PrimitiveCodebaseElements.Primitive.db
             DbDiffDirectoryCoordinates.SaveAll(tableSet.Layout, conn);
         }
 
-        public static DiffTableSet ReadAll(IDbConnection conn)
+        public static DiffTableSet ReadAll(IDbConnection conn, ProgressTracker tracker = default)
         {
-            if (!TableExists(conn)) return new DiffTableSet();
-            
+            tracker ??= ProgressTracker.Dummy;
+            ProgressStepper stepper = tracker.Steps(16);
+            if (!TableExists(conn))
+            {
+                stepper.Done();
+                return new DiffTableSet();
+            }
+
+            List<DbBranch> branches = DbBranch.ReadAll(conn);
+            stepper.Step();
+            List<DbDiffDirectoryAdded> directoryAdds = DbDiffDirectoryAdded.ReadAll(conn);
+            stepper.Step();
+            List<DbDiffDirectoryDeleted> directoryDeletes = DbDiffDirectoryDeleted.ReadAll(conn);
+            stepper.Step();
+            List<DbDiffFileAdded> fileAdds = DbDiffFileAdded.ReadAll(conn);
+            stepper.Step();
+            List<DbDiffFileDeleted> fileDeletes = DbDiffFileDeleted.ReadAll(conn);
+            stepper.Step();
+            List<DbDiffFileModified> fileModifications = DbDiffFileModified.ReadAll(conn);
+            stepper.Step();
+            List<DbType> types = DbType.ReadAll(conn);
+            stepper.Step();
+            List<DbDiffClassDeleted> classDeletes = DbDiffClassDeleted.ReadAll(conn);
+            stepper.Step();
+            List<DbDiffClass> classes = DbDiffClass.ReadAll(conn);
+            stepper.Step();
+            List<DbDiffClassModifiedProperty> classModifiedProperties = DbDiffClassModifiedProperty.ReadAll(conn);
+            stepper.Step();
+            List<DbDiffFieldDeleted> fieldDeletes = DbDiffFieldDeleted.ReadAll(conn);
+            stepper.Step();
+            List<DbDiffField> fields = DbDiffField.ReadAll(conn);
+            stepper.Step();
+            List<DbDiffMethodDeleted> methodDeletes = DbDiffMethodDeleted.ReadAll(conn);
+            stepper.Step();
+            List<DbDiffMethod> methods = DbDiffMethod.ReadAll(conn);
+            stepper.Step();
+            List<DbDiffArgument> arguments = DbDiffArgument.ReadAll(conn);
+            stepper.Step();
+            List<DbDiffDirectoryCoordinates> layout = DbDiffDirectoryCoordinates.ReadAll(conn);
+            stepper.Step();
+
             return new DiffTableSet(
-                branches: DbBranch.ReadAll(conn),
-                directoryAdds: DbDiffDirectoryAdded.ReadAll(conn),
-                directoryDeletes: DbDiffDirectoryDeleted.ReadAll(conn),
-                fileAdds: DbDiffFileAdded.ReadAll(conn),
-                fileDeletes: DbDiffFileDeleted.ReadAll(conn),
-                fileModifications: DbDiffFileModified.ReadAll(conn),
-                types: DbType.ReadAll(conn),
-                classDeletes: DbDiffClassDeleted.ReadAll(conn),
-                classes: DbDiffClass.ReadAll(conn),
-                classModifiedProperties: DbDiffClassModifiedProperty.ReadAll(conn),
-                fieldDeletes: DbDiffFieldDeleted.ReadAll(conn),
-                fields: DbDiffField.ReadAll(conn),
-                methodDeletes: DbDiffMethodDeleted.ReadAll(conn),
-                methods: DbDiffMethod.ReadAll(conn),
-                arguments: DbDiffArgument.ReadAll(conn),
-                layout: DbDiffDirectoryCoordinates.ReadAll(conn)
+                branches: branches,
+                directoryAdds: directoryAdds,
+                directoryDeletes: directoryDeletes,
+                fileAdds: fileAdds,
+                fileDeletes: fileDeletes,
+                fileModifications: fileModifications,
+                types: types,
+                classDeletes: classDeletes,
+                classes: classes,
+                classModifiedProperties: classModifiedProperties,
+                fieldDeletes: fieldDeletes,
+                fields: fields,
+                methodDeletes: methodDeletes,
+                methods: methods,
+                arguments: arguments,
+                layout: layout
             );
         }
 
