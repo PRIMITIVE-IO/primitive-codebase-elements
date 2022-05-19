@@ -126,7 +126,10 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             IEnumerable<DbArgument> args,
             IReadOnlyDictionary<int, DbType> types)
         {
-            string argsString = string.Join(",", args.Select(it => types[it.TypeId]));
+            string argsString = args
+                .Select(it => types[it.TypeId].Signature)
+                .JoinToString(",");
+
             string classFqn = classes[method.ParentId].Fqn;
             return $"{classFqn}.{method.Name}({argsString})";
         }
