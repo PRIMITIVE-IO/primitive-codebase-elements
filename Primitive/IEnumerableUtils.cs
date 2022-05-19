@@ -12,6 +12,12 @@ namespace PrimitiveCodebaseElements.Primitive
                 .Where(it => it != null)
                 .Cast<R>();
         }
+        
+        public static IEnumerable<R> SelectNotNull<T, R>(this IEnumerable<T> e, Func<T, int, R> f)
+        {
+            return e.Select(f)
+                .Where(it => it != null);
+        }
 
         public static IEnumerable<T> EnumerableOfNotNull<T>(params T[] list)
         {
@@ -40,7 +46,7 @@ namespace PrimitiveCodebaseElements.Primitive
             {
                 K key = keyExtractor(elem);
                 V value = valueTransformer(elem);
-                
+
                 if (!dict.TryAdd(key, value))
                 {
                     onKeyDuplication?.Invoke(elem);
@@ -61,11 +67,59 @@ namespace PrimitiveCodebaseElements.Primitive
                 onKeyDuplication: onKeyDuplication
             );
         }
-        
+
         public static R MaxOrDefault<T, R>(this List<T> list, Func<T, R> extractor)
         {
             if (!list.Any()) return default;
             return list.Max(extractor);
+        }
+
+        public static T MinOrDefault<T>(this IEnumerable<T> source) where T : IComparable<T>
+        {
+            T value;
+            using (IEnumerator<T> e = source.GetEnumerator())
+            {
+                if (!e.MoveNext())
+                {
+                    return default;
+                }
+
+                value = e.Current;
+                while (e.MoveNext())
+                {
+                    T x = e.Current;
+                    if (x.CompareTo(value) < 0)
+                    {
+                        value = x;
+                    }
+                }
+            }
+
+            return value;
+        }
+        
+        public static T MaxOrDefault<T>(this IEnumerable<T> source) where T : IComparable<T>
+        {
+            T value;
+            using (IEnumerator<T> e = source.GetEnumerator())
+            {
+                if (!e.MoveNext())
+                {
+                    return default;
+                }
+
+                value = e.Current;
+                while (e.MoveNext())
+                {
+                    T x = e.Current;
+                    if (x.CompareTo(value) > 0)
+                    {
+                        value = x;
+                    }
+                }
+            }
+
+            return value;
         }
     }
 }

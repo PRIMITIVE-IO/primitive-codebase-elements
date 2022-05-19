@@ -1,9 +1,10 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive.dto
 {
     [PublicAPI]
-    public class CodeLocation
+    public class CodeLocation : IComparable<CodeLocation>
     {
         //1-based
         public readonly int Line;
@@ -40,6 +41,15 @@ namespace PrimitiveCodebaseElements.Primitive.dto
         public override string ToString()
         {
             return $"{nameof(Line)}: {Line}, {nameof(Column)}: {Column}";
+        }
+
+        public int CompareTo(CodeLocation other)
+        {
+            if (ReferenceEquals(this, other)) return 0;
+            if (ReferenceEquals(null, other)) return 1;
+            var lineComparison = Line.CompareTo(other.Line);
+            if (lineComparison != 0) return lineComparison;
+            return Column.CompareTo(other.Column);
         }
     }
 }

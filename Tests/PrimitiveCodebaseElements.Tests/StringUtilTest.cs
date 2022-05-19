@@ -9,13 +9,23 @@ namespace PrimitiveCodebaseElements.Tests
     public class StringUtilTest
     {
         [Fact]
+        public static void TrimIndentTest()
+        {
+            @"
+               class
+                   method
+            ".TrimIndent2().Should().Be("class\n    method");
+
+        }
+        [Fact]
         public static void LocationOf()
         {
             "12345".LocationOf('3').Should().Be(new CodeLocation(1, 3));
 
-            @"12345
+            @"
+              12345
               67890
-              12345".TrimIndent().LocationOf('8').Should().Be(new CodeLocation(2, 3));
+              12345".TrimIndent2().LocationOf('8').Should().Be(new CodeLocation(2, 3));
         }
 
         [Fact]
@@ -23,9 +33,10 @@ namespace PrimitiveCodebaseElements.Tests
         {
             "12345".LocationIn(CodeRange.Of(1, 1, 1, 5), '3').Should().Be(new CodeLocation(1, 3));
 
-            @"12345
+            @"
+              12345
               67890
-              12345".TrimIndent().LocationIn(CodeRange.Of(1, 1, 2, 5), '8').Should().Be(new CodeLocation(2, 3));
+              12345".TrimIndent2().LocationIn(CodeRange.Of(1, 1, 2, 5), '8').Should().Be(new CodeLocation(2, 3));
         }
 
         [Fact]

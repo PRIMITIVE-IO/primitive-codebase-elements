@@ -21,12 +21,30 @@ namespace PrimitiveCodebaseElements.Primitive
             return s.Substring(start, len);
         }
 
+        [Obsolete("Unindent should be used instead")]
         public static string TrimIndent(this string s)
         {
-            return TrimIndent(s, out _);
+            return Unindent(s, out _);
         }
 
+        [Obsolete("Unindent should be used instead")]
         public static string TrimIndent(this string s, out int unindentedCharsCount)
+        {
+            return s.Unindent(out unindentedCharsCount);
+        }
+
+        /// <summary>
+        /// Keeps first line unchanged, removes indentation starting from second line
+        /// </summary>
+        public static string Unindent(this string s)
+        {
+            return Unindent(s, out _);
+        }
+
+        /// <summary>
+        /// Keeps first line unchanged, removes indentation starting from second line
+        /// </summary>
+        public static string Unindent(this string s, out int unindentedCharsCount)
         {
             string[] lines = s.Split('\n');
 
@@ -112,7 +130,7 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             return s.SubstringBeforeLastOr(part, s);
         }
-        
+
         public static string SubstringBeforeLastOr(this string s, string part, [CanBeNull] string or)
         {
             int lastIdx = s.LastIndexOf(part, StringComparison.Ordinal);
@@ -190,6 +208,47 @@ namespace PrimitiveCodebaseElements.Primitive
             int col = idx - lastLineBreakIdx;
 
             return new CodeLocation(lineCounter, col);
+        }
+
+        public static bool IsBlank(this string s)
+        {
+            return s.Length == 0 || s.All(Char.IsWhiteSpace);
+        }
+
+        /// <summary>
+        /// Removes indentation starting from the first line
+        /// </summary>
+        // TODO: rename to 'TrimIndent' after migration and removing obsolete 
+        public static string TrimIndent2(this string s)
+        {
+            string[] lines = s.Split('\n');
+
+            int firstNonWhitespaceIndex = lines
+                .Where(it => !it.IsBlank())
+                .Select(IndexOfFirstNonWhitespace2)
+                .MinOrDefault();
+
+            IEnumerable<string> unindentedLines = lines
+                .SelectNotNull((it, i) => UnindentLine2(it, firstNonWhitespaceIndex, i, lines.Length - 1));
+
+            return string.Join("\n", unindentedLines);
+        }
+
+        static string UnindentLine2(string line, int firstNonWhitespaceIndex, int idx, int lastIdx)
+        {
+            if (line.IsBlank() && (idx == 0 || idx == lastIdx)) return null;
+            if (line.Length < firstNonWhitespaceIndex) return "";
+            return line[firstNonWhitespaceIndex..];
+        }
+
+        static int IndexOfFirstNonWhitespace2(string s)
+        {
+            for (int i = 0; i < s.Length; i++)
+            {
+                if (!Char.IsWhiteSpace(s[i])) return i;
+            }
+
+            return s.Length;
         }
     }
 }
