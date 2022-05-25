@@ -40,20 +40,16 @@ namespace PrimitiveCodebaseElements.Primitive.dto
                     res.Append(currentChar);
                 }
 
-                if (currentChar == '\n')
-                {
-                    lineCounter++;
-                }
-
-                if (currentChar == '\r' || currentChar == '\n')
-                {
-                    lastLineBreakIdx = i;
-                }
-
                 if (End.Line < lineCounter ||
                     End.Line == lineCounter && End.Column < i - lastLineBreakIdx)
                 {
                     break;
+                }
+                
+                if (currentChar == '\n')
+                {
+                    lineCounter++;
+                    lastLineBreakIdx = i;
                 }
             }
 
