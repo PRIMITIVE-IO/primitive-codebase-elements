@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.dto;
 
@@ -215,6 +216,11 @@ namespace PrimitiveCodebaseElements.Primitive
             return s.Length == 0 || s.All(Char.IsWhiteSpace);
         }
 
+        public static bool IsNotBlank(this string s)
+        {
+            return !s.IsBlank();
+        }
+
         /// <summary>
         /// Removes indentation starting from the first line
         /// </summary>
@@ -249,6 +255,32 @@ namespace PrimitiveCodebaseElements.Primitive
             }
 
             return s.Length;
+        }
+
+        public static string TrimMargin(this string str)
+        {
+            return str.TrimMargin("|");
+        }
+
+        public static string TrimMargin(this string str, string marginPrefix)
+        {
+            return str.Split("\n")
+                .SelectNotNull(x =>
+                {
+                    int firstNonWhiteSpaceIndex = IndexOfFirstNonWhitespace2(x);
+                    if (firstNonWhiteSpaceIndex == -1 || firstNonWhiteSpaceIndex == x.Length) return null;
+                    if (!x[firstNonWhiteSpaceIndex..].StartsWith(marginPrefix)) return null;
+                    return x[(firstNonWhiteSpaceIndex + 1)..];
+                })
+                .Aggregate(new StringBuilder(), (builder, s) => builder.Append(s + '\n'))
+                .RemoveLast()
+                .ToString();
+        }
+
+        static StringBuilder RemoveLast(this StringBuilder sb)
+        {
+            if (sb.Length == 0) return sb;
+            return sb.Remove(sb.Length - 1, 1);
         }
     }
 }

@@ -50,5 +50,10 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             EndIdx = endIdx;
             CodeRange = codeRange;
         }
+        
+        public override string ToString()
+        {
+            return $"ClassReferenceDto(type={Type}, fromFqn={FromFqn}, toFqn={ToFqn}, codeRange={CodeRange})";
+        }
     }
 }

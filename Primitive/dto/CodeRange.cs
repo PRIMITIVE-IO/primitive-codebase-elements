@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive.dto
@@ -11,6 +12,11 @@ namespace PrimitiveCodebaseElements.Primitive.dto
 
         public CodeRange(CodeLocation start, CodeLocation end)
         {
+            if (start.CompareTo(end) > 0)
+            {
+                PrimitiveLogger.Logger.Instance().Error($"start {start} is greater than end {end}", new Exception());
+            }
+
             Start = start;
             End = end;
         }
@@ -29,7 +35,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
                 bool fartherThanStartColumn = Start.Column <= i - lastLineBreakIdx;
                 bool closerThanEndColumn = i - lastLineBreakIdx <= End.Column;
                 bool isLastLine = End.Line == lineCounter;
-                
+
                 if (
                     isOneliner && isFirstLine && fartherThanStartColumn && closerThanEndColumn ||
                     !isOneliner && isFirstLine && fartherThanStartColumn ||
@@ -45,7 +51,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
                 {
                     break;
                 }
-                
+
                 if (currentChar == '\n')
                 {
                     lineCounter++;
@@ -85,6 +91,26 @@ namespace PrimitiveCodebaseElements.Primitive.dto
         public static CodeRange Of(int startLine, int startColumn, int endLine, int endColumn)
         {
             return new CodeRange(new CodeLocation(startLine, startColumn), new CodeLocation(endLine, endColumn));
+        }
+
+        public bool NotContains(CodeLocation location)
+        {
+            return !Contains(location);
+        }
+
+        public bool Contains(CodeLocation location)
+        {
+            return location.CompareTo(Start) >= 0 && location.CompareTo(End) <= 0;
+        }
+
+        public bool Contains(CodeRange range)
+        {
+            return Start.CompareTo(range.Start) <= 0 && End.CompareTo(range.End) >= 0;
+        }
+
+        public bool NotContains(CodeRange range)
+        {
+            return !Contains(range);
         }
     }
 }

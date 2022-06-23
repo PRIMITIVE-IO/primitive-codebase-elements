@@ -66,5 +66,30 @@ namespace PrimitiveCodebaseElements.Tests
             "abac".SubstringBefore("a").Should().Be("");
         }
 
+        [Fact]
+        public static void TrimMargin()
+        {
+            
+            "\nabc\n".TrimMargin().Should().Be("");
+            
+            @"
+            |abc
+            ".TrimMargin().Should().Be("abc");
+            
+            @"
+            |
+            |abc
+            |abc
+            ".TrimMargin().Should().Be("\nabc\nabc");
+            @"
+            |
+            |
+            |abc
+            |
+            |
+            ".TrimMargin().Should().Be("\n\nabc\n\n");
+
+        }
+
     }
 }

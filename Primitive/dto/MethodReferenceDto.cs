@@ -49,5 +49,11 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             EndIdx = endIdx;
             CodeRange = codeRange;
         }
+
+        public override string ToString()
+        {
+            return
+                $"MethodReferenceDto(type={Type}, fromMethodSignature={FromMethodSignature}, toMethodSignature={ToMethodSignature}, codeRange={CodeRange})";
+        }
     }
 }
