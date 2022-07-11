@@ -105,7 +105,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                                     }
                                                     catch (Exception ex)
                                                     {
-                                                        Logger.Instance().Error($"Cannot create ClassReferenceDto id: {it.Id}", ex);
+                                                        Logger.Instance().Warn($"Cannot create ClassReferenceDto id: {it.Id}", ex);
                                                         return null;
                                                     }
                                                 }
@@ -131,7 +131,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                     }
                                     catch (Exception ex)
                                     {
-                                        Logger.Instance().Error($"Cannot crate ClassDto for {dbClass.Fqn}", ex);
+                                        Logger.Instance().Warn($"Cannot crate ClassDto for {dbClass.Fqn}", ex);
                                         return null;
                                     }
                                 })
@@ -149,7 +149,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                         }
                         catch (Exception ex)
                         {
-                            Logger.Instance().Error($"Cannot create FileDto for {dbFile.Path}", ex);
+                            Logger.Instance().Warn($"Cannot create FileDto for {dbFile.Path}", ex);
                             return null;
                         }
                     })
@@ -157,7 +157,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             }
             catch (Exception ex)
             {
-                Logger.Instance().Error("Cannot convert TableSet to file DTOs", ex);
+                Logger.Instance().Warn("Cannot convert TableSet to file DTOs", ex);
                 return new List<FileDto>();
             }
         }
@@ -214,7 +214,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             }
             catch (Exception ex)
             {
-                Logger.Instance().Error($"Cannot create FieldDto, id: {field.Id}", ex);
+                Logger.Instance().Warn($"Cannot create FieldDto, id: {field.Id}", ex);
                 return null;
             }
         }
@@ -258,7 +258,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                         }
                         catch (Exception ex)
                         {
-                            Logger.Instance().Error($"Cannot create MethodReferenceDto, id: {it.Id}", ex);
+                            Logger.Instance().Warn($"Cannot create MethodReferenceDto, id: {it.Id}", ex);
                             return null;
                         }
                     })
@@ -280,7 +280,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             }
             catch (Exception ex)
             {
-                Logger.Instance().Error($"Cannot create MethodDto id: {method.Id}", ex);
+                Logger.Instance().Warn($"Cannot create MethodDto id: {method.Id}", ex);
                 return null;
             }
         }

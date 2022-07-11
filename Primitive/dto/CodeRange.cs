@@ -14,7 +14,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
         {
             if (start.CompareTo(end) > 0)
             {
-                PrimitiveLogger.Logger.Instance().Error($"start {start} is greater than end {end}", new Exception());
+               throw new Exception($"start {start} is greater than end {end}");
             }
 
             Start = start;
