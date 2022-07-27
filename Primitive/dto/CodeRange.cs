@@ -12,13 +12,31 @@ namespace PrimitiveCodebaseElements.Primitive.dto
 
         public CodeRange(CodeLocation start, CodeLocation end)
         {
-            if (start.CompareTo(end) > 0)
-            {
-               throw new Exception($"start {start} is greater than end {end}");
-            }
-
             Start = start;
             End = end;
+        }
+
+        public string Of(string[] lines)
+        {
+            string startLine = lines[Start.Line - 1];
+
+            if (Start.Line == End.Line)
+            {
+                return startLine[..Math.Min(startLine.Length, End.Column)][(Start.Column - 1)..];
+            }
+
+            StringBuilder sb = new StringBuilder();
+            string firstLine = startLine[(Start.Column - 1)..];
+            sb.AppendLine(firstLine);
+            // `i` starts from the second line (because Line is 1-based)
+            for (int i = Start.Line; i < End.Line - 1; i++)
+            {
+                sb.AppendLine(lines[i]);
+            }
+
+            string lastLine = lines[End.Line - 1];
+            sb.Append(lastLine[..Math.Min(lastLine.Length, End.Column)]);
+            return sb.ToString();
         }
 
         public string Of(string text)
@@ -60,6 +78,11 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             }
 
             return res.ToString();
+        }
+
+        public bool IsValid()
+        {
+            return Start.CompareTo(End) <= 0;
         }
 
         protected bool Equals(CodeRange other)
