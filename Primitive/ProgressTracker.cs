@@ -43,16 +43,22 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public void Step()
         {
-            CurrentStepNo++;
-            if (StepsOverall < CurrentStepNo)
-                PrimitiveLogger.Logger.Instance()
-                    .Error($"more than 100% progress: step {CurrentStepNo} of {StepsOverall}");
-            ProgressTracker.Progress = CurrentStepNo / (float)StepsOverall;
+            lock (this)
+            {
+                CurrentStepNo++;
+                if (StepsOverall < CurrentStepNo)
+                    PrimitiveLogger.Logger.Instance()
+                        .Error($"more than 100% progress: step {CurrentStepNo} of {StepsOverall}");
+                ProgressTracker.Progress = CurrentStepNo / (float)StepsOverall;
+            }
         }
 
         public void Done()
         {
-            ProgressTracker.Progress = 1.0f;
+            lock (this)
+            {
+                ProgressTracker.Progress = 1.0f;
+            }
         }
     }
 }

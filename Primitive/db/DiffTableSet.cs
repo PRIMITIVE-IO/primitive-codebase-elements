@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
+using static PrimitiveCodebaseElements.Primitive.db.util.SqLiteUtil;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
@@ -102,6 +105,58 @@ namespace PrimitiveCodebaseElements.Primitive.db
             DbDiffMethod.SaveAll(tableSet.Methods, conn);
             DbDiffArgument.SaveAll(tableSet.Arguments, conn);
             DbDiffDirectoryCoordinates.SaveAll(tableSet.Layout, conn);
+        }
+
+        public static DiffTableSet ReadAllParallel(
+            Func<IDbConnection> connectionProvider,
+            ProgressTracker tracker = default
+        )
+        {
+            tracker ??= ProgressTracker.Dummy;
+            ProgressStepper stepper = tracker.Steps(16);
+            using var conn = connectionProvider();
+            conn.Open();
+            if (!TableExists(conn))
+            {
+                stepper.Done();
+                return new DiffTableSet();
+            }
+
+            Task<List<DbBranch>> branches = LoadAsync(DbBranch.ReadAll, connectionProvider, stepper);
+            Task<List<DbDiffDirectoryAdded>> directoryAdds = LoadAsync(DbDiffDirectoryAdded.ReadAll, connectionProvider, stepper);
+            Task<List<DbDiffDirectoryDeleted>> directoryDeletes = LoadAsync(DbDiffDirectoryDeleted.ReadAll, connectionProvider, stepper);
+            Task<List<DbDiffFileAdded>> fileAdds = LoadAsync(DbDiffFileAdded.ReadAll, connectionProvider, stepper);
+            Task<List<DbDiffFileDeleted>> fileDeletes = LoadAsync(DbDiffFileDeleted.ReadAll, connectionProvider, stepper);
+            Task<List<DbDiffFileModified>> fileModifications = LoadAsync(DbDiffFileModified.ReadAll, connectionProvider, stepper);
+            Task<List<DbType>> types = LoadAsync(DbType.ReadAll, connectionProvider, stepper);
+            Task<List<DbDiffClassDeleted>> classDeletes = LoadAsync(DbDiffClassDeleted.ReadAll, connectionProvider, stepper);
+            Task<List<DbDiffClass>> classes = LoadAsync(DbDiffClass.ReadAll, connectionProvider, stepper);
+            Task<List<DbDiffClassModifiedProperty>> classModifiedProperties = LoadAsync(DbDiffClassModifiedProperty.ReadAll, connectionProvider, stepper);
+            Task<List<DbDiffFieldDeleted>> fieldDeletes = LoadAsync(DbDiffFieldDeleted.ReadAll, connectionProvider, stepper);
+            Task<List<DbDiffField>> fields = LoadAsync(DbDiffField.ReadAll, connectionProvider, stepper);
+            Task<List<DbDiffMethodDeleted>> methodDeletes = LoadAsync(DbDiffMethodDeleted.ReadAll, connectionProvider, stepper);
+            Task<List<DbDiffMethod>> methods = LoadAsync(DbDiffMethod.ReadAll, connectionProvider, stepper);
+            Task<List<DbDiffArgument>> arguments = LoadAsync(DbDiffArgument.ReadAll, connectionProvider, stepper);
+            Task<List<DbDiffDirectoryCoordinates>> layout = LoadAsync(DbDiffDirectoryCoordinates.ReadAll, connectionProvider, stepper);
+
+            return new DiffTableSet(
+                branches: branches.Result,
+                directoryAdds: directoryAdds.Result,
+                directoryDeletes: directoryDeletes.Result,
+                fileAdds: fileAdds.Result,
+                fileDeletes: fileDeletes.Result,
+                fileModifications: fileModifications.Result,
+                types: types.Result,
+                classDeletes: classDeletes.Result,
+                classes: classes.Result,
+                classModifiedProperties: classModifiedProperties.Result,
+                fieldDeletes: fieldDeletes.Result,
+                fields: fields.Result,
+                methodDeletes: methodDeletes.Result,
+                methods: methods.Result,
+                arguments: arguments.Result,
+                layout: layout.Result
+            );
         }
 
         public static DiffTableSet ReadAll(IDbConnection conn, ProgressTracker tracker = default)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive.db.util
@@ -69,5 +70,21 @@ namespace PrimitiveCodebaseElements.Primitive.db.util
             p.Value = value ?? DBNull.Value;
             cmd.Parameters.Add(p);
         }
+        
+        public static Task<T> LoadAsync<T>(
+            Func<IDbConnection, T> loader, 
+            Func<IDbConnection> connectionProvider,
+            ProgressStepper stepper)
+        {
+            return Task.Run(() =>
+            {
+                using IDbConnection conn = connectionProvider();
+                conn.Open();
+                T res = loader(conn);
+                stepper.Step();
+                return res;
+            });
+        }
+        
     }
 }

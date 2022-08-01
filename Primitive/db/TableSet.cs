@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
+using static PrimitiveCodebaseElements.Primitive.db.util.SqLiteUtil;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
@@ -42,6 +45,45 @@ namespace PrimitiveCodebaseElements.Primitive.db
             Types = types ?? new List<DbType>();
             SourceIndices = sourceIndices ?? new List<DbSourceIndex>();
         }
+
+        public static TableSet ReadAllParallel(
+            Func<IDbConnection> connProvider,
+            ProgressTracker tracker = default)
+        {
+            tracker ??= ProgressTracker.Dummy;
+            ProgressStepper stepper = tracker.Steps(10);
+
+            Task<List<DbDirectory>> directories = LoadAsync(DbDirectory.ReadAll, connProvider, stepper);
+            Task<List<DbArgument>> arguments = LoadAsync(DbArgument.ReadAll, connProvider, stepper);
+            Task<List<DbClass>> classes = LoadAsync(DbClass.ReadAll, connProvider, stepper);
+            Task<List<DbClassReference>> classReferences = LoadAsync(DbClassReference.ReadAll, connProvider, stepper);
+            Task<List<DbField>> fields = LoadAsync(DbField.ReadAll, connProvider, stepper);
+            Task<List<DbFile>> files = LoadAsync(DbFile.ReadAll, connProvider, stepper);
+            Task<List<DbMethod>> methods = LoadAsync(DbMethod.ReadAll, connProvider, stepper);
+
+            Task<List<DbMethodReference>> methodReferences = LoadAsync(
+                DbMethodReference.ReadAll,
+                connProvider,
+                stepper
+            );
+
+            Task<List<DbType>> types = LoadAsync(DbType.ReadAll, connProvider, stepper);
+            Task<List<DbSourceIndex>> sourceIndices = LoadAsync(DbSourceIndex.ReadAll, connProvider, stepper);
+
+            return new TableSet(
+                directories: directories.Result,
+                arguments: arguments.Result,
+                classes: classes.Result,
+                classReferences: classReferences.Result,
+                fields: fields.Result,
+                files: files.Result,
+                methods: methods.Result,
+                methodReferences: methodReferences.Result,
+                types: types.Result,
+                sourceIndices: sourceIndices.Result
+            );
+        }
+
 
         public static TableSet ReadAll(IDbConnection conn, ProgressTracker tracker = default)
         {
