@@ -14,7 +14,7 @@ namespace PrimitiveCodebaseElements.Tests
             @"
                class
                    method
-            ".TrimIndent2().Should().Be("class\n    method");
+            ".TrimIndent2().Should().Be("class\n    method".PlatformSpecific());
 
         }
         [Fact]
@@ -80,14 +80,14 @@ namespace PrimitiveCodebaseElements.Tests
             |
             |abc
             |abc
-            ".TrimMargin().Should().Be("\nabc\nabc");
+            ".TrimMargin().Should().Be("\nabc\nabc".PlatformSpecific());
             @"
             |
             |
             |abc
             |
             |
-            ".TrimMargin().Should().Be("\n\nabc\n\n");
+            ".TrimMargin().Should().Be("\n\nabc\n\n".PlatformSpecific());
 
         }
 

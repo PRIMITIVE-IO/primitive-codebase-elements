@@ -1,9 +1,10 @@
+using System;
 using System.IO;
 using System.Reflection;
 
 namespace PrimitiveCodebaseElements.Tests;
 
-public class TestUtils
+public static class TestUtils
 {
     public static string Resource(string name)
     {
@@ -14,5 +15,19 @@ public class TestUtils
         {
             return reader.ReadToEnd();
         }
+    }
+    
+    
+    public static string PlatformSpecific(this string str)
+    {
+        if (Environment.NewLine == "\n" && str.Contains("\r\n"))
+        {
+            return str.Replace("\r\n", "\n");
+        } 
+        if (Environment.NewLine == "\r\n" && str.Contains('\n') && !str.Contains("\r\n"))
+        {
+            return str.Replace("\n", "\r\n");
+        }
+        return str;
     }
 }

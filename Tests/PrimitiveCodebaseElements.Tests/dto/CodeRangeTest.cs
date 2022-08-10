@@ -1,3 +1,4 @@
+using System;
 using FluentAssertions;
 using PrimitiveCodebaseElements.Primitive;
 using Xunit;
@@ -27,7 +28,7 @@ namespace PrimitiveCodebaseElements.Tests.dto
             ".TrimIndent2();
             
             var lines = text
-                .Split("\n");
+                .Split(Environment.NewLine);
 
 
             CodeRange.Of(1, 1, 2, 5).Of(lines).Should().Be(text);
@@ -49,7 +50,7 @@ namespace PrimitiveCodebaseElements.Tests.dto
             ".TrimIndent2();
             
             var lines = text
-                .Split("\n");
+                .Split(Environment.NewLine);
 
 
             CodeRange.Of(1, 1, 3, 5).Of(lines).Should().Be(text);
@@ -76,7 +77,7 @@ namespace PrimitiveCodebaseElements.Tests.dto
                 12345
             ".TrimIndent2();
             
-            CodeRange.Of(1, 5, 3, 1).Of(s).Should().Be("5\n67890\n1");
+            CodeRange.Of(1, 5, 3, 1).Of(s).Should().Be("5\n67890\n1".PlatformSpecific());
             
             CodeRange.Of(3, 1, 3, 5).Of(s).Should().Be("12345");
             CodeRange.Of(3, 5, 3, 5).Of(s).Should().Be("5");
@@ -103,7 +104,7 @@ namespace PrimitiveCodebaseElements.Tests.dto
                 12345
                 67890
             ".TrimIndent2();
-            var lines = txt.Split("\n");
+            var lines = txt.Split(Environment.NewLine);
 
             CodeRange.Of(1, 1, 2, 6).Of(lines).Should().Be(txt);
             CodeRange.Of(1, 1, 1, 6).Of(lines).Should().Be("12345");

@@ -47,7 +47,7 @@ namespace PrimitiveCodebaseElements.Primitive
         /// </summary>
         public static string Unindent(this string s, out int unindentedCharsCount)
         {
-            string[] lines = s.Split('\n');
+            string[] lines = s.Split(Environment.NewLine);
 
             IEnumerable<int> firstNonWhitespaceIndices = lines
                 .Skip(1)
@@ -64,7 +64,7 @@ namespace PrimitiveCodebaseElements.Primitive
             if (firstNonWhitespaceIndex == -1) return s;
 
             IEnumerable<string> unindentedLines = lines.Select(it => UnindentLine(it, firstNonWhitespaceIndex));
-            return string.Join("\n", unindentedLines);
+            return string.Join(Environment.NewLine, unindentedLines);
         }
 
         static string UnindentLine(string line, int firstNonWhitespaceIndex)
@@ -172,7 +172,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public static int[] LineColIndex(this string s)
         {
-            return s.Split('\n').Select(it => it.Length).ToArray();
+            return s.Split(Environment.NewLine).Select(it => it.Length).ToArray();
         }
 
         public static CodeLocation OneCharLeft(this CodeLocation location, string s)
@@ -227,7 +227,7 @@ namespace PrimitiveCodebaseElements.Primitive
         // TODO: rename to 'TrimIndent' after migration and removing obsolete 
         public static string TrimIndent2(this string s)
         {
-            string[] lines = s.Split('\n');
+            string[] lines = s.Split(Environment.NewLine);
 
             int firstNonWhitespaceIndex = lines
                 .Where(it => !it.IsBlank())
@@ -237,7 +237,7 @@ namespace PrimitiveCodebaseElements.Primitive
             IEnumerable<string> unindentedLines = lines
                 .SelectNotNull((it, i) => UnindentLine2(it, firstNonWhitespaceIndex, i, lines.Length - 1));
 
-            return string.Join("\n", unindentedLines);
+            return string.Join(Environment.NewLine, unindentedLines);
         }
 
         static string UnindentLine2(string line, int firstNonWhitespaceIndex, int idx, int lastIdx)
@@ -264,7 +264,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public static string TrimMargin(this string str, string marginPrefix)
         {
-            return str.Split("\n")
+            return str.Split(Environment.NewLine)
                 .SelectNotNull(x =>
                 {
                     int firstNonWhiteSpaceIndex = IndexOfFirstNonWhitespace2(x);
@@ -272,15 +272,15 @@ namespace PrimitiveCodebaseElements.Primitive
                     if (!x[firstNonWhiteSpaceIndex..].StartsWith(marginPrefix)) return null;
                     return x[(firstNonWhiteSpaceIndex + 1)..];
                 })
-                .Aggregate(new StringBuilder(), (builder, s) => builder.Append(s + '\n'))
-                .RemoveLast()
+                .Aggregate(new StringBuilder(), (builder, s) => builder.AppendLine(s))
+                .RemoveLastNewLine()
                 .ToString();
         }
 
-        static StringBuilder RemoveLast(this StringBuilder sb)
+        static StringBuilder RemoveLastNewLine(this StringBuilder sb)
         {
             if (sb.Length == 0) return sb;
-            return sb.Remove(sb.Length - 1, 1);
+            return sb.Remove(sb.Length - Environment.NewLine.Length, Environment.NewLine.Length);
         }
     }
 }

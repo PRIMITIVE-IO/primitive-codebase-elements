@@ -12,7 +12,7 @@ namespace PrimitiveCodebaseElements.Primitive
                 .Where(it => it != null)
                 .Cast<R>();
         }
-        
+
         public static IEnumerable<R> SelectNotNull<T, R>(this IEnumerable<T> e, Func<T, int, R> f)
         {
             return e.Select(f)
@@ -97,7 +97,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
             return value;
         }
-        
+
         public static T MaxOrDefault<T>(this IEnumerable<T> source) where T : IComparable<T>
         {
             T value;
@@ -117,6 +117,18 @@ namespace PrimitiveCodebaseElements.Primitive
                         value = x;
                     }
                 }
+            }
+
+            return value;
+        }
+
+        public static V GetOrCreate<K, V>(this Dictionary<K, V> dict, K key, Func<K, V> valueProducer)
+        {
+            dict.TryGetValue(key, out var value);
+            if (value == null)
+            {
+                value = valueProducer(key);
+                dict.Add(key, value);
             }
 
             return value;
