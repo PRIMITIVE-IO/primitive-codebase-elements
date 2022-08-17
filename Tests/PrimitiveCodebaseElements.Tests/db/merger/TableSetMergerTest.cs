@@ -13,35 +13,35 @@ public class TableSetMergerTest
     public void MergeTest()
     {
         TableSet a = new(
-            directories: new List<DbDirectory> { new DbDirectory(1, "dir", 0, 0) },
+            directories: new List<DbDirectory> { new(1, "dir", 0, 0) },
             files: new List<DbFile>
             {
-                new DbFile(1, 1, "x", "dir/x", "", 1),
-                new DbFile(2, 1, "common", "dir/common", "", 1),
+                new(1, 1, "x", "dir/x", string.Empty, 1),
+                new(2, 1, "common", "dir/common", string.Empty, 1)
             },
             classes: new List<DbClass>
             {
-                new DbClass(1, 4, 1, "classInX", 1, 1, 1),
-                new DbClass(2, 4, 2, "classInCommon", 1, 1, 1),
+                new(1, 4, 1, "classInX", 1, 1, 1),
+                new(2, 4, 2, "classInCommon", 1, 1, 1)
             }
         );
 
         TableSet b = new(
-            directories: new List<DbDirectory> { new DbDirectory(1, "dir", 0, 0) },
+            directories: new List<DbDirectory> { new(1, "dir", 0, 0) },
             files: new List<DbFile>
             {
-                new DbFile(1, 1, "y", "dir/y", "", 1),
-                new DbFile(2, 1, "common", "dir/common", "", 1),
+                new(1, 1, "y", "dir/y", string.Empty, 1),
+                new(2, 1, "common", "dir/common", string.Empty, 1)
             },
             classes: new List<DbClass>
             {
-                new DbClass(1, 4, 1, "classInY", 1, 1, 1),
-                new DbClass(2, 4, 2, "classInCommon2", 1, 1, 1),
+                new(1, 4, 1, "classInY", 1, 1, 1),
+                new(2, 4, 2, "classInCommon2", 1, 1, 1)
             }
         );
 
         //WHEN
-        var c = TableSetMerger.Merge(a, b);
+        TableSet c = TableSetMerger.Merge(a, b);
         
         Dictionary<int, DbFile> dbFiles = c.Files.ToDictionary(f => f.Id);
 
@@ -50,9 +50,9 @@ public class TableSetMergerTest
         c.Files.Count.Should().Be(3);
         c.Classes.Count.Should().Be(4);
 
-        dbFiles[c.Classes.Find(c => c.Fqn == "classInX").ParentId].Path.Should().Be("dir/x");
-        dbFiles[c.Classes.Find(c => c.Fqn == "classInCommon").ParentId].Path.Should().Be("dir/common");
-        dbFiles[c.Classes.Find(c => c.Fqn == "classInY").ParentId].Path.Should().Be("dir/y");
-        dbFiles[c.Classes.Find(c => c.Fqn == "classInCommon2").ParentId].Path.Should().Be("dir/common");
+        dbFiles[c.Classes.Find(dbClass => dbClass.Fqn == "classInX").ParentId].Path.Should().Be("dir/x");
+        dbFiles[c.Classes.Find(dbClass => dbClass.Fqn == "classInCommon").ParentId].Path.Should().Be("dir/common");
+        dbFiles[c.Classes.Find(dbClass => dbClass.Fqn == "classInY").ParentId].Path.Should().Be("dir/y");
+        dbFiles[c.Classes.Find(dbClass => dbClass.Fqn == "classInCommon2").ParentId].Path.Should().Be("dir/common");
     }
 }

@@ -16,33 +16,33 @@ public class TableSetToDtoConverterTest
         List<FileDto> fileDtos = TableSetToDtoConverter.ToFileDto(new TableSet(
             arguments: new List<DbArgument>
             {
-                new DbArgument(132, 432, 0, "x", 543),
-                new DbArgument(133, 433, 0, "y", 544),
+                new(132, 432, 0, "x", 543),
+                new(133, 433, 0, "y", 544)
             },
             methods: new List<DbMethod>
             {
-                new DbMethod(432, 1, 423, "f", 544, 0, 1, 10),
-                new DbMethod(433, 1, 423, "g", 545, 0, 1, 10)
+                new(432, 1, 423, "f", 544, 0, 1, 10),
+                new(433, 1, 423, "g", 545, 0, 1, 10)
             },
-            classes: new List<DbClass> { new DbClass(423, 1, 525, "some.Cls", 0, 1, 0) },
-            files: new List<DbFile> { new DbFile(525, 283, "Cls.sc", "some/path", "", 1) },
-            directories: new List<DbDirectory> { new DbDirectory(283, "some", 1, 1) },
+            classes: new List<DbClass> { new(423, 1, 525, "some.Cls", 0, 1, 0) },
+            files: new List<DbFile> { new(525, 283, "Cls.sc", "some/path", string.Empty, 1) },
+            directories: new List<DbDirectory> { new(283, "some", 1, 1) },
             types: new List<DbType>
             {
-                new DbType(543, "int"),
-                new DbType(544, "string"),
-                new DbType(545, "void")
+                new(543, "int"),
+                new(544, "string"),
+                new(545, "void")
             },
             methodReferences: new List<DbMethodReference>
             {
-                new DbMethodReference(121, 1, 432, 433, 1, 1, 1, 1, 1, 1, 1, 1),
-                new DbMethodReference(122, 1, 433, 432, 1, 1, 1, 1, 1, 1, 1, 1),
+                new(121, 1, 432, 433, 1, 1, 1, 1, 1, 1, 1, 1),
+                new(122, 1, 433, 432, 1, 1, 1, 1, 1, 1, 1, 1)
             },
             sourceIndices: new List<DbSourceIndex>
             {
-                new DbSourceIndex(432, 525, "METHOD", 1, 1, 1, 1, 1, 1),
-                new DbSourceIndex(433, 525, "METHOD", 2, 2, 2, 2, 2, 2),
-                new DbSourceIndex(423, 525, "CLASS", 2, 2, 2, 2, 2, 2),
+                new(432, 525, "METHOD", 1, 1, 1, 1, 1, 1),
+                new(433, 525, "METHOD", 2, 2, 2, 2, 2, 2),
+                new(423, 525, "CLASS", 2, 2, 2, 2, 2, 2)
             }
         ));
 
