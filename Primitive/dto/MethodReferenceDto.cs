@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using JetBrains.Annotations;
 
@@ -28,7 +29,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
         public readonly int EndIdx;
 
         //line/column coordinates in file. Should be non-null after complete migration
-        [CanBeNull] public readonly CodeRange CodeRange;
+        public readonly CodeRange? CodeRange;
 
         public MethodReferenceDto(
             CodeReferenceType type,

@@ -14,8 +14,8 @@ namespace PrimitiveCodebaseElements.Primitive.db
     {
         public readonly IEnumerable<DbBranch> Branches;
         public readonly IEnumerable<DbDiffDirectoryDeleted> DirectoryDeleted;
-        public readonly IEnumerable<DbDiffDirectoryAdded> DirectoryAded;
-        public readonly IEnumerable<DbDiffFileAdded> FileAded;
+        public readonly IEnumerable<DbDiffDirectoryAdded> DirectoryAdded;
+        public readonly IEnumerable<DbDiffFileAdded> FileAdded;
         public readonly IEnumerable<DbDiffFileDeleted> FileDeleted;
         public readonly IEnumerable<DbDiffFileModified> FileModified;
         public readonly IEnumerable<DbType> Types;
@@ -49,9 +49,9 @@ namespace PrimitiveCodebaseElements.Primitive.db
         )
         {
             Branches = branches ?? Enumerable.Empty<DbBranch>();
-            DirectoryAded = directoryAdds ?? Enumerable.Empty<DbDiffDirectoryAdded>();
+            DirectoryAdded = directoryAdds ?? Enumerable.Empty<DbDiffDirectoryAdded>();
             DirectoryDeleted = directoryDeletes ?? Enumerable.Empty<DbDiffDirectoryDeleted>();
-            FileAded = fileAdds ?? Enumerable.Empty<DbDiffFileAdded>();
+            FileAdded = fileAdds ?? Enumerable.Empty<DbDiffFileAdded>();
             FileDeleted = fileDeletes ?? Enumerable.Empty<DbDiffFileDeleted>();
             FileModified = fileModifications ?? Enumerable.Empty<DbDiffFileModified>();
             Types = types ?? Enumerable.Empty<DbType>();
@@ -90,9 +90,9 @@ namespace PrimitiveCodebaseElements.Primitive.db
         public static void Save(DiffTableSet tableSet, IDbConnection conn)
         {
             DbBranch.SaveAll(tableSet.Branches, conn);
-            DbDiffDirectoryAdded.SaveAll(tableSet.DirectoryAded, conn);
+            DbDiffDirectoryAdded.SaveAll(tableSet.DirectoryAdded, conn);
             DbDiffDirectoryDeleted.SaveAll(tableSet.DirectoryDeleted, conn);
-            DbDiffFileAdded.SaveAll(tableSet.FileAded, conn);
+            DbDiffFileAdded.SaveAll(tableSet.FileAdded, conn);
             DbDiffFileDeleted.SaveAll(tableSet.FileDeleted, conn);
             DbDiffFileModified.SaveAll(tableSet.FileModified, conn);
             DbType.SaveAll(tableSet.Types, conn);
@@ -114,7 +114,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
         {
             tracker ??= ProgressTracker.Dummy;
             ProgressStepper stepper = tracker.Steps(16);
-            using var conn = connectionProvider();
+            using IDbConnection conn = connectionProvider();
             conn.Open();
             if (!TableExists(conn))
             {

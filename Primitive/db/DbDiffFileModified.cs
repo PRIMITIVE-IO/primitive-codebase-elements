@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbDiffFileModified
     {
         public readonly int Id;
@@ -68,7 +70,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbDiffFileModified> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                     SELECT
                         id,
                         branch_id,

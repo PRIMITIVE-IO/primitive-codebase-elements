@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
         public readonly List<MethodReferenceDto> MethodReferences;
         // line/column coordinates in file
         // nullable for backward compatibility. Should be Non-null after removing all Idx
-        [CanBeNull] public readonly CodeRange CodeRange;
+        public readonly CodeRange? CodeRange;
         public readonly int? CyclomaticScore;
 
         public MethodDto(

@@ -77,9 +77,9 @@ namespace PrimitiveCodebaseElements.Primitive
             return copyTo;
         }
 
-        public void SetBranchText(string branchText)
+        public void SetBranchText(string branchTextToSet)
         {
-            this.branchText = branchText ?? "";
+            this.branchText = branchTextToSet ?? string.Empty;
 
             isDiffedText = true;
             hasLoadedColorizedText = false;
@@ -92,7 +92,7 @@ namespace PrimitiveCodebaseElements.Primitive
         }
 
         public string Text => string.IsNullOrEmpty(text)
-            ? ""
+            ? string.Empty
             : isDiffedText
                 ? branchText
                 : text;

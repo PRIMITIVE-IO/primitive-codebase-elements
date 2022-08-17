@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using JetBrains.Annotations;
 
@@ -29,7 +30,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
 
         // line/column coordinates in file
         // nullable for backward compatibility. Should be Non-null after removing all Idx
-        [CanBeNull] public readonly CodeRange CodeRange;
+        public readonly CodeRange? CodeRange;
 
         public ClassReferenceDto(
             CodeReferenceType type,
@@ -39,7 +40,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             int endPosition,
             int startIdx,
             int endIdx,
-            [CanBeNull] CodeRange codeRange = default)
+            CodeRange? codeRange = default)
         {
             Type = type;
             FromFqn = fromFqn;

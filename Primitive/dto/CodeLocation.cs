@@ -26,8 +26,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((CodeLocation)obj);
+            return obj.GetType() == this.GetType() && Equals((CodeLocation)obj);
         }
 
         public override int GetHashCode()
@@ -47,9 +46,10 @@ namespace PrimitiveCodebaseElements.Primitive.dto
         {
             if (ReferenceEquals(this, other)) return 0;
             if (ReferenceEquals(null, other)) return 1;
-            var lineComparison = Line.CompareTo(other.Line);
-            if (lineComparison != 0) return lineComparison;
-            return Column.CompareTo(other.Column);
+            int lineComparison = Line.CompareTo(other.Line);
+            return lineComparison != 0 
+                ? lineComparison 
+                : Column.CompareTo(other.Column);
         }
     }
 }

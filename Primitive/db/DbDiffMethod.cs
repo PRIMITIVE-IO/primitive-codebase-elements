@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Data;
 using JetBrains.Annotations;
@@ -14,14 +15,14 @@ namespace PrimitiveCodebaseElements.Primitive.db
         public readonly string Name;
         public readonly int ReturnTypeId;
         public readonly int AccessFlags;
-        [CanBeNull] public readonly string FieldId;
+        public readonly string? FieldId;
         public readonly string SourceCode;
         public readonly int Language;
         public readonly int? ParentIdDiff;
         public readonly int? OriginalMethodId;
         public readonly int BranchId;
 
-        public DbDiffMethod(int id, int parentType, int? parentId, string name, int returnTypeId, int accessFlags, [CanBeNull] string fieldId, string sourceCode, int language, int? parentIdDiff, int? originalMethodId, int branchId)
+        public DbDiffMethod(int id, int parentType, int? parentId, string name, int returnTypeId, int accessFlags, string? fieldId, string sourceCode, int language, int? parentIdDiff, int? originalMethodId, int branchId)
         {
             Id = id;
             ParentType = parentType;
@@ -114,7 +115,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbDiffMethod> ReadAll(IDbConnection conn)
         {
-	        string query = @"
+	        const string query = @"
                     SELECT
 						id,
 						parent_type,

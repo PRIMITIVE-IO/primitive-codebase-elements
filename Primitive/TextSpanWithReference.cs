@@ -39,7 +39,7 @@ namespace PrimitiveCodebaseElements.Primitive
             string text,
             IEnumerable<Insertion> insertions)
         {
-            if (string.IsNullOrEmpty(text)) return "";
+            if (string.IsNullOrEmpty(text)) return string.Empty;
 
             StringBuilder builder = new StringBuilder();
 

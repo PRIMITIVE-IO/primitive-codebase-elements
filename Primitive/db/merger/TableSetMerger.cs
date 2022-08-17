@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
@@ -18,7 +17,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.merger
 
             int DirIdx(string path)
             {
-                var res = pathToDirId.GetValueOrDefault(path);
+                int res = pathToDirId.GetValueOrDefault(path);
                 if (res == 0) return -1;
                 return res;
             }
@@ -134,6 +133,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.merger
                     "CLASS" => maxClassIdA,
                     "METHOD" => maxMethodIdA,
                     "FIELD" => maxFieldIdA,
+                    _ => throw new ArgumentOutOfRangeException(bSourceIndex.Type)
                 },
                 fileId: bFileIdToNewFileId[bSourceIndex.FileId],
                 type: bSourceIndex.Type,

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,10 +50,11 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             string[] lines = s.Split(Environment.NewLine);
 
-            IEnumerable<int> firstNonWhitespaceIndices = lines
+            List<int> firstNonWhitespaceIndices = lines
                 .Skip(1)
                 .Where(it => it.Trim().Length > 0)
-                .Select(IndexOfFirstNonWhitespace);
+                .Select(IndexOfFirstNonWhitespace)
+                .ToList();
 
             int firstNonWhitespaceIndex;
 
@@ -71,16 +73,12 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             if (firstNonWhitespaceIndex < line.Length)
             {
-                if (line[..firstNonWhitespaceIndex].Trim().Length != 0)
-                {
-                    //indentation contains some chars (if this is first line)
-                    return line;
-                }
-
-                return line.Substring(firstNonWhitespaceIndex, line.Length - firstNonWhitespaceIndex);
+                return line[..firstNonWhitespaceIndex].Trim().Length != 0 
+                    ? line //indentation contains some chars (if this is first line)
+                    : line.Substring(firstNonWhitespaceIndex, line.Length - firstNonWhitespaceIndex);
             }
 
-            return line.Trim().Length == 0 ? "" : line;
+            return line.Trim().Length == 0 ? string.Empty : line;
         }
 
         static int IndexOfFirstNonWhitespace(string s)
@@ -123,8 +121,9 @@ namespace PrimitiveCodebaseElements.Primitive
         public static string SubstringBefore(this string s, string part)
         {
             int idx = s.IndexOf(part, StringComparison.Ordinal);
-            if (idx == -1) return s;
-            return s[..idx];
+            return idx == -1 
+                ? s 
+                : s[..idx];
         }
 
         public static string SubstringBeforeLast(this string s, string part)
@@ -132,29 +131,24 @@ namespace PrimitiveCodebaseElements.Primitive
             return s.SubstringBeforeLastOr(part, s);
         }
 
-        public static string SubstringBeforeLastOr(this string s, string part, [CanBeNull] string or)
+        public static string SubstringBeforeLastOr(this string s, string part, string? or)
         {
             int lastIdx = s.LastIndexOf(part, StringComparison.Ordinal);
-            if (lastIdx == -1) return or;
-            return s[..lastIdx];
+            return (lastIdx == -1 ? or : s[..lastIdx]) ?? string.Empty;
         }
 
         public static string SubstringAfter(this string s, string part)
         {
             int i = s.IndexOf(part, StringComparison.Ordinal);
-            if (i == -1)
-            {
-                return s;
-            }
-
-            return s.Substring(Tuple.Create(i + part.Length, s.Length - 1));
+            return i == -1 ? s : s.Substring(Tuple.Create(i + part.Length, s.Length - 1));
         }
 
-        [CanBeNull]
-        public static CodeLocation LocationIn(this string s, PrimitiveCodebaseElements.Primitive.dto.CodeRange range,
+        public static CodeLocation? LocationIn(
+            this string s, 
+            PrimitiveCodebaseElements.Primitive.dto.CodeRange range,
             char c)
         {
-            CodeLocation location = range.Of(s).LocationOf(c);
+            CodeLocation? location = range.Of(s).LocationOf(c) ?? null;
             if (location == null) return null;
 
             int column;
@@ -177,14 +171,13 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public static CodeLocation OneCharLeft(this CodeLocation location, string s)
         {
-            if (location.Line == 1 && location.Column == 1) throw new Exception($"Cannot shift left");
-            if (location.Column > 1) return new CodeLocation(location.Line, location.Column - 1);
-
-            return new CodeLocation(location.Line - 1, LineColIndex(s)[location.Line - 2]);
+            if (location.Line == 1 && location.Column == 1) throw new Exception("Cannot shift left");
+            return location.Column > 1 
+                ? new CodeLocation(location.Line, location.Column - 1) 
+                : new CodeLocation(location.Line - 1, LineColIndex(s)[location.Line - 2]);
         }
 
-        [CanBeNull]
-        public static CodeLocation LocationOf(this string s, char c)
+        public static CodeLocation? LocationOf(this string s, char c)
         {
             int idx = s.IndexOf(c);
             if (idx == -1) return null;
@@ -213,7 +206,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public static bool IsBlank(this string s)
         {
-            return s.Length == 0 || s.All(Char.IsWhiteSpace);
+            return s.Length == 0 || s.All(char.IsWhiteSpace);
         }
 
         public static bool IsNotBlank(this string s)
@@ -242,16 +235,18 @@ namespace PrimitiveCodebaseElements.Primitive
 
         static string UnindentLine2(string line, int firstNonWhitespaceIndex, int idx, int lastIdx)
         {
-            if (line.IsBlank() && (idx == 0 || idx == lastIdx)) return null;
-            if (line.Length < firstNonWhitespaceIndex) return "";
-            return line[firstNonWhitespaceIndex..];
+            // TODO unsure if string.Empty causes invalid results vs null
+            if (line.IsBlank() && (idx == 0 || idx == lastIdx)) return string.Empty;
+            return line.Length < firstNonWhitespaceIndex 
+                ? string.Empty 
+                : line[firstNonWhitespaceIndex..];
         }
 
         static int IndexOfFirstNonWhitespace2(string s)
         {
             for (int i = 0; i < s.Length; i++)
             {
-                if (!Char.IsWhiteSpace(s[i])) return i;
+                if (!char.IsWhiteSpace(s[i])) return i;
             }
 
             return s.Length;
@@ -269,8 +264,9 @@ namespace PrimitiveCodebaseElements.Primitive
                 {
                     int firstNonWhiteSpaceIndex = IndexOfFirstNonWhitespace2(x);
                     if (firstNonWhiteSpaceIndex == -1 || firstNonWhiteSpaceIndex == x.Length) return null;
-                    if (!x[firstNonWhiteSpaceIndex..].StartsWith(marginPrefix)) return null;
-                    return x[(firstNonWhiteSpaceIndex + 1)..];
+                    return !x[firstNonWhiteSpaceIndex..].StartsWith(marginPrefix) 
+                        ? null 
+                        : x[(firstNonWhiteSpaceIndex + 1)..];
                 })
                 .Aggregate(new StringBuilder(), (builder, s) => builder.AppendLine(s))
                 .RemoveLastNewLine()
@@ -279,8 +275,9 @@ namespace PrimitiveCodebaseElements.Primitive
 
         static StringBuilder RemoveLastNewLine(this StringBuilder sb)
         {
-            if (sb.Length == 0) return sb;
-            return sb.Remove(sb.Length - Environment.NewLine.Length, Environment.NewLine.Length);
+            return sb.Length == 0 
+                ? sb 
+                : sb.Remove(sb.Length - Environment.NewLine.Length, Environment.NewLine.Length);
         }
     }
 }

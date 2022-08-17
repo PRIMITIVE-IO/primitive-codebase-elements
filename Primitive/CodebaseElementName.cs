@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,9 +88,10 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public virtual FileName ContainmentFile()
         {
-            if (this is FileName) return this as FileName;
-            if (ContainmentParent == null) return null;
-            return ContainmentParent.ContainmentFile();
+            if (this is FileName) return (FileName) this;
+            return ContainmentParent == null 
+                ? null 
+                : ContainmentParent.ContainmentFile();
         }
 
         public override int GetHashCode()
@@ -101,8 +103,7 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((CodebaseElementName)obj);
+            return obj.GetType() == this.GetType() && Equals((CodebaseElementName)obj);
         }
 
         protected bool Equals(CodebaseElementName other)
@@ -113,7 +114,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public static bool operator ==(
             CodebaseElementName a,
             CodebaseElementName b) =>
-            (a?.GetHashCode() == b?.GetHashCode());
+            a?.GetHashCode() == b?.GetHashCode();
 
         public static bool operator !=(
             CodebaseElementName a,
@@ -122,7 +123,7 @@ namespace PrimitiveCodebaseElements.Primitive
         static readonly Regex RegexWhitespace = new Regex(@"\s+");
 
         protected static string ReplaceWhitespace(string typeName) =>
-            RegexWhitespace.Replace(typeName, "").Replace(",", ", ");
+            RegexWhitespace.Replace(typeName, string.Empty).Replace(",", ", ");
     }
 
     #endregion
@@ -142,7 +143,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         [JsonProperty] public readonly IEnumerable<Argument> Arguments;
 
-        [CanBeNull] private string _fullyQualifiedName;
+        string? _fullyQualifiedName;
 
         public string FullyQualifiedName
         {
@@ -160,10 +161,8 @@ namespace PrimitiveCodebaseElements.Primitive
 
             Arguments = argumentTypes;
             string hashString = ShortName + ReturnType;
-            foreach (Argument argument in Arguments)
-            {
-                hashString += argument.Name + argument.Type.Signature;
-            }
+            hashString = Arguments.Aggregate(hashString, 
+                (current, argument) => current + (argument.Name + argument.Type.Signature));
 
             hashCode = ContainmentParent.GetHashCode() + hashString.GetHashCode();
         }
@@ -238,7 +237,7 @@ namespace PrimitiveCodebaseElements.Primitive
         string CommaSeparatedArguments(bool includeArgNames = true)
         {
             Func<Argument, string> argsWithoutNamesFunc = GetArgumentType;
-            Func<Argument, string> argsWithNamesFunc = (argument) => $"{argument.Name} {GetArgumentType(argument)}";
+            Func<Argument, string> argsWithNamesFunc = argument => $"{argument.Name} {GetArgumentType(argument)}";
 
             Func<Argument, string> argFunction = includeArgNames ? argsWithNamesFunc : argsWithoutNamesFunc;
 
@@ -257,7 +256,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         [JsonProperty] public readonly string FieldType;
 
-        [CanBeNull] private string _fullyQualifiedName;
+        string? _fullyQualifiedName;
 
         public string FullyQualifiedName
         {
@@ -346,20 +345,18 @@ namespace PrimitiveCodebaseElements.Primitive
                 return primitiveTypeName;
             }
 
-            string packageAndClass = signature;
-
-            string packageNameString = "";
-            string classNameString = packageAndClass;
-            if (packageAndClass.Contains('.'))
+            string packageNameString = string.Empty;
+            string classNameString = signature;
+            if (signature.Contains('.'))
             {
-                packageNameString = packageAndClass[..packageAndClass.LastIndexOf('.')];
-                classNameString = packageAndClass[(packageAndClass.LastIndexOf('.') + 1)..];
+                packageNameString = signature[..signature.LastIndexOf('.')];
+                classNameString = signature[(signature.LastIndexOf('.') + 1)..];
             }
 
             PackageName packageName = new PackageName(packageNameString);
 
             return new ClassName(
-                new FileName(""),
+                new FileName(string.Empty),
                 packageName,
                 classNameString);
         }
@@ -465,10 +462,10 @@ namespace PrimitiveCodebaseElements.Primitive
 
         [JsonProperty] public readonly bool IsOuterClass;
 
-        [JsonProperty] [CanBeNull] public readonly ClassName ParentClass;
+        [JsonProperty] public readonly ClassName? ParentClass;
 
         [JsonProperty] public readonly string originalClassName;
-        private string _fullyQualifiedName;
+        string _fullyQualifiedName;
 
         public string FullyQualifiedName
         {
@@ -501,7 +498,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public ClassName(
             FileName containmentFile,
             PackageName containmentPackage,
-            [CanBeNull] ClassName parentClass,
+            ClassName? parentClass,
             string shortName,
             string fqn
         ) : base(shortName)
@@ -516,7 +513,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public static ClassName FromFqn(string fqn, FileName fileName)
         {
-            string packageName = fqn.SubstringBeforeLastOr(".", "");
+            string packageName = fqn.SubstringBeforeLastOr(".", string.Empty);
             ClassName? parentClassName = fqn.Contains('$') ? FromFqn(fqn.SubstringBeforeLast("$"), fileName) : null;
             string shortClassName = fqn.SubstringAfterLast(fqn.Contains('$') ? "$" : ".");
 
@@ -565,7 +562,7 @@ namespace PrimitiveCodebaseElements.Primitive
                 return $"{parentClassName.FullyQualified()}${originalClassName}";
             }
 
-            string? pkg = ContainmentPackage.PackageNameString == "" ? null : ContainmentPackage.PackageNameString;
+            string? pkg = ContainmentPackage.PackageNameString == string.Empty ? null : ContainmentPackage.PackageNameString;
 
             return IEnumerableUtils.EnumerableOfNotNull(pkg, originalClassName)
                 .JoinToString(".");
@@ -638,9 +635,9 @@ namespace PrimitiveCodebaseElements.Primitive
         /// <summary>
         /// The root or zero package
         /// </summary>
-        public PackageName() : base("")
+        public PackageName() : base(string.Empty)
         {
-            PackageNameString = "";
+            PackageNameString = string.Empty;
             hashCode = 0;
         }
 
@@ -684,7 +681,7 @@ namespace PrimitiveCodebaseElements.Primitive
             if (string.IsNullOrEmpty(packageName))
             {
                 // root
-                return "";
+                return string.Empty;
             }
 
             if (!packageName.Contains('.') && !packageName.Contains('/') && !packageName.Contains('\\'))
@@ -737,7 +734,10 @@ namespace PrimitiveCodebaseElements.Primitive
             return objectType == typeof(CodebaseElementName);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
+        public override object ReadJson(
+            JsonReader reader, 
+            Type objectType, 
+            object? existingValue,
             JsonSerializer serializer)
         {
             JObject jo = JObject.Load(reader);
