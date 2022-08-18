@@ -19,11 +19,12 @@ namespace PrimitiveCodebaseElements.Primitive.db
             Commit = commit;
         }
 
+        // note "commit" is a protected keyword in sqlite
         public const string CreateTable = @"
             CREATE TABLE branches (
                          id INTEGER PRIMARY KEY ASC,
                          name TEXT NOT NULL,
-                         commit TEXT NOT NULL)
+                         sha TEXT NOT NULL)
         ";
 
         public static void SaveAll(IEnumerable<DbBranch> branches, IDbConnection conn)
@@ -34,17 +35,17 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 @"INSERT INTO branches ( 
                           id,
                           name,
-                          commit
+                          sha
                       ) VALUES ( 
                           @Id,
                           @Name,
-                          @Commit)";
+                          @Sha)";
 
             foreach (DbBranch cls in branches)
             {
                 cmd.AddParameter(System.Data.DbType.Int32, "@Id", cls.Id);
                 cmd.AddParameter(System.Data.DbType.String, "@Name", cls.Name);
-                cmd.AddParameter(System.Data.DbType.String, "@Commit", cls.Commit);
+                cmd.AddParameter(System.Data.DbType.String, "@Sha", cls.Commit);
                 cmd.ExecuteNonQuery();
             }
 
@@ -59,14 +60,14 @@ namespace PrimitiveCodebaseElements.Primitive.db
                     SELECT
                           id,
                           name,
-                          commit
+                          sha
                     FROM branches
             ";
 
             return conn.Execute(query).TransformRows(row => new DbBranch(
                 id: row.GetInt32("id"),
                 name: row.GetString("name"),
-                commit: row.GetString("commit")
+                commit: row.GetString("sha")
             ));
         }
     }
