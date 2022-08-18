@@ -126,15 +126,15 @@ namespace PrimitiveCodebaseElements.Primitive
                 : s[..idx];
         }
 
-        public static string SubstringBeforeLast(this string s, string part)
+        public static string? SubstringBeforeLast(this string s, string part)
         {
             return s.SubstringBeforeLastOr(part, s);
         }
 
-        public static string SubstringBeforeLastOr(this string s, string part, string? or)
+        public static string? SubstringBeforeLastOr(this string s, string part, string? or)
         {
             int lastIdx = s.LastIndexOf(part, StringComparison.Ordinal);
-            return (lastIdx == -1 ? or : s[..lastIdx]) ?? string.Empty;
+            return lastIdx == -1 ? or : s[..lastIdx];
         }
 
         public static string SubstringAfter(this string s, string part)
@@ -148,7 +148,7 @@ namespace PrimitiveCodebaseElements.Primitive
             PrimitiveCodebaseElements.Primitive.dto.CodeRange range,
             char c)
         {
-            CodeLocation? location = range.Of(s).LocationOf(c) ?? null;
+            CodeLocation? location = range.Of(s).LocationOf(c);
             if (location == null) return null;
 
             int column;
@@ -233,10 +233,9 @@ namespace PrimitiveCodebaseElements.Primitive
             return string.Join(Environment.NewLine, unindentedLines);
         }
 
-        static string UnindentLine2(string line, int firstNonWhitespaceIndex, int idx, int lastIdx)
+        static string? UnindentLine2(string line, int firstNonWhitespaceIndex, int idx, int lastIdx)
         {
-            // TODO unsure if string.Empty causes invalid results vs null
-            if (line.IsBlank() && (idx == 0 || idx == lastIdx)) return string.Empty;
+            if (line.IsBlank() && (idx == 0 || idx == lastIdx)) return null;
             return line.Length < firstNonWhitespaceIndex 
                 ? string.Empty 
                 : line[firstNonWhitespaceIndex..];

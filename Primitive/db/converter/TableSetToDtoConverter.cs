@@ -188,9 +188,9 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             return fqn.SubstringAfterLast(fqn.Contains('$') ? "$" : ".");
         }
 
-        static string ParenClassFqn(string fqn)
+        static string? ParenClassFqn(string fqn)
         {
-            return (fqn.Contains('$') ? fqn.SubstringBeforeLast("$") : null) ?? string.Empty;
+            return fqn.Contains('$') ? fqn.SubstringBeforeLast("$") : null;
         }
 
         static FieldDto? ToFieldDto(

@@ -58,7 +58,7 @@ namespace PrimitiveCodebaseElements.Primitive
         /// May be <c>null</c> if there is no containing element.
         /// </remarks>
         [JsonProperty]
-        public abstract CodebaseElementName ContainmentParent { get; }
+        public abstract CodebaseElementName? ContainmentParent { get; }
 
         /// <summary>
         /// The branch (i.e. version of the code) that this name belongs to.
@@ -86,12 +86,10 @@ namespace PrimitiveCodebaseElements.Primitive
             ShortName = shortName;
         }
 
-        public virtual FileName ContainmentFile()
+        public virtual FileName? ContainmentFile()
         {
             if (this is FileName) return (FileName) this;
-            return ContainmentParent == null 
-                ? null 
-                : ContainmentParent.ContainmentFile();
+            return ContainmentParent?.ContainmentFile();
         }
 
         public override int GetHashCode()
