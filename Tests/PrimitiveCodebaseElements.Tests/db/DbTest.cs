@@ -54,7 +54,7 @@ public class DbTest
 
             // @formatter:off
             DiffTableSet dts = new DiffTableSet(
-                branches: new List<DbBranch>{new(1, string.Empty)},
+                branches: new List<DbBranch>{new(1, string.Empty, string.Empty)},
                 directoryAdds: new List<DbDiffDirectoryAdded>{new(id:1, fqn: string.Empty, branchId:1)},
                 directoryDeletes: new List<DbDiffDirectoryDeleted>{new(directoryId:1, branchId:1)},
                 fileAdds: new List<DbDiffFileAdded>{new(id: 1, branchId: 1, path: string.Empty, directoryId:1, directoryIdDiff: 1, content:string.Empty, languageId:1)},
