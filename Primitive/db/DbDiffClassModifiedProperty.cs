@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class DbDiffClassModifiedProperty
     {
         public readonly int OriginalClassId;
@@ -61,7 +63,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbDiffClassModifiedProperty> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                     SELECT
                         original_class_id,
                         access_flags,

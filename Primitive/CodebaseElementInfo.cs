@@ -171,8 +171,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
             IsTestPackage = children.Any() && children
                 .TrueForAll(child =>
-                    child is ClassInfo classInfo &&
-                    classInfo.IsTestClass);
+                    child is ClassInfo { IsTestClass: true });
 
             // Packages don't have references
             ReferencesToThis = new List<CodeReferenceEndpoint>();
@@ -258,8 +257,7 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((MethodInfo) obj);
+            return obj.GetType() == GetType() && Equals((MethodInfo) obj);
         }
 
         public override int GetHashCode() => MethodName?.GetHashCode() ?? 0;
@@ -360,8 +358,7 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((FieldInfo) obj);
+            return obj.GetType() == GetType() && Equals((FieldInfo) obj);
         }
 
         public override int GetHashCode() => FieldName?.GetHashCode() ?? 0;
@@ -641,8 +638,7 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((CodeReferenceEdgeType) obj);
+            return obj.GetType() == GetType() && Equals((CodeReferenceEdgeType) obj);
         }
 
         public override int GetHashCode()

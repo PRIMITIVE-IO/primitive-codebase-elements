@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,7 +77,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                                     methodReferencesById[it.Id].ToList(),
                                                     methodSignaturesById
                                                 ))
-                                            .ToList();
+                                            .ToList()!;
 
                                         List<FieldDto> fieldDtos = fieldByClassId[dbClass.Id].SelectNotNull(it =>
                                                 ToFieldDto(
@@ -84,7 +85,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                                     types,
                                                     fieldIndices[it.Id]
                                                 ))
-                                            .ToList();
+                                            .ToList()!;
 
                                         List<ClassReferenceDto> classReferences = classReferencesByClassId[dbClass.Id]
                                             .SelectNotNull(
@@ -110,7 +111,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                                     }
                                                 }
                                             )
-                                            .ToList();
+                                            .ToList()!;
 
                                         DbSourceIndex classIndex = classIndices[dbClass.Id];
                                         return new ClassDto(
@@ -177,24 +178,22 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
         }
 
 
-        [CanBeNull]
-        static string PackageName(string fqn)
+        static string? PackageName(string fqn)
         {
             return !fqn.Contains('.') ? null : fqn.SubstringBeforeLast(".");
         }
 
         static string ClassName(string fqn)
         {
-            return fqn.SubstringAfterLast(fqn.Contains("$") ? "$" : ".");
+            return fqn.SubstringAfterLast(fqn.Contains('$') ? "$" : ".");
         }
 
-        static string ParenClassFqn(string fqn)
+        static string? ParenClassFqn(string fqn)
         {
             return fqn.Contains('$') ? fqn.SubstringBeforeLast("$") : null;
         }
 
-        [CanBeNull]
-        static FieldDto ToFieldDto(
+        static FieldDto? ToFieldDto(
             DbField field,
             IReadOnlyDictionary<int, DbType> types,
             DbSourceIndex index
@@ -219,8 +218,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             }
         }
 
-        [CanBeNull]
-        static MethodDto ToMethodDto(
+        static MethodDto? ToMethodDto(
             DbMethod method,
             List<DbArgument> arguments,
             Dictionary<int, DbType> types,
@@ -285,10 +283,9 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             }
         }
 
-        [CanBeNull]
-        static dto.CodeRange CodeRange(DbClassReference dbSourceIndex)
+        static dto.CodeRange? CodeRange(DbClassReference dbSourceIndex)
         {
-            if (dbSourceIndex.StartLine != null)
+            if (dbSourceIndex is { StartLine: { }, StartColumn: { }, EndLine: { }, EndColumn: { } }) // check all not null
             {
                 return new dto.CodeRange(
                     new CodeLocation(dbSourceIndex.StartLine.Value, dbSourceIndex.StartColumn.Value),
@@ -299,10 +296,9 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             return null;
         }
 
-        [CanBeNull]
-        static dto.CodeRange CodeRange(DbMethodReference dbSourceIndex)
+        static dto.CodeRange? CodeRange(DbMethodReference dbSourceIndex)
         {
-            if (dbSourceIndex.StartLine != null)
+            if (dbSourceIndex is { StartLine: { }, StartColumn: { }, EndLine: { }, EndColumn: { } }) // check all not null
             {
                 return new dto.CodeRange(
                     new CodeLocation(dbSourceIndex.StartLine.Value, dbSourceIndex.StartColumn.Value),
@@ -313,10 +309,9 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             return null;
         }
 
-        [CanBeNull]
-        static dto.CodeRange CodeRange(DbSourceIndex dbSourceIndex)
+        static dto.CodeRange? CodeRange(DbSourceIndex dbSourceIndex)
         {
-            if (dbSourceIndex.StartLine != null)
+            if (dbSourceIndex is { StartLine: { }, StartColumn: { }, EndLine: { }, EndColumn: { } }) // check all not null
             {
                 return new dto.CodeRange(
                     new CodeLocation(dbSourceIndex.StartLine.Value, dbSourceIndex.StartColumn.Value),

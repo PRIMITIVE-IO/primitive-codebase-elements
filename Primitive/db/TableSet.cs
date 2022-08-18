@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,6 +9,7 @@ using static PrimitiveCodebaseElements.Primitive.db.util.SqLiteUtil;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
+    [PublicAPI]
     public class TableSet
     {
         public readonly List<DbDirectory> Directories;
@@ -22,17 +24,16 @@ namespace PrimitiveCodebaseElements.Primitive.db
         public readonly List<DbSourceIndex> SourceIndices;
 
         public TableSet(
-            [CanBeNull] List<DbDirectory> directories = null,
-            [CanBeNull] List<DbArgument> arguments = null,
-            [CanBeNull] List<DbClass> classes = null,
-            [CanBeNull] List<DbClassReference> classReferences = null,
-            [CanBeNull] List<DbField> fields = null,
-            [CanBeNull] List<DbFile> files = null,
-            [CanBeNull] List<DbMethod> methods = null,
-            [CanBeNull] List<DbMethodReference> methodReferences = null,
-            [CanBeNull] List<DbType> types = null,
-            [CanBeNull] List<DbSourceIndex> sourceIndices = null
-        )
+            List<DbDirectory>? directories = null,
+            List<DbArgument>? arguments = null,
+            List<DbClass>? classes = null,
+            List<DbClassReference>? classReferences = null,
+            List<DbField>? fields = null,
+            List<DbFile>? files = null,
+            List<DbMethod>? methods = null,
+            List<DbMethodReference>? methodReferences = null,
+            List<DbType>? types = null,
+            List<DbSourceIndex>? sourceIndices = null)
         {
             Directories = directories ?? new List<DbDirectory>();
             Arguments = arguments ?? new List<DbArgument>();

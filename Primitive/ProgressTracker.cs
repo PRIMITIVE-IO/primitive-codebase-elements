@@ -1,7 +1,9 @@
 using System;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
+    [PublicAPI]
     public class ProgressTracker
     {
         readonly Action<float> Tracker;

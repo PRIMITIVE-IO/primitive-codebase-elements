@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
+    [PublicAPI]
     public static class IEnumerableUtils
     {
         public static IEnumerable<R> SelectNotNull<T, R>(this IEnumerable<T> e, Func<T, R> f)
         {
             return e.Select(f)
-                .Where(it => it != null)
-                .Cast<R>();
+                .Where(it => it != null);
         }
 
         public static IEnumerable<R> SelectNotNull<T, R>(this IEnumerable<T> e, Func<T, int, R> f)
@@ -21,8 +22,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public static IEnumerable<T> EnumerableOfNotNull<T>(params T[] list)
         {
-            return list.Where(it => it != null)
-                .Cast<T>();
+            return list.Where(it => it != null);
         }
 
         public static Dictionary<K, V> ConcatDict<K, V>(this Dictionary<K, V> t, Dictionary<K, V> o)
@@ -70,28 +70,26 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public static R MaxOrDefault<T, R>(this List<T> list, Func<T, R> extractor)
         {
-            if (!list.Any()) return default;
-            return list.Max(extractor);
+            return !list.Any() 
+                ? default 
+                : list.Max(extractor);
         }
 
         public static T MinOrDefault<T>(this IEnumerable<T> source) where T : IComparable<T>
         {
-            T value;
-            using (IEnumerator<T> e = source.GetEnumerator())
+            using IEnumerator<T> e = source.GetEnumerator();
+            if (!e.MoveNext())
             {
-                if (!e.MoveNext())
-                {
-                    return default;
-                }
+                return default;
+            }
 
-                value = e.Current;
-                while (e.MoveNext())
+            T value = e.Current;
+            while (e.MoveNext())
+            {
+                T x = e.Current;
+                if (x.CompareTo(value) < 0)
                 {
-                    T x = e.Current;
-                    if (x.CompareTo(value) < 0)
-                    {
-                        value = x;
-                    }
+                    value = x;
                 }
             }
 
@@ -100,22 +98,19 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public static T MaxOrDefault<T>(this IEnumerable<T> source) where T : IComparable<T>
         {
-            T value;
-            using (IEnumerator<T> e = source.GetEnumerator())
+            using IEnumerator<T> e = source.GetEnumerator();
+            if (!e.MoveNext())
             {
-                if (!e.MoveNext())
-                {
-                    return default;
-                }
+                return default;
+            }
 
-                value = e.Current;
-                while (e.MoveNext())
+            T value = e.Current;
+            while (e.MoveNext())
+            {
+                T x = e.Current;
+                if (x.CompareTo(value) > 0)
                 {
-                    T x = e.Current;
-                    if (x.CompareTo(value) > 0)
-                    {
-                        value = x;
-                    }
+                    value = x;
                 }
             }
 
@@ -124,7 +119,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public static V GetOrCreate<K, V>(this Dictionary<K, V> dict, K key, Func<K, V> valueProducer)
         {
-            dict.TryGetValue(key, out var value);
+            dict.TryGetValue(key, out V value);
             if (value == null)
             {
                 value = valueProducer(key);

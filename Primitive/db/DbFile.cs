@@ -75,7 +75,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static List<DbFile> ReadAll(IDbConnection conn)
         {
-            string query = @"
+            const string query = @"
                     SELECT
                           id,
                           directory_id, 

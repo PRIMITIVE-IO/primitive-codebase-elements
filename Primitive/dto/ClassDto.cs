@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -25,11 +26,11 @@ namespace PrimitiveCodebaseElements.Primitive.dto
         public readonly List<ClassReferenceDto> ReferencesFromThis;
         // line/column coordinates in file
         // nullable for backward compatibility. Should be Non-null after removing all Idx
-        [CanBeNull] public readonly CodeRange CodeRange;
+        public readonly CodeRange? CodeRange;
         // Is used for restore parent-child relationship, avoiding parsing class separators ("$") in class FQN.
         // The problem with parsing FQNs is in fake file-classes: their FQN does not contain a namespace (unlike their
         // child classes), so it is hard to find fake-class FQN based on "nested" class FQN. 
-        [CanBeNull] public readonly string ParentClassFqn;
+        public readonly string? ParentClassFqn;
 
         public ClassDto(
             string path,
@@ -64,7 +65,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
         public ClassDto With(
             List<MethodDto> methods = null, 
             List<ClassReferenceDto> referencesFromThis = null,
-            [CanBeNull] string parentClassFqn = null)
+            string? parentClassFqn = null)
         {
             return new ClassDto(
                 path: Path,
