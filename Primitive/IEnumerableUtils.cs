@@ -8,21 +8,26 @@ namespace PrimitiveCodebaseElements.Primitive
     [PublicAPI]
     public static class IEnumerableUtils
     {
-        public static IEnumerable<R> SelectNotNull<T, R>(this IEnumerable<T> e, Func<T, R> f)
+        public static IEnumerable<TResult> SelectNotNull<TSource, TResult>(this IEnumerable<TSource> e,
+            Func<TSource, TResult?> f) where TResult : notnull
         {
             return e.Select(f)
-                .Where(it => it != null);
+                .Where(it => it != null)
+                .Cast<TResult>();
         }
 
-        public static IEnumerable<R> SelectNotNull<T, R>(this IEnumerable<T> e, Func<T, int, R> f)
+        public static IEnumerable<TResult> SelectNotNull<TSource, TResult>(this IEnumerable<TSource> e,
+            Func<TSource, int, TResult?> f) where TResult : notnull
         {
             return e.Select(f)
-                .Where(it => it != null);
+                .Where(it => it != null)
+                .Cast<TResult>();
         }
 
-        public static IEnumerable<T> EnumerableOfNotNull<T>(params T[] list)
+        public static IEnumerable<T> EnumerableOfNotNull<T>(params T?[] list) where T : notnull
         {
-            return list.Where(it => it != null);
+            return list.Where(it => it != null)
+                .Cast<T>();
         }
 
         public static Dictionary<K, V> ConcatDict<K, V>(this Dictionary<K, V> t, Dictionary<K, V> o)
@@ -70,8 +75,8 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public static R MaxOrDefault<T, R>(this List<T> list, Func<T, R> extractor)
         {
-            return !list.Any() 
-                ? default 
+            return !list.Any()
+                ? default
                 : list.Max(extractor);
         }
 

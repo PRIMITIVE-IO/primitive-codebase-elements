@@ -77,7 +77,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                                     methodReferencesById[it.Id].ToList(),
                                                     methodSignaturesById
                                                 ))
-                                            .ToList()!;
+                                            .ToList();
 
                                         List<FieldDto> fieldDtos = fieldByClassId[dbClass.Id].SelectNotNull(it =>
                                                 ToFieldDto(
@@ -85,7 +85,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                                     types,
                                                     fieldIndices[it.Id]
                                                 ))
-                                            .ToList()!;
+                                            .ToList();
 
                                         List<ClassReferenceDto> classReferences = classReferencesByClassId[dbClass.Id]
                                             .SelectNotNull(
@@ -111,7 +111,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                                     }
                                                 }
                                             )
-                                            .ToList()!;
+                                            .ToList();
 
                                         DbSourceIndex classIndex = classIndices[dbClass.Id];
                                         return new ClassDto(
