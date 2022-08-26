@@ -73,7 +73,7 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             if (firstNonWhitespaceIndex < line.Length)
             {
-                return line[..firstNonWhitespaceIndex].Trim().Length != 0 
+                return line[..firstNonWhitespaceIndex].Trim().Length != 0
                     ? line //indentation contains some chars (if this is first line)
                     : line.Substring(firstNonWhitespaceIndex, line.Length - firstNonWhitespaceIndex);
             }
@@ -121,8 +121,8 @@ namespace PrimitiveCodebaseElements.Primitive
         public static string SubstringBefore(this string s, string part)
         {
             int idx = s.IndexOf(part, StringComparison.Ordinal);
-            return idx == -1 
-                ? s 
+            return idx == -1
+                ? s
                 : s[..idx];
         }
 
@@ -144,7 +144,7 @@ namespace PrimitiveCodebaseElements.Primitive
         }
 
         public static CodeLocation? LocationIn(
-            this string s, 
+            this string s,
             PrimitiveCodebaseElements.Primitive.dto.CodeRange range,
             char c)
         {
@@ -166,15 +166,27 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public static int[] LineColIndex(this string s)
         {
-            return s.Split(Environment.NewLine).Select(it => it.Length).ToArray();
+            return s.Split('\n').Select(it => it.Length).ToArray();
         }
 
+        [Obsolete]
+        //use OneCharLeft(string[] lines) instead
         public static CodeLocation OneCharLeft(this CodeLocation location, string s)
         {
-            if (location.Line == 1 && location.Column == 1) throw new Exception("Cannot shift left");
-            return location.Column > 1 
-                ? new CodeLocation(location.Line, location.Column - 1) 
+            if (location.Line == 1 && location.Column == 1) return location;
+
+            return location.Column > 1
+                ? new CodeLocation(location.Line, location.Column - 1)
                 : new CodeLocation(location.Line - 1, LineColIndex(s)[location.Line - 2]);
+        }
+
+        public static CodeLocation OneCharLeft(this CodeLocation location, Func<string[]> linesSupplier)
+        {
+            if (location.Line == 1 && location.Column == 1) return location;
+            if (location.Column > 1) return new CodeLocation(location.Line, location.Column - 1);
+            var lines = linesSupplier();
+            if (lines.Length > location.Line - 2) return new CodeLocation(location.Line - 1, lines[location.Line - 2].TrimEnd().Length);
+            return location;
         }
 
         public static CodeLocation? LocationOf(this string s, char c)
@@ -236,8 +248,8 @@ namespace PrimitiveCodebaseElements.Primitive
         static string? UnindentLine2(string line, int firstNonWhitespaceIndex, int idx, int lastIdx)
         {
             if (line.IsBlank() && (idx == 0 || idx == lastIdx)) return null;
-            return line.Length < firstNonWhitespaceIndex 
-                ? string.Empty 
+            return line.Length < firstNonWhitespaceIndex
+                ? string.Empty
                 : line[firstNonWhitespaceIndex..];
         }
 
@@ -263,8 +275,8 @@ namespace PrimitiveCodebaseElements.Primitive
                 {
                     int firstNonWhiteSpaceIndex = IndexOfFirstNonWhitespace2(x);
                     if (firstNonWhiteSpaceIndex == -1 || firstNonWhiteSpaceIndex == x.Length) return null;
-                    return !x[firstNonWhiteSpaceIndex..].StartsWith(marginPrefix) 
-                        ? null 
+                    return !x[firstNonWhiteSpaceIndex..].StartsWith(marginPrefix)
+                        ? null
                         : x[(firstNonWhiteSpaceIndex + 1)..];
                 })
                 .Aggregate(new StringBuilder(), (builder, s) => builder.AppendLine(s))
@@ -274,8 +286,8 @@ namespace PrimitiveCodebaseElements.Primitive
 
         static StringBuilder RemoveLastNewLine(this StringBuilder sb)
         {
-            return sb.Length == 0 
-                ? sb 
+            return sb.Length == 0
+                ? sb
                 : sb.Remove(sb.Length - Environment.NewLine.Length, Environment.NewLine.Length);
         }
     }

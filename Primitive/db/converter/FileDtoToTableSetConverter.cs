@@ -96,7 +96,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                             argIndex++;
                         }
 
-                        if (methodDto.StartIdx != -1)
+                        if (methodDto.CodeRange != null)
                         {
                             dbSourceIndices.Add(new DbSourceIndex(
                                 elementId: methodId,
@@ -125,7 +125,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                             accessFlags: (int)fieldDto.AccFlag,
                             language: (int)fileDto.Language
                         ));
-                        if (fieldDto.StartIdx != -1)
+                        if (fieldDto.CodeRange != null)
                         {
                             dbSourceIndices.Add(new DbSourceIndex(
                                 elementId: fieldId,
@@ -143,7 +143,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                         fieldId++;
                     }
 
-                    if (classDto.StartIdx != -1)
+                    if (classDto.CodeRange != null)
                     {
                         dbSourceIndices.Add(new DbSourceIndex(
                             elementId: classId,
