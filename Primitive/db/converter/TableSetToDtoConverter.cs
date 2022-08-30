@@ -72,7 +72,19 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                                     it,
                                                     argsByMethodId[it.Id].ToList(),
                                                     types,
-                                                    methodIndices[it.Id],
+                                                    methodIndices.ContainsKey(it.Id)
+                                                        ? methodIndices[it.Id]
+                                                        : new DbSourceIndex(
+                                                            elementId: it.Id,
+                                                            fileId: dbFile.Id,
+                                                            type: "METHOD",
+                                                            startIdx: 0,
+                                                            endIdx: 0,
+                                                            startLine: 0,
+                                                            startColumn: 0,
+                                                            endLine: 0,
+                                                            endColumn: 0
+                                                        ),
                                                     dbClass,
                                                     methodReferencesById[it.Id].ToList(),
                                                     methodSignaturesById
