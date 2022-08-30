@@ -9,24 +9,15 @@ namespace PrimitiveCodebaseElements.Primitive.dto
     public class ClassDto
     {
         public readonly string Path;
-        public readonly string PackageName;
+        public readonly string? PackageName;
         public readonly string Name;
         public readonly string FullyQualifiedName;
         public readonly List<MethodDto> Methods;
         public readonly List<FieldDto> Fields;
         public readonly AccessFlags Modifier;
-        //char index in file
-        [Obsolete("CodeRange should be used instead")]
-        public readonly int StartIdx;
-        //char index in file
-        [Obsolete("CodeRange should be used instead")]
-        public readonly int EndIdx;
-        [Obsolete("Header should be extracted from file (FileDto.Text) using CodeRange")] 
-        public readonly string Header;
         public readonly List<ClassReferenceDto> ReferencesFromThis;
         // line/column coordinates in file
-        // nullable for backward compatibility. Should be Non-null after removing all Idx
-        public readonly CodeRange? CodeRange;
+        public readonly CodeRange CodeRange;
         // Is used for restore parent-child relationship, avoiding parsing class separators ("$") in class FQN.
         // The problem with parsing FQNs is in fake file-classes: their FQN does not contain a namespace (unlike their
         // child classes), so it is hard to find fake-class FQN based on "nested" class FQN. 
@@ -34,18 +25,15 @@ namespace PrimitiveCodebaseElements.Primitive.dto
 
         public ClassDto(
             string path,
-            string packageName,
+            string? packageName,
             string name,
             string fullyQualifiedName,
             List<MethodDto> methods,
             List<FieldDto> fields,
             AccessFlags modifier,
-            int startIdx,
-            int endIdx,
-            string header, 
-            CodeRange codeRange = default, 
-            List<ClassReferenceDto> referencesFromThis = null,
-            string parentClassFqn = null)
+            CodeRange codeRange, 
+            List<ClassReferenceDto> referencesFromThis,
+            string? parentClassFqn)
         {
             Path = path;
             PackageName = packageName;
@@ -54,17 +42,14 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             Methods = methods;
             Fields = fields;
             Modifier = modifier;
-            StartIdx = startIdx;
-            EndIdx = endIdx;
-            Header = header;
             CodeRange = codeRange;
-            ReferencesFromThis = referencesFromThis ?? new List<ClassReferenceDto>();
+            ReferencesFromThis = referencesFromThis;
             ParentClassFqn = parentClassFqn;
         }
 
         public ClassDto With(
-            List<MethodDto> methods = null, 
-            List<ClassReferenceDto> referencesFromThis = null,
+            List<MethodDto>? methods = null, 
+            List<ClassReferenceDto>? referencesFromThis = null,
             string? parentClassFqn = null)
         {
             return new ClassDto(
@@ -75,9 +60,6 @@ namespace PrimitiveCodebaseElements.Primitive.dto
                 methods: methods ?? Methods,
                 fields: Fields,
                 modifier: Modifier,
-                startIdx: StartIdx,
-                endIdx: EndIdx,
-                header: Header,
                 codeRange: CodeRange,
                 referencesFromThis: referencesFromThis ?? ReferencesFromThis,
                 parentClassFqn: parentClassFqn ?? ParentClassFqn

@@ -11,21 +11,17 @@ namespace PrimitiveCodebaseElements.Primitive.db
         public readonly int ElementId;
         public readonly int FileId;
         public readonly string Type;
-        public readonly int StartIdx;
-        public readonly int EndIdx;
-        public readonly int? StartLine;
-        public readonly int? StartColumn;
-        public readonly int? EndLine;
-        public readonly int? EndColumn;
+        public readonly int StartLine;
+        public readonly int StartColumn;
+        public readonly int EndLine;
+        public readonly int EndColumn;
 
-        public DbSourceIndex(int elementId, int fileId, string type, int startIdx, int endIdx, int? startLine,
-            int? startColumn, int? endLine, int? endColumn)
+        public DbSourceIndex(int elementId, int fileId, string type, int startLine,
+            int startColumn, int endLine, int endColumn)
         {
             ElementId = elementId;
             FileId = fileId;
             Type = type;
-            StartIdx = startIdx;
-            EndIdx = endIdx;
             StartLine = startLine;
             StartColumn = startColumn;
             EndLine = endLine;
@@ -41,8 +37,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           element_id,
                           file_id,
                           type,
-                          start_idx,
-                          end_idx,
                           start_line,
                           start_column,
                           end_line,
@@ -51,8 +45,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           @ElementId,
                           @FileId,
                           @Type,
-                          @StartIdx,
-                          @EndIdx,
                           @StartLine,
                           @StartColumn,
                           @EndLine,
@@ -64,9 +56,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 cmd.AddParameter(System.Data.DbType.Int32, "@ElementId", sourceIndex.ElementId);
                 cmd.AddParameter(System.Data.DbType.Int32, "@FileId", sourceIndex.FileId);
                 cmd.AddParameter(System.Data.DbType.String, "@Type", sourceIndex.Type);
-                cmd.AddParameter(System.Data.DbType.Int32, "@StartIdx", sourceIndex.StartIdx);
-                cmd.AddParameter(System.Data.DbType.Int32, "@EndIdx", sourceIndex.EndIdx);
-                cmd.AddParameter(System.Data.DbType.Int32, "@EndIdx", sourceIndex.EndIdx);
                 cmd.AddParameter(System.Data.DbType.Int32, "@StartLine", sourceIndex.StartLine);
                 cmd.AddParameter(System.Data.DbType.Int32, "@StartColumn", sourceIndex.StartColumn);
                 cmd.AddParameter(System.Data.DbType.Int32, "@EndLine", sourceIndex.EndLine);
@@ -85,12 +74,12 @@ namespace PrimitiveCodebaseElements.Primitive.db
                         element_id   INTEGER NOT NULL,
                         file_id      INTEGER NOT NULL,
                         type         TEXT    NOT NULL,
-                        start_idx    INTEGER NOT NULL,
-                        end_idx      INTEGER NOT NULL,
-                        start_line   INTEGER,
-                        start_column INTEGER,
-                        end_line     INTEGER,
-                        end_column   INTEGER,
+                        start_idx    INTEGER NOT NULL default -1,
+                        end_idx      INTEGER NOT NULL default -1,
+                        start_line   INTEGER NOT NULL,
+                        start_column INTEGER NOT NULL,
+                        end_line     INTEGER NOT NULL,
+                        end_column   INTEGER NOT NULL,
                         FOREIGN KEY(file_id) REFERENCES files(id) ON UPDATE CASCADE
                     )
         ";
@@ -102,8 +91,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           element_id,
                           file_id,
                           type,
-                          start_idx,
-                          end_idx,
                           start_line,
                           start_column,
                           end_line,
@@ -115,12 +102,10 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 elementId: row.GetInt32("element_id"),
                 fileId: row.GetInt32("file_id"),
                 type: row.GetString("type"),
-                startIdx: row.GetInt32("start_idx"),
-                endIdx: row.GetInt32("end_idx"),
-                startLine: row.GetIntOrNull("start_line"),
-                startColumn: row.GetIntOrNull("start_column"),
-                endLine: row.GetIntOrNull("end_line"),
-                endColumn: row.GetIntOrNull("end_column")
+                startLine: row.GetInt32("start_line"),
+                startColumn: row.GetInt32("start_column"),
+                endLine: row.GetInt32("end_line"),
+                endColumn: row.GetInt32("end_column")
             ));
         }
     }

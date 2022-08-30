@@ -96,20 +96,15 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                             argIndex++;
                         }
 
-                        if (methodDto.CodeRange != null)
-                        {
-                            dbSourceIndices.Add(new DbSourceIndex(
-                                elementId: methodId,
-                                fileId: fileId,
-                                type: "METHOD",
-                                startIdx: methodDto.StartIdx,
-                                endIdx: methodDto.EndIdx,
-                                startLine: methodDto.CodeRange?.Start.Line,
-                                startColumn: methodDto.CodeRange?.Start.Column,
-                                endLine: methodDto.CodeRange?.End.Line,
-                                endColumn: methodDto.CodeRange?.End.Column
-                            ));
-                        }
+                        dbSourceIndices.Add(new DbSourceIndex(
+                            elementId: methodId,
+                            fileId: fileId,
+                            type: "METHOD",
+                            startLine: methodDto.CodeRange.Start.Line,
+                            startColumn: methodDto.CodeRange.Start.Column,
+                            endLine: methodDto.CodeRange.End.Line,
+                            endColumn: methodDto.CodeRange.End.Column
+                        ));
 
                         methodId++;
                     }
@@ -125,38 +120,28 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                             accessFlags: (int)fieldDto.AccFlag,
                             language: (int)fileDto.Language
                         ));
-                        if (fieldDto.CodeRange != null)
-                        {
-                            dbSourceIndices.Add(new DbSourceIndex(
-                                elementId: fieldId,
-                                fileId: fileId,
-                                type: "FIELD",
-                                startIdx: fieldDto.StartIdx,
-                                endIdx: fieldDto.EndIdx,
-                                startLine: fieldDto.CodeRange?.Start.Line,
-                                startColumn: fieldDto.CodeRange?.Start.Column,
-                                endLine: fieldDto.CodeRange?.End.Line,
-                                endColumn: fieldDto.CodeRange?.End.Column
-                            ));
-                        }
+                        dbSourceIndices.Add(new DbSourceIndex(
+                            elementId: fieldId,
+                            fileId: fileId,
+                            type: "FIELD",
+                            startLine: fieldDto.CodeRange.Start.Line,
+                            startColumn: fieldDto.CodeRange.Start.Column,
+                            endLine: fieldDto.CodeRange.End.Line,
+                            endColumn: fieldDto.CodeRange.End.Column
+                        ));
 
                         fieldId++;
                     }
 
-                    if (classDto.CodeRange != null)
-                    {
-                        dbSourceIndices.Add(new DbSourceIndex(
-                            elementId: classId,
-                            fileId: fileId,
-                            type: "CLASS",
-                            startIdx: classDto.StartIdx,
-                            endIdx: classDto.EndIdx,
-                            startLine: classDto.CodeRange?.Start.Line,
-                            startColumn: classDto.CodeRange?.Start.Column,
-                            endLine: classDto.CodeRange?.End.Line,
-                            endColumn: classDto.CodeRange?.End.Column
-                        ));
-                    }
+                    dbSourceIndices.Add(new DbSourceIndex(
+                        elementId: classId,
+                        fileId: fileId,
+                        type: "CLASS",
+                        startLine: classDto.CodeRange.Start.Line,
+                        startColumn: classDto.CodeRange.Start.Column,
+                        endLine: classDto.CodeRange.End.Line,
+                        endColumn: classDto.CodeRange.End.Column
+                    ));
 
                     classId++;
                 }
@@ -178,14 +163,10 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                             type: (int)referencesFromThis.Type,
                             fromId: classFqnToId[referencesFromThis.FromFqn],
                             toId: classFqnToId[referencesFromThis.ToFqn],
-                            startPosition: referencesFromThis.EndPosition,
-                            endPosition: referencesFromThis.EndPosition,
-                            startIdx: referencesFromThis.StartIdx,
-                            endIdx: referencesFromThis.EndIdx,
-                            startLine: referencesFromThis.CodeRange?.Start.Line,
-                            startColumn: referencesFromThis.CodeRange?.Start.Column,
-                            endLine: referencesFromThis.CodeRange?.End.Line,
-                            endColumn: referencesFromThis.CodeRange?.End.Column
+                            startLine: referencesFromThis.CodeRange.Start.Line,
+                            startColumn: referencesFromThis.CodeRange.Start.Column,
+                            endLine: referencesFromThis.CodeRange.End.Line,
+                            endColumn: referencesFromThis.CodeRange.End.Column
                         ));
 
                         classReferenceId++;
@@ -216,14 +197,10 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                 type: (int)methodReferenceDto.Type,
                                 fromId: fromId,
                                 toId: toId,
-                                startPosition: methodReferenceDto.StartPosition,
-                                endPosition: methodReferenceDto.EndPosition,
-                                startIdx: methodReferenceDto.StartIdx,
-                                endIdx: methodReferenceDto.EndIdx,
-                                startLine: methodReferenceDto.CodeRange?.Start.Line,
-                                startColumn: methodReferenceDto.CodeRange?.Start.Column,
-                                endLine: methodReferenceDto.CodeRange?.End.Line,
-                                endColumn: methodReferenceDto.CodeRange?.End.Column
+                                startLine: methodReferenceDto.CodeRange.Start.Line,
+                                startColumn: methodReferenceDto.CodeRange.Start.Column,
+                                endLine: methodReferenceDto.CodeRange.End.Line,
+                                endColumn: methodReferenceDto.CodeRange.End.Column
                             ));
 
                             methodReferenceId++;
