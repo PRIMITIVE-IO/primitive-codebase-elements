@@ -1,4 +1,3 @@
-#nullable enable
 using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive.dto
