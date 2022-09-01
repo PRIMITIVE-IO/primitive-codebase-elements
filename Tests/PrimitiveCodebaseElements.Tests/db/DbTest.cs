@@ -30,10 +30,10 @@ public class DbTest
                 },
                 directories: new List<DbDirectory>{new(id: 1, fqn:string.Empty, positionX:1.0, positionY: 1.0)},
                 arguments: new List<DbArgument>{new (id: 1, methodId:1, argIndex: 0, name: string.Empty, typeId:1)},
-                classReferences: new List<DbClassReference>{new(id: 1, type:1, fromId:1, toId:1, startPosition:1, endPosition:1, startIdx: 1, endIdx: 1, startLine:1, startColumn:1, endLine:1, endColumn:1)},
+                classReferences: new List<DbClassReference>{new(id: 1, type:1, fromId:1, toId:1, startLine:1, startColumn:1, endLine:1, endColumn:1)},
                 fields: new List<DbField>{new (id: 1, parentType:1, parentId:1, name:string.Empty, typeId:1, accessFlags:1, language:1)},
-                methodReferences: new List<DbMethodReference>{new(id: 1, type:1, fromId:1, toId:1,startPosition:1, endPosition:1, startIdx: 1, endIdx: 1, startLine:1, startColumn:1, endLine:1, endColumn:1)},
-                sourceIndices: new List<DbSourceIndex>{new (elementId:1, fileId:1, type: string.Empty, startIdx: 1, endIdx: 1, startLine:1, startColumn:1, endLine:1, endColumn:1)}
+                methodReferences: new List<DbMethodReference>{new(id: 1, type:1, fromId:1, toId:1, startLine:1, startColumn:1, endLine:1, endColumn:1)},
+                sourceIndices: new List<DbSourceIndex>{new (elementId:1, fileId:1, type: string.Empty, startLine:1, startColumn:1, endLine:1, endColumn:1)}
             );
             // @formatter:on
             TableSet.CreateTables(conn);

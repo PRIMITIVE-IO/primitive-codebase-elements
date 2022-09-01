@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -78,8 +77,6 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                                             elementId: it.Id,
                                                             fileId: dbFile.Id,
                                                             type: "METHOD",
-                                                            startIdx: 0,
-                                                            endIdx: 0,
                                                             startLine: 0,
                                                             startColumn: 0,
                                                             endLine: 0,
@@ -109,16 +106,13 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                                             type: (CodeReferenceType)it.Type,
                                                             fromFqn: dbClass.Fqn,
                                                             toFqn: classesById[it.ToId].Fqn,
-                                                            startPosition: it.StartPosition,
-                                                            endPosition: it.EndPosition,
-                                                            startIdx: it.StartIdx,
-                                                            endIdx: it.EndIdx,
                                                             codeRange: CodeRange(it)
                                                         );
                                                     }
                                                     catch (Exception ex)
                                                     {
-                                                        Logger.Instance().Warn($"Cannot create ClassReferenceDto id: {it.Id}", ex);
+                                                        Logger.Instance()
+                                                            .Warn($"Cannot create ClassReferenceDto id: {it.Id}", ex);
                                                         return null;
                                                     }
                                                 }
@@ -134,10 +128,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                             methods: methodDtos,
                                             fields: fieldDtos,
                                             modifier: (AccessFlags)dbClass.AccessFlags,
-                                            startIdx: classIndex.StartIdx,
-                                            endIdx: classIndex.EndIdx,
                                             codeRange: CodeRange(classIndex),
-                                            header: string.Empty,
                                             referencesFromThis: classReferences,
                                             parentClassFqn: ParenClassFqn(dbClass.Fqn)
                                         );
@@ -217,9 +208,6 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                     field.Name,
                     type: types[field.TypeId].Signature,
                     (AccessFlags)field.AccessFlags,
-                    sourceCode: string.Empty,
-                    startIdx: index.StartIdx,
-                    endIdx: index.EndIdx,
                     codeRange: CodeRange(index)
                 );
             }
@@ -259,10 +247,6 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                 type: (CodeReferenceType)it.Type,
                                 fromMethodSignature: methodSignature,
                                 toMethodSignature: methodSignaturesById[it.ToId],
-                                startPosition: it.StartPosition,
-                                endPosition: it.EndPosition,
-                                startIdx: it.StartIdx,
-                                endIdx: it.EndIdx,
                                 codeRange: CodeRange(it)
                             );
                         }
@@ -280,9 +264,6 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                     accFlag: (AccessFlags)method.AccessFlags,
                     arguments: args,
                     returnType: types[method.ReturnTypeId].Signature,
-                    sourceCode: string.Empty,
-                    startIdx: dbSourceIndex.StartIdx,
-                    endIdx: dbSourceIndex.EndIdx,
                     codeRange: CodeRange(dbSourceIndex),
                     methodReferences: methodReferenceDtos,
                     cyclomaticScore: method.CyclomaticScore
@@ -295,43 +276,28 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             }
         }
 
-        static dto.CodeRange? CodeRange(DbClassReference dbSourceIndex)
+        static dto.CodeRange CodeRange(DbClassReference dbSourceIndex)
         {
-            if (dbSourceIndex is { StartLine: { }, StartColumn: { }, EndLine: { }, EndColumn: { } }) // check all not null
-            {
-                return new dto.CodeRange(
-                    new CodeLocation(dbSourceIndex.StartLine.Value, dbSourceIndex.StartColumn.Value),
-                    new CodeLocation(dbSourceIndex.EndLine.Value, dbSourceIndex.EndColumn.Value)
-                );
-            }
-
-            return null;
+            return new dto.CodeRange(
+                new CodeLocation(dbSourceIndex.StartLine, dbSourceIndex.StartColumn),
+                new CodeLocation(dbSourceIndex.EndLine, dbSourceIndex.EndColumn)
+            );
         }
 
-        static dto.CodeRange? CodeRange(DbMethodReference dbSourceIndex)
+        static dto.CodeRange CodeRange(DbMethodReference dbSourceIndex)
         {
-            if (dbSourceIndex is { StartLine: { }, StartColumn: { }, EndLine: { }, EndColumn: { } }) // check all not null
-            {
-                return new dto.CodeRange(
-                    new CodeLocation(dbSourceIndex.StartLine.Value, dbSourceIndex.StartColumn.Value),
-                    new CodeLocation(dbSourceIndex.EndLine.Value, dbSourceIndex.EndColumn.Value)
-                );
-            }
-
-            return null;
+            return new dto.CodeRange(
+                new CodeLocation(dbSourceIndex.StartLine, dbSourceIndex.StartColumn),
+                new CodeLocation(dbSourceIndex.EndLine, dbSourceIndex.EndColumn)
+            );
         }
 
-        static dto.CodeRange? CodeRange(DbSourceIndex dbSourceIndex)
+        static dto.CodeRange CodeRange(DbSourceIndex dbSourceIndex)
         {
-            if (dbSourceIndex is { StartLine: { }, StartColumn: { }, EndLine: { }, EndColumn: { } }) // check all not null
-            {
-                return new dto.CodeRange(
-                    new CodeLocation(dbSourceIndex.StartLine.Value, dbSourceIndex.StartColumn.Value),
-                    new CodeLocation(dbSourceIndex.EndLine.Value, dbSourceIndex.EndColumn.Value)
-                );
-            }
-
-            return null;
+            return new dto.CodeRange(
+                new CodeLocation(dbSourceIndex.StartLine, dbSourceIndex.StartColumn),
+                new CodeLocation(dbSourceIndex.EndLine, dbSourceIndex.EndColumn)
+            );
         }
     }
 }

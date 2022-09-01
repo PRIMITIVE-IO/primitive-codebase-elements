@@ -35,26 +35,26 @@ public class TableSetToDtoConverterTest
             },
             methodReferences: new List<DbMethodReference>
             {
-                new(121, 1, 432, 433, 1, 1, 1, 1, 1, 1, 1, 1),
-                new(122, 1, 433, 432, 1, 1, 1, 1, 1, 1, 1, 1)
+                new(121, 1, 432, 433, 1, 1, 1, 1),
+                new(122, 1, 433, 432, 1, 1, 1, 1)
             },
             sourceIndices: new List<DbSourceIndex>
             {
-                new(432, 525, "METHOD", 1, 1, 1, 1, 1, 1),
-                new(433, 525, "METHOD", 2, 2, 2, 2, 2, 2),
-                new(423, 525, "CLASS", 2, 2, 2, 2, 2, 2)
+                new(432, 525, "METHOD", 1, 1, 1, 1),
+                new(433, 525, "METHOD", 2, 2, 2, 2),
+                new(423, 525, "CLASS", 2, 2, 2, 2)
             }
         ));
 
         fileDtos[0].Classes[0].Methods.Should().HaveCount(2);
-        
+
         MethodDto fMethod = fileDtos[0].Classes[0].Methods.Single(x => x.Name == "f");
         fMethod.Arguments.Should().HaveCount(1);
         fMethod.Arguments[0].Name.Should().Be("x");
         fMethod.Arguments[0].Type.Should().Be("int");
         fMethod.Signature.Should().Be("some.Cls.f(int)");
         fMethod.ReturnType.Should().Be("string");
-        
+
         List<MethodReferenceDto> fRefs = fMethod.MethodReferences;
         fRefs.Should().HaveCount(1);
         fRefs[0].FromMethodSignature.Should().Be("some.Cls.f(int)");
@@ -66,7 +66,7 @@ public class TableSetToDtoConverterTest
         gMethod.Arguments[0].Type.Should().Be("string");
         gMethod.Signature.Should().Be("some.Cls.g(string)");
         gMethod.ReturnType.Should().Be("void");
-        
+
         List<MethodReferenceDto> gRefs = gMethod.MethodReferences;
         gRefs.Should().HaveCount(1);
         gRefs[0].FromMethodSignature.Should().Be("some.Cls.g(string)");
