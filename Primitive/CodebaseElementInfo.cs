@@ -84,7 +84,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         [JsonProperty] List<CodeReferenceEndpoint> ReferencesToThis { get; }
         [JsonProperty] List<CodeReferenceEndpoint> ReferencesFromThis { get; }
-        [JsonProperty] SourceCodeSnippet SourceCode { get; }
+        [JsonProperty] SourceCodeSnippet? SourceCode { get; }
 
         [JsonIgnore] string Serialized { get; }
 
@@ -160,7 +160,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public SourceCodeSnippet SourceCode { get; set; }
 
         public readonly bool IsTestPackage = false;
-        public PackageVector2 InitialPosition = new PackageVector2(0, 0);
+        public PackageVector2 InitialPosition = new(0, 0);
 
         public PackageInfo(
             PackageName name,
@@ -195,6 +195,11 @@ namespace PrimitiveCodebaseElements.Primitive
         }
 
         [JsonIgnore] string serialized;
+
+        public override string ToString()
+        {
+            return PackageName.PackageNameString;
+        }
     }
 
     [PublicAPI]
@@ -202,7 +207,7 @@ namespace PrimitiveCodebaseElements.Primitive
     {
         public readonly MethodName MethodName;
         public CodebaseElementName Name => MethodName;
-        public List<ICodebaseElementInfo> Children => new List<ICodebaseElementInfo>();
+        public List<ICodebaseElementInfo> Children => new();
 
         public readonly AccessFlags accessFlags;
         public bool IsPublic => accessFlags.IsPublic();
@@ -217,7 +222,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public readonly Argument[] Arguments;
         public readonly TypeName ReturnType;
 
-        public FieldInfo Field { get; set; }
+        public FieldInfo? Field { get; set; }
         public List<CodeReferenceEndpoint> ReferencesToThis { get; }
         public List<CodeReferenceEndpoint> ReferencesFromThis { get; }
 
@@ -253,7 +258,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         bool Equals(MethodInfo other) => Equals(MethodName, other.MethodName);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
@@ -261,6 +266,11 @@ namespace PrimitiveCodebaseElements.Primitive
         }
 
         public override int GetHashCode() => MethodName?.GetHashCode() ?? 0;
+
+        public override string ToString()
+        {
+            return MethodName.ShortName;
+        }
 
         public void DiffAgainst(ICodebaseElementInfo branchInfo)
         {
@@ -306,7 +316,7 @@ namespace PrimitiveCodebaseElements.Primitive
         public readonly TypeName FieldType;
         public readonly FieldName FieldName;
         public CodebaseElementName Name => FieldName;
-        public List<ICodebaseElementInfo> Children => new List<ICodebaseElementInfo>();
+        public List<ICodebaseElementInfo> Children => new();
 
         public readonly AccessFlags AccessFlags;
 
@@ -354,7 +364,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         bool Equals(FieldInfo other) => Equals(FieldName, other.FieldName);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
@@ -362,6 +372,11 @@ namespace PrimitiveCodebaseElements.Primitive
         }
 
         public override int GetHashCode() => FieldName?.GetHashCode() ?? 0;
+
+        public override string ToString()
+        {
+            return FieldName.ShortName;
+        }
 
         public void DiffAgainst(ICodebaseElementInfo branchInfo)
         {
@@ -377,11 +392,11 @@ namespace PrimitiveCodebaseElements.Primitive
         public List<ICodebaseElementInfo> Children { get; }
         public List<CodeReferenceEndpoint> ReferencesToThis { get; }
         public List<CodeReferenceEndpoint> ReferencesFromThis { get; }
-        public SourceCodeSnippet SourceCode { get; set; }
+        public SourceCodeSnippet? SourceCode { get; set; }
 
-        public string SourceUrl { get; }
-        public string LocalUrl { get; set; }
-        public string BranchUrl { get; set; }
+        public string? SourceUrl { get; }
+        public string? LocalUrl { get; set; }
+        public string? BranchUrl { get; set; }
 
         public long Size => SourceCode?.Text.Length ?? 0;
         public readonly string FileExtension;
@@ -484,16 +499,21 @@ namespace PrimitiveCodebaseElements.Primitive
             }
         }
 
-        [JsonIgnore] string serialized;
+        [JsonIgnore] string? serialized;
+
+        public override string ToString()
+        {
+            return FileName.FilePath;
+        }
     }
 
     [Serializable]
     [PublicAPI]
     public class ClassInfo : ICodebaseElementInfo
     {
-        public Dictionary<string, List<ICodebaseElementInfo>> AddedElementsByBranchName { get; } = new Dictionary<string, List<ICodebaseElementInfo>>();
-        public Dictionary<string, List<ICodebaseElementInfo>> ModifiedElementsByBranchName { get; } = new Dictionary<string, List<ICodebaseElementInfo>>();
-        public Dictionary<string, List<ICodebaseElementInfo>> DeletedElementsByBranchName { get; } = new Dictionary<string, List<ICodebaseElementInfo>>();
+        public Dictionary<string, List<ICodebaseElementInfo>> AddedElementsByBranchName { get; } = new();
+        public Dictionary<string, List<ICodebaseElementInfo>> ModifiedElementsByBranchName { get; } = new();
+        public Dictionary<string, List<ICodebaseElementInfo>> DeletedElementsByBranchName { get; } = new();
 
         public readonly ClassName className;
         public CodebaseElementName Name => className;
@@ -565,6 +585,11 @@ namespace PrimitiveCodebaseElements.Primitive
         }
 
         [JsonIgnore] string serialized;
+
+        public override string ToString()
+        {
+            return className.ShortName;
+        }
     }
 
     #endregion

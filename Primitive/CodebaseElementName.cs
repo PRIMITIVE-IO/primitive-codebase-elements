@@ -96,7 +96,7 @@ namespace PrimitiveCodebaseElements.Primitive
             return hashCode;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
@@ -117,10 +117,15 @@ namespace PrimitiveCodebaseElements.Primitive
             CodebaseElementName a,
             CodebaseElementName b) => !(a == b);
 
-        static readonly Regex RegexWhitespace = new Regex(@"\s+");
+        static readonly Regex RegexWhitespace = new(@"\s+");
 
         protected static string ReplaceWhitespace(string typeName) =>
             RegexWhitespace.Replace(typeName, string.Empty).Replace(",", ", ");
+
+        public override string ToString()
+        {
+            return ShortName;
+        }
     }
 
     #endregion
@@ -140,11 +145,11 @@ namespace PrimitiveCodebaseElements.Primitive
 
         [JsonProperty] public readonly IEnumerable<Argument> Arguments;
 
-        string? _fullyQualifiedName;
+        string? fullyQualifiedName;
 
         public string FullyQualifiedName
         {
-            get { return _fullyQualifiedName ??= FullyQualified(); }
+            get { return fullyQualifiedName ??= FullyQualified(); }
         }
 
         public MethodName(
@@ -172,6 +177,7 @@ namespace PrimitiveCodebaseElements.Primitive
             IEnumerable<Argument> argumentTypes,
             bool extra) : base(methodName)
         {
+            // allows the containment file and containment package properties to not be overwritten by the underlying constructor
             containmentParent = parent;
             ReturnType = returnType;
             Arguments = argumentTypes;
@@ -182,40 +188,6 @@ namespace PrimitiveCodebaseElements.Primitive
             ClassName? parentClass = containmentParent as ClassName;
             string parentFqn = parentClass?.FullyQualifiedName ?? containmentParent.ShortName;
             return $"{parentFqn}.{ShortName}({CommaSeparatedArguments(false)})";
-        }
-
-        /// <summary>
-        /// use field `FullyQualifiedName` instead
-        /// </summary>
-        /// <returns></returns>
-        [Obsolete]
-        public string ToJavaFullyQualified()
-        {
-            if (ContainmentParent is ClassName parentJavaClass &&
-                !string.IsNullOrEmpty(parentJavaClass.ToJavaFullyQualified()))
-            {
-                return $"{parentJavaClass.ToJavaFullyQualified()}.{ShortName}({CommaSeparatedArguments(false)})";
-            }
-
-            return "Not Java";
-        }
-
-        /// <summary>
-        /// use field `FullyQualifiedName` instead
-        /// </summary>
-        /// <returns></returns>
-        [Obsolete]
-        public string ToCXFullyQualified()
-        {
-            if (ContainmentParent is ClassName parentCXClass &&
-                !string.IsNullOrEmpty(parentCXClass.ToCXFullyQualified()))
-            {
-                // TODO 
-                return $"{parentCXClass.ToCXFullyQualified()}." +
-                       $"{ShortName}:({CommaSeparatedArguments()}){ReturnType}";
-            }
-
-            return "Not CX";
         }
 
         string GetArgumentType(Argument argument)
@@ -234,9 +206,9 @@ namespace PrimitiveCodebaseElements.Primitive
         string CommaSeparatedArguments(bool includeArgNames = true)
         {
             Func<Argument, string> argsWithoutNamesFunc = GetArgumentType;
-            Func<Argument, string> argsWithNamesFunc = argument => $"{argument.Name} {GetArgumentType(argument)}";
+            string ArgsWithNamesFunc(Argument argument) => $"{argument.Name} {GetArgumentType(argument)}";
 
-            Func<Argument, string> argFunction = includeArgNames ? argsWithNamesFunc : argsWithoutNamesFunc;
+            Func<Argument, string> argFunction = includeArgNames ? ArgsWithNamesFunc : argsWithoutNamesFunc;
 
             return string.Join(",", Arguments.Select(argFunction).ToList());
         }
@@ -253,11 +225,11 @@ namespace PrimitiveCodebaseElements.Primitive
 
         [JsonProperty] public readonly string FieldType;
 
-        string? _fullyQualifiedName;
+        string? fullyQualifiedName;
 
         public string FullyQualifiedName
         {
-            get { return _fullyQualifiedName ??= FullyQualified(); }
+            get { return fullyQualifiedName ??= FullyQualified(); }
         }
 
         public FieldName(ClassName containmentClass, string fieldName, string fieldType) : base(fieldName)
@@ -272,6 +244,7 @@ namespace PrimitiveCodebaseElements.Primitive
         FieldName(ClassName containmentClass, string fieldName, string fieldType,
             bool extra) : base(fieldName)
         {
+            // allows the containment file and containment package properties to not be overwritten by the underlying constructor
             containmentParent = containmentClass;
             FieldType = fieldType;
         }
@@ -281,40 +254,6 @@ namespace PrimitiveCodebaseElements.Primitive
             ClassName? parentClass = containmentParent as ClassName;
             string parentFqn = parentClass?.FullyQualifiedName ?? containmentParent.ShortName;
             return $"{parentFqn}.{ShortName}";
-        }
-
-        /// <summary>
-        /// use field `FullyQualifiedName` instead
-        /// </summary>
-        /// <returns></returns>
-        [Obsolete]
-        public string ToJavaFullyQualified()
-        {
-            if (ContainmentParent is ClassName parentJavaClass &&
-                !string.IsNullOrEmpty(parentJavaClass.ToJavaFullyQualified()))
-            {
-                // TODO 
-                return $"{parentJavaClass.ToJavaFullyQualified()}.{ShortName}:{FieldType}";
-            }
-
-            return "Not Java";
-        }
-
-        /// <summary>
-        /// use field `FullyQualifiedName` instead
-        /// </summary>
-        /// <returns></returns>
-        [Obsolete]
-        public string ToCXFullyQualified()
-        {
-            if (ContainmentParent is ClassName parentCsClass &&
-                !string.IsNullOrEmpty(parentCsClass.ToCXFullyQualified()))
-            {
-                // TODO 
-                return $"{parentCsClass.ToCXFullyQualified()}{ShortName}:{FieldType}";
-            }
-
-            return "Not CX";
         }
     }
 
@@ -368,6 +307,7 @@ namespace PrimitiveCodebaseElements.Primitive
         protected TypeName(string shortName, bool extra) : base(shortName)
         {
             // do nothing
+            // allows the containment file and containment package properties to not be overwritten by the underlying constructor
         }
     }
 
@@ -386,6 +326,7 @@ namespace PrimitiveCodebaseElements.Primitive
         ArrayTypeName(string signature, bool extra) : base(signature)
         {
             // do nothing
+            // allows the containment file and containment package properties to not be overwritten by the underlying constructor
         }
     }
 
@@ -405,6 +346,7 @@ namespace PrimitiveCodebaseElements.Primitive
         PrimitiveTypeName(string signature, bool extra) : base(signature)
         {
             // do nothing
+            // allows the containment file and containment package properties to not be overwritten by the underlying constructor
         }
 
         internal static PrimitiveTypeName ForPrimitiveTypeSignature(string signature)
@@ -453,7 +395,7 @@ namespace PrimitiveCodebaseElements.Primitive
         }
 
         // only used if set by constructor
-        [JsonProperty] readonly FileName containmentFile;
+        [JsonProperty] readonly FileName? containmentFile;
 
         [JsonProperty] public readonly PackageName ContainmentPackage;
 
@@ -461,12 +403,14 @@ namespace PrimitiveCodebaseElements.Primitive
 
         [JsonProperty] public readonly ClassName? ParentClass;
 
+        // if the class name is OuterClass$InnerClass this will be saved here
         [JsonProperty] public readonly string originalClassName;
-        string _fullyQualifiedName;
+        
+        string? fullyQualifiedName;
 
         public string FullyQualifiedName
         {
-            get { return _fullyQualifiedName ??= FullyQualified(); }
+            get { return fullyQualifiedName ??= FullyQualified(); }
         }
 
         public ClassName(FileName containmentFile, PackageName containmentPackage, string className)
@@ -489,7 +433,7 @@ namespace PrimitiveCodebaseElements.Primitive
                 IsOuterClass = true;
             }
 
-            hashCode = ContainmentParent.GetHashCode() + originalClassName.GetHashCode();
+            hashCode = FullyQualifiedName.GetHashCode();
         }
 
         public ClassName(
@@ -504,8 +448,12 @@ namespace PrimitiveCodebaseElements.Primitive
             ContainmentPackage = containmentPackage;
             IsOuterClass = parentClass == null;
             ParentClass = parentClass;
-            originalClassName = shortName;
-            _fullyQualifiedName = fqn;
+            originalClassName = fqn[(containmentPackage.PackageNameString.Length > 0 
+                ? containmentPackage.PackageNameString.Length + 1 
+                : 0)..];
+            
+            fullyQualifiedName = fqn;
+            hashCode = fullyQualifiedName.GetHashCode();
         }
 
         public static ClassName FromFqn(string fqn, FileName fileName)
@@ -527,6 +475,7 @@ namespace PrimitiveCodebaseElements.Primitive
         ClassName(FileName containmentFile, PackageName containmentPackage, string className, bool extra)
             : base(GetShortName(className), extra)
         {
+            // allows the containment file and containment package properties to not be overwritten by the underlying constructor
             this.containmentFile = containmentFile;
             ContainmentPackage = containmentPackage;
         }
@@ -542,36 +491,18 @@ namespace PrimitiveCodebaseElements.Primitive
             return className;
         }
 
-        /// <summary>
-        /// Use field  `FullyQualifiedName` instead
-        /// </summary>
-        [Obsolete]
-        public string ToJavaFullyQualified()
-        {
-            return $"{ContainmentPackage.PackageNameString}.{originalClassName}";
-        }
-
         string FullyQualified()
         {
             ClassName? parentClassName = ContainmentParent as ClassName;
             if (parentClassName != null)
             {
-                return $"{parentClassName.FullyQualified()}${originalClassName}";
+                return $"{parentClassName.FullyQualified()}${ShortName}";
             }
 
             string? pkg = ContainmentPackage.PackageNameString == string.Empty ? null : ContainmentPackage.PackageNameString;
 
             return IEnumerableUtils.EnumerableOfNotNull(pkg, originalClassName)
                 .JoinToString(".");
-        }
-
-        /// <summary>
-        /// Use field `FullyQualifiedName` instead
-        /// </summary>
-        [Obsolete]
-        public string ToCXFullyQualified()
-        {
-            return $"{ContainmentPackage.PackageNameString}::{originalClassName}";
         }
     }
 
@@ -619,7 +550,7 @@ namespace PrimitiveCodebaseElements.Primitive
     [PublicAPI]
     public sealed class PackageName : CodebaseElementName
     {
-        [JsonProperty] public readonly string ParentPackage;
+        [JsonProperty] public readonly string? ParentPackage;
 
         public override CodebaseElementType CodebaseElementType =>
             CodebaseElementType.Package;
@@ -713,15 +644,19 @@ namespace PrimitiveCodebaseElements.Primitive
     {
         protected override JsonConverter ResolveContractConverter(Type objectType)
         {
-            if (typeof(CodebaseElementName).IsAssignableFrom(objectType) && !objectType.IsAbstract)
+            if (typeof(CodebaseElementName).IsAssignableFrom(objectType) &&
+                !objectType.IsAbstract)
+            {
                 return null; // pretend TableSortRuleConvert is not specified (thus avoiding a stack overflow)
+            }
+
             return base.ResolveContractConverter(objectType);
         }
     }
 
     public class BaseConverter : JsonConverter
     {
-        static readonly JsonSerializerSettings SpecifiedSubclassConversion = new JsonSerializerSettings
+        static readonly JsonSerializerSettings SpecifiedSubclassConversion = new()
         {
             ContractResolver = new BaseSpecifiedConcreteClassConverter()
         };
@@ -766,12 +701,9 @@ namespace PrimitiveCodebaseElements.Primitive
             throw new NotImplementedException();
         }
 
-        public override bool CanWrite
-        {
-            get { return false; }
-        }
+        public override bool CanWrite => false;
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
             throw new NotImplementedException(); // won't be called because CanWrite returns false
         }
@@ -779,7 +711,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
     public static class DefaultSerializerSettings
     {
-        public static readonly JsonSerializerSettings Default = new JsonSerializerSettings
+        public static readonly JsonSerializerSettings Default = new()
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             Formatting = Formatting.Indented

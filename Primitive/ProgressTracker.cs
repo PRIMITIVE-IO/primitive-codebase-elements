@@ -28,7 +28,7 @@ namespace PrimitiveCodebaseElements.Primitive
             return new ProgressStepper(this, steps);
         }
 
-        public static ProgressTracker Dummy = new ProgressTracker(x => { });
+        public static ProgressTracker Dummy = new(x => { });
     }
 
     public class ProgressStepper

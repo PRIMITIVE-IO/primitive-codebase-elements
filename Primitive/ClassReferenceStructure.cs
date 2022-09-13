@@ -8,12 +8,12 @@ namespace PrimitiveCodebaseElements.Primitive
     {
         public readonly ClassName ClassName;
         public readonly ClassInfo ClassInfo;
-        public readonly List<MethodReferenceStructure> Methods = new List<MethodReferenceStructure>();
+        public readonly List<MethodReferenceStructure> Methods = new();
 
-        public readonly List<int> SolvedNodes = new List<int>();
+        public readonly List<int> SolvedNodes = new();
 
-        public readonly List<CodeRangeWithReference> OutboundUsageLinks = new List<CodeRangeWithReference>();
-        public readonly List<CodeReferenceEndpoint> ReferencesFromThis = new List<CodeReferenceEndpoint>();
+        public readonly List<CodeRangeWithReference> OutboundUsageLinks = new();
+        public readonly List<CodeReferenceEndpoint> ReferencesFromThis = new();
 
         public ClassReferenceStructure(ClassInfo classInfo)
         {
@@ -38,13 +38,13 @@ namespace PrimitiveCodebaseElements.Primitive
         public readonly MethodName MethodName;
         public readonly MethodInfo MethodInfo;
 
-        public readonly List<int> SolvedCsNodes = new List<int>();
+        public readonly List<int> SolvedCsNodes = new();
 
-        public readonly List<object> SolvedJavaNodes = new List<object>();
-        public readonly Dictionary<object, object> DiscoveredNodes = new Dictionary<object, object>();
+        public readonly List<object> SolvedJavaNodes = new();
+        public readonly Dictionary<object, object> DiscoveredNodes = new();
 
-        public readonly List<CodeRangeWithReference> OutboundUsageLinks = new List<CodeRangeWithReference>();
-        public readonly List<CodeReferenceEndpoint> ReferencesFromThis = new List<CodeReferenceEndpoint>();
+        public readonly List<CodeRangeWithReference> OutboundUsageLinks = new();
+        public readonly List<CodeReferenceEndpoint> ReferencesFromThis = new();
 
         public readonly string MethodString;
 

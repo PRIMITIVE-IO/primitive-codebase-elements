@@ -13,11 +13,10 @@ namespace PrimitiveCodebaseElements.Primitive
         protected bool isDiffedText = false;
         protected bool hasLoadedColorizedText;
 
-        public readonly List<CodeRangeWithReference> OutboundUsageLinks =
-            new List<CodeRangeWithReference>();
+        public readonly List<CodeRangeWithReference> OutboundUsageLinks = new();
 
         static readonly Dictionary<string, SourceCodeLanguage> ExtensionToLanguage =
-            new Dictionary<string, SourceCodeLanguage>
+            new()
             {
                 {".java", SourceCodeLanguage.Java},
                 {".cs", SourceCodeLanguage.CSharp},
@@ -49,8 +48,7 @@ namespace PrimitiveCodebaseElements.Primitive
             this.language = language;
         }
 
-        public static SourceCodeSnippet Synthesized(string text) =>
-            new SourceCodeSnippet(text, SourceCodeLanguage.PlainText);
+        public static SourceCodeSnippet Synthesized(string text) => new(text, SourceCodeLanguage.PlainText);
 
         public SourceCodeSnippet(
             string text,

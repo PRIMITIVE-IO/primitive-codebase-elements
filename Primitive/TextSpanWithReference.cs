@@ -19,8 +19,7 @@ namespace PrimitiveCodebaseElements.Primitive
             Reference = reference;
         }
 
-        public TextSpanWithReference AdjustedBy(int offset) =>
-            new TextSpanWithReference(Start + offset, End + offset, Reference);
+        public TextSpanWithReference AdjustedBy(int offset) => new(Start + offset, End + offset, Reference);
     }
 
     [PublicAPI]

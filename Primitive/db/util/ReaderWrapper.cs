@@ -10,7 +10,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.util
     {
         readonly IDataReader reader;
         readonly IDbCommand cmd;
-        readonly Dictionary<string, int> ordinalCache = new Dictionary<string, int>();
+        readonly Dictionary<string, int> ordinalCache = new();
 
         public ReaderWrapper(IDataReader reader, IDbCommand cmd)
         {
