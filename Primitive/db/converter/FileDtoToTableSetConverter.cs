@@ -40,6 +40,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
 
             Dictionary<string, int> classFqnToId = new Dictionary<string, int>();
             Dictionary<string, int> methodSignatureToId = new Dictionary<string, int>();
+            Dictionary<string, int> truncatedMethodSignatureToId = new Dictionary<string, int>();
 
             foreach (FileDto fileDto in fileDtos)
             {
@@ -69,7 +70,19 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
 
                     foreach (MethodDto methodDto in classDto.Methods)
                     {
-                        methodSignatureToId[methodDto.Signature] = methodId;
+                        if (!methodSignatureToId.TryAdd(methodDto.Signature, methodId))
+                        {
+                            PrimitiveLogger.Logger.Instance().Warn($"Duplicated method {methodDto.Signature}");
+                        }
+
+                        if (methodDto.Signature.Contains('('))
+                        {
+                            string truncatedMethodSignature = methodDto.Signature[..methodDto.Signature.IndexOf('(')];
+                            if (!truncatedMethodSignatureToId.ContainsKey(truncatedMethodSignature))
+                            {
+                                truncatedMethodSignatureToId.Add(truncatedMethodSignature, methodId);
+                            }
+                        }
 
                         dbMethods.Add(new DbMethod(
                             id: methodId,
@@ -181,7 +194,21 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                             {
                                 PrimitiveLogger.Logger.Instance()
                                     .Warn($"Cannot find method signature: {methodReferenceDto.FromMethodSignature}");
-                                continue;
+                                if (methodReferenceDto.FromMethodSignature.Contains('('))
+                                {
+                                    // soft match
+                                    string truncatedFromSig =
+                                        methodReferenceDto.FromMethodSignature[
+                                            ..methodReferenceDto.FromMethodSignature.IndexOf('(')];
+                                    if (!truncatedMethodSignatureToId.TryGetValue(truncatedFromSig, out fromId))
+                                    {
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    continue;
+                                }
                             }
 
                             if (!methodSignatureToId.TryGetValue(methodReferenceDto.ToMethodSignature, out int toId))
@@ -189,7 +216,22 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                 PrimitiveLogger.Logger.Instance()
                                     .Warn(
                                         $"Cannot find referenced method signature: {methodReferenceDto.ToMethodSignature}");
-                                continue;
+                                
+                                if (methodReferenceDto.ToMethodSignature.Contains('('))
+                                {
+                                    // soft match
+                                    string truncatedFromSig =
+                                        methodReferenceDto.ToMethodSignature[
+                                            ..methodReferenceDto.ToMethodSignature.IndexOf('(')];
+                                    if (!truncatedMethodSignatureToId.TryGetValue(truncatedFromSig, out toId))
+                                    {
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    continue;
+                                }
                             }
 
                             methodReferences.Add(new DbMethodReference(

@@ -74,8 +74,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                         element_id   INTEGER NOT NULL,
                         file_id      INTEGER NOT NULL,
                         type         TEXT    NOT NULL,
-                        start_idx    INTEGER NOT NULL default -1,
-                        end_idx      INTEGER NOT NULL default -1,
                         start_line   INTEGER NOT NULL,
                         start_column INTEGER NOT NULL,
                         end_line     INTEGER NOT NULL,

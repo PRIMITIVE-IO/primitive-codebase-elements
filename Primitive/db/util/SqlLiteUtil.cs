@@ -85,6 +85,5 @@ namespace PrimitiveCodebaseElements.Primitive.db.util
                 return res;
             });
         }
-        
     }
 }

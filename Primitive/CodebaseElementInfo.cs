@@ -477,6 +477,10 @@ namespace PrimitiveCodebaseElements.Primitive
                 case ".py3":
                 case ".js":
                 case ".jsx":
+                case ".ts":
+                case ".sol":
+                case ".go":
+                case ".rs":
                     // replace the now parsed code with the file short name
                     SourceCode = new SourceCodeSnippet(
                         FileName.ShortName,

@@ -48,7 +48,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static TableSet ReadAllParallel(
             Func<IDbConnection> connProvider,
-            ProgressTracker tracker = default)
+            ProgressTracker? tracker = default)
         {
             tracker ??= ProgressTracker.Dummy;
             ProgressStepper stepper = tracker.Steps(10);
@@ -85,7 +85,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
         }
 
 
-        public static TableSet ReadAll(IDbConnection conn, ProgressTracker tracker = default)
+        public static TableSet ReadAll(IDbConnection conn, ProgressTracker? tracker = default)
         {
             tracker ??= ProgressTracker.Dummy;
             ProgressStepper stepper = tracker.Steps(10);

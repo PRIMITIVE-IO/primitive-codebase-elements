@@ -30,22 +30,22 @@ namespace PrimitiveCodebaseElements.Primitive.db
         public readonly IEnumerable<DbDiffDirectoryCoordinates> Layout;
 
         public DiffTableSet(
-            IEnumerable<DbBranch> branches = null,
-            IEnumerable<DbDiffDirectoryAdded> directoryAdds = null,
-            IEnumerable<DbDiffDirectoryDeleted> directoryDeletes = null,
-            IEnumerable<DbDiffFileAdded> fileAdds = null,
-            IEnumerable<DbDiffFileDeleted> fileDeletes = null,
-            IEnumerable<DbDiffFileModified> fileModifications = null,
-            IEnumerable<DbType> types = null,
-            IEnumerable<DbDiffClassDeleted> classDeletes = null,
-            IEnumerable<DbDiffClass> classes = null,
-            IEnumerable<DbDiffClassModifiedProperty> classModifiedProperties = null,
-            IEnumerable<DbDiffFieldDeleted> fieldDeletes = null,
-            IEnumerable<DbDiffField> fields = null,
-            IEnumerable<DbDiffMethodDeleted> methodDeletes = null,
-            IEnumerable<DbDiffMethod> methods = null,
-            IEnumerable<DbDiffArgument> arguments = null,
-            IEnumerable<DbDiffDirectoryCoordinates> layout = null
+            IEnumerable<DbBranch>? branches = null,
+            IEnumerable<DbDiffDirectoryAdded>? directoryAdds = null,
+            IEnumerable<DbDiffDirectoryDeleted>? directoryDeletes = null,
+            IEnumerable<DbDiffFileAdded>? fileAdds = null,
+            IEnumerable<DbDiffFileDeleted>? fileDeletes = null,
+            IEnumerable<DbDiffFileModified>? fileModifications = null,
+            IEnumerable<DbType>? types = null,
+            IEnumerable<DbDiffClassDeleted>? classDeletes = null,
+            IEnumerable<DbDiffClass>? classes = null,
+            IEnumerable<DbDiffClassModifiedProperty>? classModifiedProperties = null,
+            IEnumerable<DbDiffFieldDeleted>? fieldDeletes = null,
+            IEnumerable<DbDiffField>? fields = null,
+            IEnumerable<DbDiffMethodDeleted>? methodDeletes = null,
+            IEnumerable<DbDiffMethod>? methods = null,
+            IEnumerable<DbDiffArgument>? arguments = null,
+            IEnumerable<DbDiffDirectoryCoordinates>? layout = null
         )
         {
             Branches = branches ?? Enumerable.Empty<DbBranch>();
@@ -109,7 +109,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public static DiffTableSet ReadAllParallel(
             Func<IDbConnection> connectionProvider,
-            ProgressTracker tracker = default
+            ProgressTracker? tracker = default
         )
         {
             tracker ??= ProgressTracker.Dummy;
@@ -159,7 +159,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             );
         }
 
-        public static DiffTableSet ReadAll(IDbConnection conn, ProgressTracker tracker = default)
+        public static DiffTableSet ReadAll(IDbConnection conn, ProgressTracker? tracker = default)
         {
             tracker ??= ProgressTracker.Dummy;
             ProgressStepper stepper = tracker.Steps(16);
