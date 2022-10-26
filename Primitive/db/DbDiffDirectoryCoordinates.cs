@@ -35,8 +35,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                          position_x REAL NOT NULL,
                          position_y REAL NOT NULL,
                          FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE,
-                         FOREIGN KEY(added_directory_id) REFERENCES diff_directories_added (id) ON UPDATE CASCADE,
-                         FOREIGN KEY(original_directory_id) REFERENCES directories(id) ON UPDATE CASCADE);
+                         FOREIGN KEY(added_directory_id) REFERENCES diff_directories_added (id) ON UPDATE CASCADE);
               CREATE INDEX diff_directories_coordinates_branch_id ON diff_directories_coordinates (branch_id);";
 
         public static void SaveAll(IEnumerable<DbDiffDirectoryCoordinates> directories, IDbConnection conn)
