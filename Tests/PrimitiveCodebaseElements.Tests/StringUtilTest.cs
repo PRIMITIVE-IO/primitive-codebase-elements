@@ -89,6 +89,11 @@ public class StringUtilTest
             |
             ".TrimMargin().Should().Be("\n\nabc\n\n".PlatformSpecific());
 
+        @"
+        |    a
+        |    b
+        ".TrimMargin().Should().Be("    a\n    b");
+
     }
 
 }
