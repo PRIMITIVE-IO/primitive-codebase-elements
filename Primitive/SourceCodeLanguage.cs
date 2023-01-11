@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
+    [PublicAPI]
     public class SourceCodeLanguageHelper
     {
         static readonly Dictionary<string, SourceCodeLanguage> ExtensionToLanguage =
@@ -29,11 +30,15 @@ namespace PrimitiveCodebaseElements.Primitive
                 {".go", SourceCodeLanguage.Go},
                 {".sol", SourceCodeLanguage.Solidity}
             };
+        
         public static SourceCodeLanguage FromExtension(string ext)
         {
-            return ExtensionToLanguage.GetValueOrDefault(ext, SourceCodeLanguage.PlainText);
+            return ExtensionToLanguage.ContainsKey(ext) 
+                ? ExtensionToLanguage[ext] 
+                : SourceCodeLanguage.PlainText;
         }
     }
+    
     [PublicAPI]
     public enum SourceCodeLanguage
     {
