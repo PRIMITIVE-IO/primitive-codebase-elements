@@ -54,6 +54,34 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                     language: (int)fileDto.Language
                 ));
 
+                ProcessMethods(
+                    methodDtos: fileDto.Functions,
+                    methodSignatureToId: methodSignatureToId,
+                    methodIdCounter: ref methodId,
+                    truncatedMethodSignatureToId: truncatedMethodSignatureToId,
+                    dbMethodsAcc: dbMethods,
+                    parentId: fileId,
+                    parentType: CodebaseElementType.File,
+                    typeToId: typeToId,
+                    fileDto: fileDto,
+                    dbArgumentsAcc: dbArguments,
+                    dbSourceIndicesAcc: dbSourceIndices,
+                    fileId: fileId,
+                    argumentIdCounter: ref argumentId
+                );
+
+                ProcessFields(
+                    fields: fileDto.Fields,
+                    dbFieldsAcc: dbFields,
+                    fieldIdCounter: ref fieldId,
+                    parentId: fileId,
+                    parentType: CodebaseElementType.File,
+                    typeToId: typeToId,
+                    fileDto: fileDto,
+                    dbSourceIndicesAcc: dbSourceIndices,
+                    fileId: fileId
+                );
+
                 foreach (ClassDto classDto in fileDto.Classes)
                 {
                     classFqnToId[classDto.FullyQualifiedName] = classId;
@@ -68,83 +96,33 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                         isTestClass: fileDto.IsTest ? 1 : 0
                     ));
 
-                    foreach (MethodDto methodDto in classDto.Methods)
-                    {
-                        if (!methodSignatureToId.TryAdd(methodDto.Signature, methodId))
-                        {
-                            PrimitiveLogger.Logger.Instance().Warn($"Duplicated method {methodDto.Signature}");
-                        }
+                    ProcessMethods(
+                        methodDtos: classDto.Methods,
+                        methodSignatureToId: methodSignatureToId,
+                        methodIdCounter: ref methodId,
+                        truncatedMethodSignatureToId: truncatedMethodSignatureToId,
+                        dbMethodsAcc: dbMethods,
+                        parentId: classId,
+                        parentType: CodebaseElementType.Class,
+                        typeToId: typeToId,
+                        fileDto: fileDto,
+                        dbArgumentsAcc: dbArguments,
+                        dbSourceIndicesAcc: dbSourceIndices,
+                        fileId: fileId,
+                        argumentIdCounter: ref argumentId
+                    );
 
-                        if (methodDto.Signature.Contains('('))
-                        {
-                            string truncatedMethodSignature = methodDto.Signature[..methodDto.Signature.IndexOf('(')];
-                            if (!truncatedMethodSignatureToId.ContainsKey(truncatedMethodSignature))
-                            {
-                                truncatedMethodSignatureToId.Add(truncatedMethodSignature, methodId);
-                            }
-                        }
-
-                        dbMethods.Add(new DbMethod(
-                            id: methodId,
-                            parentType: (int)CodebaseElementType.Class,
-                            parentId: classId,
-                            name: methodDto.Name,
-                            returnTypeId: typeToId[methodDto.ReturnType],
-                            accessFlags: (int)methodDto.AccFlag,
-                            language: (int)fileDto.Language,
-                            cyclomaticScore: methodDto.CyclomaticScore
-                        ));
-                        int argIndex = 0;
-                        foreach (ArgumentDto argumentDto in methodDto.Arguments)
-                        {
-                            dbArguments.Add(new DbArgument(
-                                id: argumentId,
-                                methodId: methodId,
-                                argIndex: argIndex,
-                                name: argumentDto.Name,
-                                typeId: typeToId[argumentDto.Type]
-                            ));
-
-                            argumentId++;
-                            argIndex++;
-                        }
-
-                        dbSourceIndices.Add(new DbSourceIndex(
-                            elementId: methodId,
-                            fileId: fileId,
-                            type: "METHOD",
-                            startLine: methodDto.CodeRange.Start.Line,
-                            startColumn: methodDto.CodeRange.Start.Column,
-                            endLine: methodDto.CodeRange.End.Line,
-                            endColumn: methodDto.CodeRange.End.Column
-                        ));
-
-                        methodId++;
-                    }
-
-                    foreach (FieldDto fieldDto in classDto.Fields)
-                    {
-                        dbFields.Add(new DbField(
-                            id: fieldId,
-                            parentType: (int)CodebaseElementType.Class,
-                            parentId: classId,
-                            name: fieldDto.Name,
-                            typeId: typeToId[fieldDto.Type],
-                            accessFlags: (int)fieldDto.AccFlag,
-                            language: (int)fileDto.Language
-                        ));
-                        dbSourceIndices.Add(new DbSourceIndex(
-                            elementId: fieldId,
-                            fileId: fileId,
-                            type: "FIELD",
-                            startLine: fieldDto.CodeRange.Start.Line,
-                            startColumn: fieldDto.CodeRange.Start.Column,
-                            endLine: fieldDto.CodeRange.End.Line,
-                            endColumn: fieldDto.CodeRange.End.Column
-                        ));
-
-                        fieldId++;
-                    }
+                    ProcessFields(
+                        fields: classDto.Fields,
+                        dbFieldsAcc: dbFields,
+                        fieldIdCounter: ref fieldId,
+                        parentId: classId,
+                        parentType: CodebaseElementType.Class,
+                        typeToId: typeToId,
+                        fileDto: fileDto,
+                        dbSourceIndicesAcc: dbSourceIndices,
+                        fileId: fileId
+                    );
 
                     dbSourceIndices.Add(new DbSourceIndex(
                         elementId: classId,
@@ -216,7 +194,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                 PrimitiveLogger.Logger.Instance()
                                     .Warn(
                                         $"Cannot find referenced method signature: {methodReferenceDto.ToMethodSignature}");
-                                
+
                                 if (methodReferenceDto.ToMethodSignature.Contains('('))
                                 {
                                     // soft match
@@ -263,6 +241,114 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 types: dbTypes,
                 sourceIndices: dbSourceIndices
             );
+        }
+
+        private static void ProcessFields(
+            List<FieldDto> fields,
+            List<DbField> dbFieldsAcc,
+            ref int fieldIdCounter,
+            int parentId,
+            CodebaseElementType parentType,
+            Dictionary<string, int> typeToId,
+            FileDto fileDto,
+            List<DbSourceIndex> dbSourceIndicesAcc,
+            int fileId
+        )
+        {
+            foreach (FieldDto fieldDto in fields)
+            {
+                dbFieldsAcc.Add(new DbField(
+                    id: fieldIdCounter,
+                    parentType: (int)parentType,
+                    parentId: parentId,
+                    name: fieldDto.Name,
+                    typeId: typeToId[fieldDto.Type],
+                    accessFlags: (int)fieldDto.AccFlag,
+                    language: (int)fileDto.Language
+                ));
+                dbSourceIndicesAcc.Add(new DbSourceIndex(
+                    elementId: fieldIdCounter,
+                    fileId: fileId,
+                    type: "FIELD",
+                    startLine: fieldDto.CodeRange.Start.Line,
+                    startColumn: fieldDto.CodeRange.Start.Column,
+                    endLine: fieldDto.CodeRange.End.Line,
+                    endColumn: fieldDto.CodeRange.End.Column
+                ));
+
+                fieldIdCounter++;
+            }
+        }
+
+        private static void ProcessMethods(
+            List<MethodDto> methodDtos,
+            Dictionary<string, int> methodSignatureToId,
+            ref int methodIdCounter,
+            Dictionary<string, int> truncatedMethodSignatureToId,
+            List<DbMethod> dbMethodsAcc,
+            int parentId,
+            CodebaseElementType parentType,
+            Dictionary<string, int> typeToId,
+            FileDto fileDto,
+            List<DbArgument> dbArgumentsAcc,
+            List<DbSourceIndex> dbSourceIndicesAcc,
+            int fileId,
+            ref int argumentIdCounter
+        )
+        {
+            foreach (MethodDto methodDto in methodDtos)
+            {
+                if (!methodSignatureToId.TryAdd(methodDto.Signature, methodIdCounter))
+                {
+                    PrimitiveLogger.Logger.Instance().Warn($"Duplicated method {methodDto.Signature}");
+                }
+
+                if (methodDto.Signature.Contains('('))
+                {
+                    string truncatedMethodSignature = methodDto.Signature[..methodDto.Signature.IndexOf('(')];
+                    if (!truncatedMethodSignatureToId.ContainsKey(truncatedMethodSignature))
+                    {
+                        truncatedMethodSignatureToId.Add(truncatedMethodSignature, methodIdCounter);
+                    }
+                }
+
+                dbMethodsAcc.Add(new DbMethod(
+                    id: methodIdCounter,
+                    parentType: (int)parentType,
+                    parentId: parentId,
+                    name: methodDto.Name,
+                    returnTypeId: typeToId[methodDto.ReturnType],
+                    accessFlags: (int)methodDto.AccFlag,
+                    language: (int)fileDto.Language,
+                    cyclomaticScore: methodDto.CyclomaticScore
+                ));
+                int argIndex = 0;
+                foreach (ArgumentDto argumentDto in methodDto.Arguments)
+                {
+                    dbArgumentsAcc.Add(new DbArgument(
+                        id: argumentIdCounter,
+                        methodId: methodIdCounter,
+                        argIndex: argIndex,
+                        name: argumentDto.Name,
+                        typeId: typeToId[argumentDto.Type]
+                    ));
+
+                    argumentIdCounter++;
+                    argIndex++;
+                }
+
+                dbSourceIndicesAcc.Add(new DbSourceIndex(
+                    elementId: methodIdCounter,
+                    fileId: fileId,
+                    type: "METHOD",
+                    startLine: methodDto.CodeRange.Start.Line,
+                    startColumn: methodDto.CodeRange.Start.Column,
+                    endLine: methodDto.CodeRange.End.Line,
+                    endColumn: methodDto.CodeRange.End.Column
+                ));
+
+                methodIdCounter++;
+            }
         }
     }
 }
