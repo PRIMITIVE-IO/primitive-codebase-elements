@@ -325,16 +325,26 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 int argIndex = 0;
                 foreach (ArgumentDto argumentDto in methodDto.Arguments)
                 {
-                    dbArgumentsAcc.Add(new DbArgument(
-                        id: argumentIdCounter,
-                        methodId: methodIdCounter,
-                        argIndex: argIndex,
-                        name: argumentDto.Name,
-                        typeId: typeToId[argumentDto.Type]
-                    ));
+                    try
+                    {
+                        dbArgumentsAcc.Add(new DbArgument(
+                            id: argumentIdCounter,
+                            methodId: methodIdCounter,
+                            argIndex: argIndex,
+                            name: argumentDto.Name,
+                            typeId: typeToId[argumentDto.Type]
+                        ));
 
-                    argumentIdCounter++;
-                    argIndex++;
+                        argumentIdCounter++;
+                        argIndex++;
+                    }
+                    catch (Exception ex)
+                    {
+                        PrimitiveLogger.Logger.Instance()
+                            .Warn(
+                                $"Cannot construct argument. file: {fileDto.Path}, method: {methodDto.Name}, argument: {argumentDto.Name}",
+                                ex);
+                    }
                 }
 
                 dbSourceIndicesAcc.Add(new DbSourceIndex(
