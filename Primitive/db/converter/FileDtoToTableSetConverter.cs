@@ -13,14 +13,21 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
         public static TableSet ConvertToTableSet(List<FileDto> fileDtos, IReadOnlyDictionary<string, int> fileIdsByPath)
         {
             IEnumerable<string> types = fileDtos
-                .SelectMany(parsingResultDto => parsingResultDto.Classes)
+                .SelectMany(fileDto => fileDto.Classes)
                 .SelectMany(classDto =>
                 {
                     return classDto.Fields.Select(fieldDto => fieldDto.Type)
                         .Concat(classDto.Methods.Select(methodDto => methodDto.ReturnType))
                         .Concat(classDto.Methods.SelectMany(methodDto => methodDto.Arguments)
                             .Select(argumentDto => argumentDto.Type));
-                }).Distinct();
+                })
+                .Concat(fileDtos.SelectMany(fileDto => fileDto.Fields).Select(fieldDto => fieldDto.Type))
+                .Concat(fileDtos.SelectMany(fileDto => fileDto.Functions).SelectMany(methodDto =>
+                {
+                    return methodDto.Arguments.Select(argumentDto => argumentDto.Type)
+                        .Concat(new[] { methodDto.ReturnType });
+                }))
+                .Distinct();
 
             Dictionary<string, int> typeToId = types
                 .Select((type, id) => Tuple.Create(type, id))
@@ -325,26 +332,16 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 int argIndex = 0;
                 foreach (ArgumentDto argumentDto in methodDto.Arguments)
                 {
-                    try
-                    {
-                        dbArgumentsAcc.Add(new DbArgument(
-                            id: argumentIdCounter,
-                            methodId: methodIdCounter,
-                            argIndex: argIndex,
-                            name: argumentDto.Name,
-                            typeId: typeToId[argumentDto.Type]
-                        ));
+                    dbArgumentsAcc.Add(new DbArgument(
+                        id: argumentIdCounter,
+                        methodId: methodIdCounter,
+                        argIndex: argIndex,
+                        name: argumentDto.Name,
+                        typeId: typeToId[argumentDto.Type]
+                    ));
 
-                        argumentIdCounter++;
-                        argIndex++;
-                    }
-                    catch (Exception ex)
-                    {
-                        PrimitiveLogger.Logger.Instance()
-                            .Warn(
-                                $"Cannot construct argument. file: {fileDto.Path}, method: {methodDto.Name}, argument: {argumentDto.Name}",
-                                ex);
-                    }
+                    argumentIdCounter++;
+                    argIndex++;
                 }
 
                 dbSourceIndicesAcc.Add(new DbSourceIndex(
