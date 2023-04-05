@@ -1,5 +1,5 @@
 {
-    "name": "@primitive-io/io.primitive.codebase-elements",
+    "name": "io.primitive.codebase_elements",
     "version": "0.0.0",
     "displayName": "Primitive Codebase Elements",
     "description": "Primitive Codebase Elements",
@@ -7,11 +7,6 @@
     "unityRelease": "0b12",
     "documentationUrl": "https://primitive.io/",
     "licensesUrl": "https://primitive.io/legal",
-    "dependencies": {
-      "JetBrains.Annotations": "2022.1.0",
-      "Newtonsoft.Json": "13.0.1",
-      "PrimitiveLogger": "0.2.8"
-    },
     "author": {
       "name": "Primitive IO",
       "email": "john@primitive.io",
