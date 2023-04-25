@@ -3,13 +3,13 @@
     <PropertyGroup>
         <LangVersion>9</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>0.33.1</Version>
+        <Version>0.33.2</Version>
         <Authors>Primitive.io team</Authors>
         <Company>Primitive.io</Company>
         <Product />
         <Nullable>enable</Nullable>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
+        <TargetFrameworks>net7.0;netstandard2.1</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,7 +22,7 @@
     <ItemGroup>
       <PackageReference Include="JetBrains.Annotations" Version="2023.2.0-eap2" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-      <PackageReference Include="PrimitiveLogger" Version="0.3.1" />
+      <PackageReference Include="PrimitiveLogger" Version="0.3.2" />
     </ItemGroup>
 
     <PropertyGroup>
