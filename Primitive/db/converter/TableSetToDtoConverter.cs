@@ -31,9 +31,23 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 ILookup<int, DbClass> classesByFileId = tableSet.Classes.ToLookup(it => it.ParentId);
 
                 Dictionary<int, DbClass> classesById = tableSet.Classes.ToDictionary(it => it.Id);
-                ILookup<int, DbMethod> methodByClassId = tableSet.Methods.ToLookup(it => it.ParentId);
+                
+                ILookup<int, DbMethod> methodByClassId = tableSet.Methods
+                    .Where(it => it.ParentType == (int)CodebaseElementType.Class)
+                    .ToLookup(it => it.ParentId);
 
-                ILookup<int, DbField> fieldByClassId = tableSet.Fields.ToLookup(it => it.ParentId);
+                ILookup<int, DbField> fieldByClassId = tableSet.Fields
+                    .Where(it => it.ParentType == (int)CodebaseElementType.Class)
+                    .ToLookup(it => it.ParentId);
+                
+                ILookup<int, DbMethod> methodByFileId = tableSet.Methods
+                    .Where(it => it.ParentType == (int)CodebaseElementType.File)
+                    .ToLookup(it => it.ParentId);
+
+                ILookup<int, DbField> fieldByFileId = tableSet.Fields
+                    .Where(it => it.ParentType == (int)CodebaseElementType.File)
+                    .ToLookup(it => it.ParentId);
+                
                 Dictionary<int, DbType> types = tableSet.Types.ToDictionary(it => it.Id);
                 ILookup<int, DbArgument> argsByMethodId = tableSet.Arguments.ToLookup(it => it.MethodId);
                 Dictionary<int, string> methodSignaturesById = tableSet.Methods.ToDictionary(it => it.Id,
@@ -82,7 +96,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                                             endLine: 0,
                                                             endColumn: 0
                                                         ),
-                                                    dbClass,
+                                                    dbClass.Fqn,
                                                     methodReferencesById[it.Id].ToList(),
                                                     methodSignaturesById
                                                 ))
@@ -143,12 +157,44 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
 
                             bool isTest = classesByFileId[dbFile.Id].Any(it => it.IsTestClass == 1);
 
+                            List<MethodDto> functions = methodByFileId[dbFile.Id].SelectNotNull(it =>
+                                    ToMethodDto(
+                                        it,
+                                        argsByMethodId[it.Id].ToList(),
+                                        types,
+                                        methodIndices.ContainsKey(it.Id)
+                                            ? methodIndices[it.Id]
+                                            : new DbSourceIndex(
+                                                elementId: it.Id,
+                                                fileId: dbFile.Id,
+                                                type: "METHOD",
+                                                startLine: 0,
+                                                startColumn: 0,
+                                                endLine: 0,
+                                                endColumn: 0
+                                            ),
+                                        dbFile.Path,
+                                        methodReferencesById[it.Id].ToList(),
+                                        methodSignaturesById
+                                    ))
+                                .ToList();
+                            
+                            List<FieldDto> fields = fieldByFileId[dbFile.Id].SelectNotNull(it =>
+                                    ToFieldDto(
+                                        it,
+                                        types,
+                                        fieldIndices[it.Id]
+                                    ))
+                                .ToList();
+                            
                             return new FileDto(
                                 text: dbFile.SourceText,
                                 path: dbFile.Path,
                                 isTest: isTest,
                                 classes: classes,
-                                language: (SourceCodeLanguage)dbFile.Language
+                                language: (SourceCodeLanguage)dbFile.Language,
+                                functions: functions,
+                                fields: fields
                             );
                         }
                         catch (Exception ex)
@@ -223,7 +269,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             List<DbArgument> arguments,
             Dictionary<int, DbType> types,
             DbSourceIndex dbSourceIndex,
-            DbClass cls,
+            string parentFqn,
             List<DbMethodReference> methodReferences,
             Dictionary<int, string> methodSignaturesById)
         {
@@ -237,7 +283,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                     ))
                     .ToList();
 
-                string methodSignature = MethodDto.MethodSignature(cls.Fqn, method.Name, args);
+                string methodSignature = MethodDto.MethodSignature(parentFqn, method.Name, args);
 
                 List<MethodReferenceDto> methodReferenceDtos = methodReferences.SelectNotNull(it =>
                     {

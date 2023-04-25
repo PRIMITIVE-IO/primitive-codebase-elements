@@ -51,7 +51,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           language 
                       ) VALUES ( 
                           @Id,
-                          2, 
+                          @ParentType, 
                           @ParentId, 
                           @Name, 
                           @TypeId, 
@@ -61,6 +61,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             foreach (DbField field in fields)
             {
                 cmd.AddParameter(System.Data.DbType.Int32, "@Id", field.Id);
+                cmd.AddParameter(System.Data.DbType.Int32, "@ParentType", field.ParentType);
                 cmd.AddParameter(System.Data.DbType.Int32, "@ParentId", field.ParentId);
                 cmd.AddParameter(System.Data.DbType.String, "@Name", field.Name);
                 cmd.AddParameter(System.Data.DbType.Int32, "@TypeId", field.TypeId);

@@ -55,28 +55,48 @@ namespace PrimitiveCodebaseElements.Primitive.db.merger
 
             int maxFieldIdA = a.Fields.MaxOrDefault(it => it.Id);
 
-            IEnumerable<DbField> newFieldsB = b.Fields.Select(field => new DbField(
-                id: field.Id + maxFieldIdA,
-                parentType: field.ParentType,
-                parentId: field.ParentId + maxClassIdA,
-                name: field.Name,
-                typeId: field.TypeId + maxTypeIdA,
-                accessFlags: field.AccessFlags,
-                language: field.Language
-            ));
+            IEnumerable<DbField> newFieldsB = b.Fields.Select(field =>
+            {
+                int parentId = (CodebaseElementType)field.ParentType switch 
+                {
+                    CodebaseElementType.Class => field.ParentId + maxClassIdA,
+                    CodebaseElementType.File => bFileIdToNewFileId[field.ParentId],
+                    _ => throw new Exception($"unexpected parent type: {field.ParentType}")
+                };
+
+                return new DbField(
+                    id: field.Id + maxFieldIdA,
+                    parentType: field.ParentType,
+                    parentId: parentId,
+                    name: field.Name,
+                    typeId: field.TypeId + maxTypeIdA,
+                    accessFlags: field.AccessFlags,
+                    language: field.Language
+                );
+            });
 
             int maxMethodIdA = a.Methods.MaxOrDefault(it => it.Id);
 
-            IEnumerable<DbMethod> newMethodsB = b.Methods.Select(method => new DbMethod(
-                id: method.Id + maxMethodIdA,
-                parentType: method.ParentType,
-                parentId: method.ParentId + maxClassIdA,
-                name: method.Name,
-                returnTypeId: method.ReturnTypeId + maxTypeIdA,
-                accessFlags: method.AccessFlags,
-                language: method.Language,
-                cyclomaticScore: method.CyclomaticScore
-            ));
+            IEnumerable<DbMethod> newMethodsB = b.Methods.Select(method =>
+            {
+                int parentId = (CodebaseElementType)method.ParentType switch 
+                {
+                    CodebaseElementType.Class => method.ParentId + maxClassIdA,
+                    CodebaseElementType.File => bFileIdToNewFileId[method.ParentId],
+                    _ => throw new Exception($"unexpected parent type: {method.ParentType}")
+                };
+
+                return new DbMethod(
+                    id: method.Id + maxMethodIdA,
+                    parentType: method.ParentType,
+                    parentId: parentId,
+                    name: method.Name,
+                    returnTypeId: method.ReturnTypeId + maxTypeIdA,
+                    accessFlags: method.AccessFlags,
+                    language: method.Language,
+                    cyclomaticScore: method.CyclomaticScore
+                );
+            });
 
             IEnumerable<DbType> newTypesB = b.Types.Select(type => new DbType(
                 id: type.Id + maxTypeIdA,
