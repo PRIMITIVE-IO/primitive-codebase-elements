@@ -28,26 +28,26 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
         {
             try
             {
-                ILookup<int, DbClass> classesByFileId = tableSet.Classes.ToLookup(it => it.ParentId);
+                ILookup<int, DbClass> classesByFileId = tableSet.Classes.ToLookup(it => it.ParentFileId);
 
                 Dictionary<int, DbClass> classesById = tableSet.Classes.ToDictionary(it => it.Id);
                 
                 ILookup<int, DbMethod> methodByClassId = tableSet.Methods
-                    .Where(it => it.ParentType == (int)CodebaseElementType.Class)
-                    .ToLookup(it => it.ParentId);
+                    .Where(it => it.ParentClassId.HasValue)
+                    .ToLookup(it => it.ParentClassId!.Value);
 
                 ILookup<int, DbField> fieldByClassId = tableSet.Fields
-                    .Where(it => it.ParentType == (int)CodebaseElementType.Class)
-                    .ToLookup(it => it.ParentId);
+                    .Where(it => it.ParentClassId.HasValue)
+                    .ToLookup(it => it.ParentClassId!.Value);
                 
                 ILookup<int, DbMethod> methodByFileId = tableSet.Methods
-                    .Where(it => it.ParentType == (int)CodebaseElementType.File)
-                    .ToLookup(it => it.ParentId);
+                    .Where(it => !it.ParentClassId.HasValue)
+                    .ToLookup(it => it.ParentFileId);
 
                 ILookup<int, DbField> fieldByFileId = tableSet.Fields
-                    .Where(it => it.ParentType == (int)CodebaseElementType.File)
-                    .ToLookup(it => it.ParentId);
-                
+                    .Where(it => !it.ParentClassId.HasValue)
+                    .ToLookup(it => it.ParentFileId);
+
                 Dictionary<int, DbType> types = tableSet.Types.ToDictionary(it => it.Id);
                 ILookup<int, DbArgument> argsByMethodId = tableSet.Arguments.ToLookup(it => it.MethodId);
                 Dictionary<int, string> methodSignaturesById = tableSet.Methods.ToDictionary(it => it.Id,
@@ -222,10 +222,9 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 .Select(it => types[it.TypeId].Signature)
                 .JoinToString(",");
 
-            string classFqn = classes[method.ParentId].Fqn;
+            string classFqn = classes[method.ParentFileId].Fqn;
             return $"{classFqn}.{method.Name}({argsString})";
         }
-
 
         static string? PackageName(string fqn)
         {

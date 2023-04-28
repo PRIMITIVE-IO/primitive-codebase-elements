@@ -8,14 +8,15 @@ namespace PrimitiveCodebaseElements.Primitive.db
     [PublicAPI]
     public class DbClass
     {
-        public readonly int Id, ParentType, ParentId, AccessFlags, Language, IsTestClass;
+        public readonly int Id, ParentFileId, AccessFlags, Language, IsTestClass;
+        public readonly int? ParentClassId;
         public readonly string Fqn;
 
-        public DbClass(int id, int parentType, int parentId, string fqn, int accessFlags, int language, int isTestClass)
+        public DbClass(int id, int? parentClassId, int parentFileId, string fqn, int accessFlags, int language, int isTestClass)
         {
             Id = id;
-            ParentType = parentType;
-            ParentId = parentId;
+            ParentClassId = parentClassId;
+            ParentFileId = parentFileId;
             Fqn = fqn;
             AccessFlags = accessFlags;
             Language = language;
@@ -24,13 +25,14 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
         public const string CreateTable = @"CREATE TABLE classes ( 
                           id INTEGER PRIMARY KEY ASC, 
-                          parent_type INTEGER NOT NULL, 
-                          parent_id INTEGER NOT NULL, 
+                          parent_class_id INTEGER, 
+                          parent_file_id INTEGER NOT NULL, 
                           fqn TEXT NOT NULL, 
                           access_flags INTEGER NOT NULL,
                           language INTEGER, 
                           is_test_class INTEGER NOT NULL, 
-                          FOREIGN KEY(parent_id) REFERENCES files(id) ON UPDATE CASCADE)";
+                          FOREIGN KEY(parent_class_id) REFERENCES classes(id) ON UPDATE CASCADE
+                          FOREIGN KEY(parent_file_id) REFERENCES files(id) ON UPDATE CASCADE)";
         public static void SaveAll(IEnumerable<DbClass> classes, IDbConnection conn)
         {
             IDbCommand cmd = conn.CreateCommand();
@@ -38,16 +40,16 @@ namespace PrimitiveCodebaseElements.Primitive.db
             cmd.CommandText =
                 @"INSERT INTO classes ( 
                           id,
-                          parent_type, 
-                          parent_id, 
+                          parent_class_id, 
+                          parent_file_id, 
                           fqn, 
                           access_flags, 
                           language, 
                           is_test_class 
                       ) VALUES (  
                           @Id,
-                          @ParentType, 
-                          @ParentId, 
+                          @ParentClassId, 
+                          @ParentFileId, 
                           @FQN, 
                           @AccessFlags, 
                           @Language, 
@@ -56,8 +58,8 @@ namespace PrimitiveCodebaseElements.Primitive.db
             foreach (DbClass cls in classes)
             {
                 cmd.AddParameter(System.Data.DbType.Int32, "@Id", cls.Id);
-                cmd.AddParameter(System.Data.DbType.Int32, "@ParentType", cls.ParentType);
-                cmd.AddParameter(System.Data.DbType.Int32, "@ParentId", cls.ParentId);
+                cmd.AddParameter(System.Data.DbType.Int32, "@ParentClassId", cls.ParentClassId);
+                cmd.AddParameter(System.Data.DbType.Int32, "@ParentFileId", cls.ParentFileId);
                 cmd.AddParameter(System.Data.DbType.String, "@FQN", cls.Fqn);
                 cmd.AddParameter(System.Data.DbType.Int32, "@AccessFlags", cls.AccessFlags);
                 cmd.AddParameter(System.Data.DbType.Int32, "@IsTestClass", cls.IsTestClass);
@@ -76,8 +78,8 @@ namespace PrimitiveCodebaseElements.Primitive.db
             const string query = @"
                     SELECT
                           id,
-                          parent_type, 
-                          parent_id, 
+                          parent_class_id, 
+                          parent_file_id, 
                           fqn, 
                           access_flags, 
                           language, 
@@ -86,8 +88,8 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 ";
             return conn.Execute(query).TransformRows(row => new DbClass(
                 id: row.GetInt32("id"),
-                parentType: row.GetInt32("parent_type"),
-                parentId: row.GetInt32("parent_id"),
+                parentClassId: row.GetIntOrNull("parent_class_id"),
+                parentFileId: row.GetInt32("parent_file_id"),
                 fqn: row.GetString("fqn"),
                 accessFlags: row.GetInt32("access_flags"),
                 language: row.GetInt32("language"),

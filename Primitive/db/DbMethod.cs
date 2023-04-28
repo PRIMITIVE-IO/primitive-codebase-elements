@@ -9,16 +9,16 @@ namespace PrimitiveCodebaseElements.Primitive.db
     [PublicAPI]
     public class DbMethod
     {
-        public readonly int Id, ParentType, ParentId, ReturnTypeId, AccessFlags, Language;
-        public readonly int? CyclomaticScore;
+        public readonly int Id, ParentFileId, ReturnTypeId, AccessFlags, Language;
+        public readonly int? CyclomaticScore, ParentClassId;
         public readonly string Name;
 
-        public DbMethod(int id, int parentType, int parentId, string name, int returnTypeId, int accessFlags,
+        public DbMethod(int id, int? parentClassId, int parentFileId, string name, int returnTypeId, int accessFlags,
             int language, int? cyclomaticScore)
         {
             Id = id;
-            ParentType = parentType;
-            ParentId = parentId;
+            ParentClassId = parentClassId;
+            ParentFileId = parentFileId;
             Name = name;
             ReturnTypeId = returnTypeId;
             AccessFlags = accessFlags;
@@ -29,15 +29,16 @@ namespace PrimitiveCodebaseElements.Primitive.db
         public const string CreateTable = @"
             CREATE TABLE methods ( 
                 id INTEGER PRIMARY KEY ASC, 
-                parent_type INTEGER NOT NULL, 
-                parent_id INTEGER NOT NULL, 
+                parent_class_id INTEGER, 
+                parent_file_id INTEGER NOT NULL, 
                 name TEXT NOT NULL, 
                 return_type_id INTEGER NOT NULL, 
                 access_flags INTEGER NOT NULL, 
                 field_id TEXT, 
                 language INTEGER,
-                cyclomatic_score INTEGER,
-                FOREIGN KEY(parent_id) REFERENCES classes(id) ON UPDATE CASCADE
+                cyclomatic_score INTEGER,                
+                FOREIGN KEY(parent_class_id) REFERENCES classes(id) ON UPDATE CASCADE,
+                FOREIGN KEY(parent_file_id) REFERENCES files(id) ON UPDATE CASCADE
             )";
 
         public static void SaveAll(IEnumerable<DbMethod> methods, IDbConnection conn)
@@ -47,8 +48,8 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
             insertMethodCmd.CommandText = @"INSERT INTO methods ( 
                           id,
-                          parent_type, 
-                          parent_id, 
+                          parent_class_id, 
+                          parent_file_id, 
                           name, 
                           return_type_id, 
                           access_flags,
@@ -56,8 +57,8 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           cyclomatic_score
                       ) VALUES ( 
                           @Id,
-                          @ParentType, 
-                          @ParentId, 
+                          @ParentClassId, 
+                          @ParentFileId, 
                           @Name, 
                           @ReturnTypeId, 
                           @AccessFlags,
@@ -68,14 +69,14 @@ namespace PrimitiveCodebaseElements.Primitive.db
             foreach (DbMethod method in methods)
             {
                 insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@Id", method.Id);
-                insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@ParentType", method.ParentType);
+                insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@ParentClassId", method.ParentClassId);
 
                 // the MIN value of Cyclomatic Complexity Score is 1, so 0 means it's not defined
                 bool isCycloDefined = method.CyclomaticScore > 0;
                 object cycloScore = isCycloDefined ? (object)method.CyclomaticScore : DBNull.Value;
 
                 insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@CyclomaticScore", cycloScore);
-                insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@ParentId", method.ParentId);
+                insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@ParentFileId", method.ParentFileId);
                 insertMethodCmd.AddParameter(System.Data.DbType.String, "@Name", method.Name);
                 insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@ReturnTypeId", method.ReturnTypeId);
                 insertMethodCmd.AddParameter(System.Data.DbType.UInt32, "@AccessFlags", method.AccessFlags);
@@ -94,8 +95,8 @@ namespace PrimitiveCodebaseElements.Primitive.db
             const string query = @"
                     SELECT
                         id,
-                        parent_type, 
-                        parent_id, 
+                        parent_class_id, 
+                        parent_file_id, 
                         name, 
                         return_type_id, 
                         access_flags, 
@@ -106,8 +107,8 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
             return conn.Execute(query).TransformRows(row => new DbMethod(
                 id: row.GetInt32("id"),
-                parentType: row.GetInt32("parent_type"),
-                parentId: row.GetInt32("parent_id"),
+                parentClassId: row.GetIntOrNull("parent_class_id"),
+                parentFileId: row.GetInt32("parent_file_id"),
                 name: row.GetString("name"),
                 returnTypeId: row.GetInt32("return_type_id"),
                 accessFlags: row.GetInt32("access_flags"),

@@ -8,24 +8,23 @@ namespace PrimitiveCodebaseElements.Primitive.db
     [PublicAPI]
     public class DbDiffField
     {
-        public readonly int Id;
-        public readonly int ParentType;
-        public readonly int? ParentId;
-        public readonly int? ParentIdDiff;
-        public readonly string Name;
-        public readonly int TypeId;
-        public readonly int AccessFlags;
-        public readonly string SourceCode;
-        public readonly int Language;
-        public readonly int? OriginalFieldId;
-        public readonly int BranchId;
+        public readonly int Id, TypeId, AccessFlags, Language, BranchId;
+        public readonly int? ParentFileId, ParentClassIdDiff, OriginalFieldId, ParentClassId, ParentFileIdDiff;
+        public readonly string Name, SourceCode;
 
-        public DbDiffField(int id, int parentType, int? parentId, int? parentIdDiff, string name, int typeId, int accessFlags, string sourceCode, int language, int? originalFieldId, int branchId)
+        public DbDiffField(
+            int id, int? parentClassId, int? parentFileId, int? parentClassIdDiff, int? parentFileIdDiff,
+            string name,
+            int typeId,
+            int accessFlags,
+            string sourceCode, int language,
+            int? originalFieldId, int branchId)
         {
             Id = id;
-            ParentType = parentType;
-            ParentId = parentId;
-            ParentIdDiff = parentIdDiff;
+            ParentClassId = parentClassId;
+            ParentFileId = parentFileId;
+            ParentClassIdDiff = parentClassIdDiff;
+            ParentFileIdDiff = parentFileIdDiff;
             Name = name;
             TypeId = typeId;
             AccessFlags = accessFlags;
@@ -34,13 +33,14 @@ namespace PrimitiveCodebaseElements.Primitive.db
             OriginalFieldId = originalFieldId;
             BranchId = branchId;
         }
-        
+
         public const string CreateTable =
             @"CREATE TABLE diff_fields (
                          id INTEGER PRIMARY KEY ASC,
-                         parent_type INTEGER NOT NULL,
-                         parent_id INTEGER NULL,
-                         parent_id_diff INTEGER NULL,
+                         parent_class_id INTEGER NULL,
+                         parent_class_id_diff INTEGER NULL,
+                         parent_file_id INTEGER NULL,
+                         parent_file_id_diff INTEGER NULL,
                          name TEXT NOT NULL,
                          type_id INTEGER NOT NULL,
                          access_flags INTEGER NOT NULL,
@@ -49,21 +49,22 @@ namespace PrimitiveCodebaseElements.Primitive.db
 						 original_field_id INT NULL,
 						 branch_id INT,
 						 FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE,
-                         FOREIGN KEY(parent_id) REFERENCES classes(id) ON UPDATE CASCADE,
-						 FOREIGN KEY(parent_id_diff) REFERENCES diff_classes(id) ON UPDATE CASCADE,
+                         FOREIGN KEY(parent_class_id) REFERENCES classes(id) ON UPDATE CASCADE,
+						 FOREIGN KEY(parent_class_id_diff) REFERENCES diff_classes(id) ON UPDATE CASCADE,
 						 FOREIGN KEY(original_field_id) REFERENCES fields(id) ON UPDATE CASCADE,
                          FOREIGN KEY(type_id) REFERENCES types(id) ON UPDATE CASCADE)";
-        
-        public static void SaveAll(IEnumerable<DbDiffField> directories, IDbConnection conn)
+
+        public static void SaveAll(IEnumerable<DbDiffField> dbDiffFields, IDbConnection conn)
         {
             IDbCommand cmd = conn.CreateCommand();
             IDbTransaction transaction = conn.BeginTransaction();
             cmd.CommandText =
                 @"INSERT INTO diff_fields (
                         id,
-                        parent_type,
-                        parent_id,
-                        parent_id_diff,
+                        parent_class_id,
+                        parent_class_id_diff,
+                        parent_file_id,
+                        parent_file_id_diff,
                         name,
                         type_id,
                         access_flags,
@@ -73,9 +74,9 @@ namespace PrimitiveCodebaseElements.Primitive.db
                         branch_id
                       ) VALUES (
                         @Id,
-                        @ParentType,
-                        @ParentId,
-                        @ParentIdDiff,
+                        @ParentClassId,
+                        @ParentFileId,
+                        @ParentFileIdDiff,
                         @Name,
                         @TypeId,
                         @AccessFlags,
@@ -85,19 +86,20 @@ namespace PrimitiveCodebaseElements.Primitive.db
                         @BranchId
                       )";
 
-            foreach (DbDiffField dir in directories)
+            foreach (DbDiffField dbDiffField in dbDiffFields)
             {
-                cmd.AddParameter(System.Data.DbType.Int32, "@Id", dir.Id);
-                cmd.AddParameter(System.Data.DbType.Int32, "@ParentType", dir.ParentType);
-                cmd.AddParameter(System.Data.DbType.Int32, "@ParentId", dir.ParentId);
-                cmd.AddParameter(System.Data.DbType.Int32, "@ParentIdDiff", dir.ParentIdDiff);
-                cmd.AddParameter(System.Data.DbType.String, "@Name", dir.Name);
-                cmd.AddParameter(System.Data.DbType.Int32, "@TypeId", dir.TypeId);
-                cmd.AddParameter(System.Data.DbType.Int32, "@AccessFlags", dir.AccessFlags);
-                cmd.AddParameter(System.Data.DbType.String, "@SourceCode", dir.SourceCode);
-                cmd.AddParameter(System.Data.DbType.Int32, "@Language", dir.Language);
-                cmd.AddParameter(System.Data.DbType.Int32, "@OriginalFieldId", dir.OriginalFieldId);
-                cmd.AddParameter(System.Data.DbType.Int32, "@BranchId", dir.BranchId);
+                cmd.AddParameter(System.Data.DbType.Int32, "@Id", dbDiffField.Id);
+                cmd.AddParameter(System.Data.DbType.Int32, "@ParentClassId", dbDiffField.ParentClassId);
+                cmd.AddParameter(System.Data.DbType.Int32, "@ParentFileId", dbDiffField.ParentFileId);
+                cmd.AddParameter(System.Data.DbType.Int32, "@ParentClassIdDiff", dbDiffField.ParentClassIdDiff);
+                cmd.AddParameter(System.Data.DbType.Int32, "@ParentFileIdDiff", dbDiffField.ParentFileIdDiff);
+                cmd.AddParameter(System.Data.DbType.String, "@Name", dbDiffField.Name);
+                cmd.AddParameter(System.Data.DbType.Int32, "@TypeId", dbDiffField.TypeId);
+                cmd.AddParameter(System.Data.DbType.Int32, "@AccessFlags", dbDiffField.AccessFlags);
+                cmd.AddParameter(System.Data.DbType.String, "@SourceCode", dbDiffField.SourceCode);
+                cmd.AddParameter(System.Data.DbType.Int32, "@Language", dbDiffField.Language);
+                cmd.AddParameter(System.Data.DbType.Int32, "@OriginalFieldId", dbDiffField.OriginalFieldId);
+                cmd.AddParameter(System.Data.DbType.Int32, "@BranchId", dbDiffField.BranchId);
                 cmd.ExecuteNonQuery();
             }
 
@@ -111,9 +113,10 @@ namespace PrimitiveCodebaseElements.Primitive.db
             const string query = @"
                     SELECT
                         id,
-                        parent_type,
-                        parent_id,
-                        parent_id_diff,
+                        parent_class_id,
+                        parent_class_id_diff,
+                        parent_file_id,
+                        parent_file_id_diff,
                         name,
                         type_id,
                         access_flags,
@@ -126,9 +129,10 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
             return conn.Execute(query).TransformRows(row => new DbDiffField(
                 id: row.GetInt32("id"),
-                parentType: row.GetInt32("parent_type"),
-                parentId: row.GetIntOrNull("parent_id"),
-                parentIdDiff: row.GetIntOrNull("parent_id_diff"),
+                parentClassId: row.GetIntOrNull("parent_class_id"),
+                parentFileId: row.GetIntOrNull("parent_file_id"),
+                parentClassIdDiff: row.GetIntOrNull("parent_class_id_diff"),
+                parentFileIdDiff: row.GetIntOrNull("parent_file_id_diff"),
                 name: row.GetString("name"),
                 typeId: row.GetInt32("type_id"),
                 accessFlags: row.GetInt32("access_flags"),

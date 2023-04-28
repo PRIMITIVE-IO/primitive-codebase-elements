@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db.merger
 {
+    [PublicAPI]
     public static class TableSetMerger
     {
         public static TableSet Merge(TableSet a, TableSet b)
@@ -45,8 +47,8 @@ namespace PrimitiveCodebaseElements.Primitive.db.merger
 
             List<DbClass> newClassesB = b.Classes.Select(dbClass => new DbClass(
                 id: dbClass.Id + maxClassIdA,
-                parentType: dbClass.ParentType,
-                parentId: bFileIdToNewFileId[dbClass.ParentId],
+                parentClassId: dbClass.ParentClassId,
+                parentFileId: bFileIdToNewFileId[dbClass.ParentFileId],
                 fqn: dbClass.Fqn,
                 accessFlags: dbClass.AccessFlags,
                 language: dbClass.Language,
@@ -55,48 +57,28 @@ namespace PrimitiveCodebaseElements.Primitive.db.merger
 
             int maxFieldIdA = a.Fields.MaxOrDefault(it => it.Id);
 
-            IEnumerable<DbField> newFieldsB = b.Fields.Select(field =>
-            {
-                int parentId = (CodebaseElementType)field.ParentType switch 
-                {
-                    CodebaseElementType.Class => field.ParentId + maxClassIdA,
-                    CodebaseElementType.File => bFileIdToNewFileId[field.ParentId],
-                    _ => throw new Exception($"unexpected parent type: {field.ParentType}")
-                };
-
-                return new DbField(
-                    id: field.Id + maxFieldIdA,
-                    parentType: field.ParentType,
-                    parentId: parentId,
-                    name: field.Name,
-                    typeId: field.TypeId + maxTypeIdA,
-                    accessFlags: field.AccessFlags,
-                    language: field.Language
-                );
-            });
+            IEnumerable<DbField> newFieldsB = b.Fields.Select(field => new DbField(
+                id: field.Id + maxFieldIdA,
+                parentClassId: field.ParentClassId + maxClassIdA,
+                parentFileId: bFileIdToNewFileId[field.ParentFileId],
+                name: field.Name,
+                typeId: field.TypeId + maxTypeIdA,
+                accessFlags: field.AccessFlags,
+                language: field.Language
+            ));
 
             int maxMethodIdA = a.Methods.MaxOrDefault(it => it.Id);
 
-            IEnumerable<DbMethod> newMethodsB = b.Methods.Select(method =>
-            {
-                int parentId = (CodebaseElementType)method.ParentType switch 
-                {
-                    CodebaseElementType.Class => method.ParentId + maxClassIdA,
-                    CodebaseElementType.File => bFileIdToNewFileId[method.ParentId],
-                    _ => throw new Exception($"unexpected parent type: {method.ParentType}")
-                };
-
-                return new DbMethod(
-                    id: method.Id + maxMethodIdA,
-                    parentType: method.ParentType,
-                    parentId: parentId,
-                    name: method.Name,
-                    returnTypeId: method.ReturnTypeId + maxTypeIdA,
-                    accessFlags: method.AccessFlags,
-                    language: method.Language,
-                    cyclomaticScore: method.CyclomaticScore
-                );
-            });
+            IEnumerable<DbMethod> newMethodsB = b.Methods.Select(method => new DbMethod(
+                id: method.Id + maxMethodIdA,
+                parentClassId: method.ParentClassId + maxClassIdA,
+                parentFileId:  bFileIdToNewFileId[method.ParentFileId],
+                name: method.Name,
+                returnTypeId: method.ReturnTypeId + maxTypeIdA,
+                accessFlags: method.AccessFlags,
+                language: method.Language,
+                cyclomaticScore: method.CyclomaticScore
+            ));
 
             IEnumerable<DbType> newTypesB = b.Types.Select(type => new DbType(
                 id: type.Id + maxTypeIdA,

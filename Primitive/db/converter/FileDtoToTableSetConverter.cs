@@ -67,8 +67,8 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                     methodIdCounter: ref methodId,
                     truncatedMethodSignatureToId: truncatedMethodSignatureToId,
                     dbMethodsAcc: dbMethods,
-                    parentId: fileId,
-                    parentType: CodebaseElementType.File,
+                    parentFileId: fileId,
+                    parentClassId: null,
                     typeToId: typeToId,
                     fileDto: fileDto,
                     dbArgumentsAcc: dbArguments,
@@ -81,8 +81,8 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                     fields: fileDto.Fields,
                     dbFieldsAcc: dbFields,
                     fieldIdCounter: ref fieldId,
-                    parentId: fileId,
-                    parentType: CodebaseElementType.File,
+                    parentFileId: fileId,
+                    parentClassId: null,
                     typeToId: typeToId,
                     fileDto: fileDto,
                     dbSourceIndicesAcc: dbSourceIndices,
@@ -92,11 +92,16 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 foreach (ClassDto classDto in fileDto.Classes)
                 {
                     classFqnToId[classDto.FullyQualifiedName] = classId;
+                    int? parentClassId = null;
+                    if (!string.IsNullOrEmpty(classDto.ParentClassFqn))
+                    {
+                        parentClassId = classFqnToId[classDto.ParentClassFqn];
+                    }
 
                     dbClasses.Add(new DbClass(
                         id: classId,
-                        parentType: (int)CodebaseElementType.File,
-                        parentId: fileId,
+                        parentClassId: parentClassId,
+                        parentFileId: fileId,
                         fqn: classDto.FullyQualifiedName,
                         accessFlags: (int)classDto.Modifier,
                         language: (int)fileDto.Language,
@@ -109,8 +114,8 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                         methodIdCounter: ref methodId,
                         truncatedMethodSignatureToId: truncatedMethodSignatureToId,
                         dbMethodsAcc: dbMethods,
-                        parentId: classId,
-                        parentType: CodebaseElementType.Class,
+                        parentFileId: fileId,
+                        parentClassId: classId,
                         typeToId: typeToId,
                         fileDto: fileDto,
                         dbArgumentsAcc: dbArguments,
@@ -123,8 +128,8 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                         fields: classDto.Fields,
                         dbFieldsAcc: dbFields,
                         fieldIdCounter: ref fieldId,
-                        parentId: classId,
-                        parentType: CodebaseElementType.Class,
+                        parentFileId: fileId,
+                        parentClassId: classId,
                         typeToId: typeToId,
                         fileDto: fileDto,
                         dbSourceIndicesAcc: dbSourceIndices,
@@ -250,12 +255,12 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             );
         }
 
-        private static void ProcessFields(
+        static void ProcessFields(
             List<FieldDto> fields,
             List<DbField> dbFieldsAcc,
             ref int fieldIdCounter,
-            int parentId,
-            CodebaseElementType parentType,
+            int parentFileId,
+            int? parentClassId,
             Dictionary<string, int> typeToId,
             FileDto fileDto,
             List<DbSourceIndex> dbSourceIndicesAcc,
@@ -266,8 +271,8 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             {
                 dbFieldsAcc.Add(new DbField(
                     id: fieldIdCounter,
-                    parentType: (int)parentType,
-                    parentId: parentId,
+                    parentClassId: parentClassId,
+                    parentFileId: parentFileId,
                     name: fieldDto.Name,
                     typeId: typeToId[fieldDto.Type],
                     accessFlags: (int)fieldDto.AccFlag,
@@ -287,14 +292,14 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             }
         }
 
-        private static void ProcessMethods(
+        static void ProcessMethods(
             List<MethodDto> methodDtos,
             Dictionary<string, int> methodSignatureToId,
             ref int methodIdCounter,
             Dictionary<string, int> truncatedMethodSignatureToId,
             List<DbMethod> dbMethodsAcc,
-            int parentId,
-            CodebaseElementType parentType,
+            int parentFileId,
+            int? parentClassId,
             Dictionary<string, int> typeToId,
             FileDto fileDto,
             List<DbArgument> dbArgumentsAcc,
@@ -321,8 +326,8 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
 
                 dbMethodsAcc.Add(new DbMethod(
                     id: methodIdCounter,
-                    parentType: (int)parentType,
-                    parentId: parentId,
+                    parentClassId: parentClassId,
+                    parentFileId: parentFileId,
                     name: methodDto.Name,
                     returnTypeId: typeToId[methodDto.ReturnType],
                     accessFlags: (int)methodDto.AccFlag,
