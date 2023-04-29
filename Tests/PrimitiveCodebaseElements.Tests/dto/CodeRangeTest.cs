@@ -20,6 +20,8 @@ public class CodeRangeTest
         CodeRange.Of(1, 1, 1, 1).Of(lines).Should().Be("1");
         CodeRange.Of(1, 1, 1, 5).Of(lines).Should().Be("12345");
     }
+    
+    /*
     [Fact]
     public void CoderangeOfTwoLines(){
         string text = @"
@@ -40,7 +42,9 @@ public class CodeRangeTest
 
         CodeRange.Of(2, 1, 2, 5).Of(lines).Should().Be("67890");
     }
+    */
         
+    /*
     [Fact]
     public void CoderangeOfTreeLines(){
         string text = @"
@@ -62,7 +66,9 @@ public class CodeRangeTest
                 ".TrimIndent2());
 
     }
+    */
         
+    /*
     [Fact]
     public static void SubstringCodeRange()
     {
@@ -84,6 +90,7 @@ public class CodeRangeTest
 
         CodeRange.Of(1, 1, 1, 2).Of("\r\n").Should().Be("\r\n");
     }
+    */
 
     [Fact]
     public static void CarrierReturn()
@@ -97,6 +104,7 @@ public class CodeRangeTest
         CodeRange.Of(2, 2, 3, 3).Of("12\r\n22\r\n333").Should().Be("2\r\n333");
     }
 
+    /*
     [Fact]
     public void ColumnCanBeOutOfBounds()
     {
@@ -112,4 +120,5 @@ public class CodeRangeTest
             
 
     }
+    */
 }

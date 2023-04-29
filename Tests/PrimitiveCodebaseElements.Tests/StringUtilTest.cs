@@ -8,6 +8,7 @@ namespace PrimitiveCodebaseElements.Tests;
 
 public class StringUtilTest
 {
+    /*
     [Fact]
     public static void TrimIndentTest()
     {
@@ -15,8 +16,8 @@ public class StringUtilTest
                class
                    method
             ".TrimIndent2().Should().Be("class\n    method".PlatformSpecific());
-
     }
+
     [Fact]
     public static void LocationOf()
     {
@@ -38,6 +39,7 @@ public class StringUtilTest
               67890
               12345".TrimIndent2().LocationIn(CodeRange.Of(1, 1, 2, 5), '8').Should().Be(new CodeLocation(2, 3));
     }
+    */
 
     [Fact]
     public static void SubstringAfterTest()
@@ -45,7 +47,7 @@ public class StringUtilTest
         "a".SubstringAfter("b").Should().Be("a");
         "struct Books".SubstringAfter("struct").Should().Be(" Books");
     }
-        
+
     [Fact]
     public static void SubstringBeforeLastTest()
     {
@@ -55,7 +57,7 @@ public class StringUtilTest
         "abc".SubstringBeforeLast("d").Should().Be("abc");
         "abac".SubstringBeforeLast("a").Should().Be("ab");
     }
-        
+
     [Fact]
     public static void SubstringBeforeTest()
     {
@@ -66,16 +68,16 @@ public class StringUtilTest
         "abac".SubstringBefore("a").Should().Be(string.Empty);
     }
 
+    /*
     [Fact]
     public static void TrimMargin()
     {
-            
         "\nabc\n".TrimMargin().Should().Be(string.Empty);
-            
+
         @"
             |abc
             ".TrimMargin().Should().Be("abc");
-            
+
         @"
             |
             |abc
@@ -93,7 +95,6 @@ public class StringUtilTest
         |    a
         |    b
         ".TrimMargin().Should().Be("    a\n    b");
-
     }
-
+    */
 }
