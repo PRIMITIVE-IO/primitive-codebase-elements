@@ -1,5 +1,8 @@
+using JetBrains.Annotations;
+
 namespace PrimitiveCodebaseElements.Primitive
 {
+    [PublicAPI]
     public enum CodeReferenceType
     {
         Undefined = -1,

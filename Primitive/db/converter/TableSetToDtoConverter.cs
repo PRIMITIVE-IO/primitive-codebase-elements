@@ -222,8 +222,13 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 .Select(it => types[it.TypeId].Signature)
                 .JoinToString(",");
 
-            string classFqn = classes[method.ParentFileId].Fqn;
-            return $"{classFqn}.{method.Name}({argsString})";
+            if (method.ParentClassId.HasValue)
+            {
+                string classFqn = classes[method.ParentClassId.Value].Fqn;
+                return $"{classFqn}.{method.Name}({argsString})";
+            }
+            
+            return $"{method.Name}({argsString})";
         }
 
         static string? PackageName(string fqn)
