@@ -326,25 +326,25 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             }
         }
 
-        static dto.CodeRange CodeRange(DbClassReference dbSourceIndex)
+        static CodeRange CodeRange(DbClassReference dbSourceIndex)
         {
-            return new dto.CodeRange(
+            return new CodeRange(
                 new CodeLocation(dbSourceIndex.StartLine, dbSourceIndex.StartColumn),
                 new CodeLocation(dbSourceIndex.EndLine, dbSourceIndex.EndColumn)
             );
         }
 
-        static dto.CodeRange CodeRange(DbMethodReference dbSourceIndex)
+        static CodeRange CodeRange(DbMethodReference dbSourceIndex)
         {
-            return new dto.CodeRange(
+            return new CodeRange(
                 new CodeLocation(dbSourceIndex.StartLine, dbSourceIndex.StartColumn),
                 new CodeLocation(dbSourceIndex.EndLine, dbSourceIndex.EndColumn)
             );
         }
 
-        static dto.CodeRange CodeRange(DbSourceIndex dbSourceIndex)
+        static CodeRange CodeRange(DbSourceIndex dbSourceIndex)
         {
-            return new dto.CodeRange(
+            return new CodeRange(
                 new CodeLocation(dbSourceIndex.StartLine, dbSourceIndex.StartColumn),
                 new CodeLocation(dbSourceIndex.EndLine, dbSourceIndex.EndColumn)
             );

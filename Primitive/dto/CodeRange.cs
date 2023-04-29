@@ -94,7 +94,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == this.GetType() && Equals((CodeRange)obj);
+            return obj.GetType() == GetType() && Equals((CodeRange)obj);
         }
 
         public override int GetHashCode()

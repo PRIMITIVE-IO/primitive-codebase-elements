@@ -144,7 +144,7 @@ namespace PrimitiveCodebaseElements.Primitive
 
         public static CodeLocation? LocationIn(
             this string s,
-            PrimitiveCodebaseElements.Primitive.dto.CodeRange range,
+            CodeRange range,
             char c)
         {
             CodeLocation? location = range.Of(s).LocationOf(c);
