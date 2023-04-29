@@ -75,6 +75,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                       ) VALUES (
                         @Id,
                         @ParentClassId,
+                        @ParentClassIdDiff,
                         @ParentFileId,
                         @ParentFileIdDiff,
                         @Name,
