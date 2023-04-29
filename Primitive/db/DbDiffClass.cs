@@ -118,8 +118,8 @@ namespace PrimitiveCodebaseElements.Primitive.db
 
             return conn.Execute(query).TransformRows(row => new DbDiffClass(
                 id: row.GetInt32("id"),
-                parentClassId: row.GetInt32("parent_class_id"),
-                parentClassIdDiff: row.GetInt32("parent_class_id_diff"),
+                parentClassId: row.GetIntOrNull("parent_class_id"),
+                parentClassIdDiff: row.GetIntOrNull("parent_class_id_diff"),
                 parentFileId: row.GetIntOrNull("parent_file_id"),
                 parentFileIdDiff: row.GetIntOrNull("parent_file_id_diff"),
                 fqn: row.GetString("fqn"),
