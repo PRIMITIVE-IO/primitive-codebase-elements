@@ -139,7 +139,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                     dbSourceIndices.Add(new DbSourceIndex(
                         elementId: classId,
                         fileId: fileId,
-                        type: "CLASS",
+                        type: SourceCodeType.Class,
                         startLine: classDto.CodeRange.Start.Line,
                         startColumn: classDto.CodeRange.Start.Column,
                         endLine: classDto.CodeRange.End.Line,
@@ -281,7 +281,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 dbSourceIndicesAcc.Add(new DbSourceIndex(
                     elementId: fieldIdCounter,
                     fileId: fileId,
-                    type: "FIELD",
+                    type: SourceCodeType.Field,
                     startLine: fieldDto.CodeRange.Start.Line,
                     startColumn: fieldDto.CodeRange.Start.Column,
                     endLine: fieldDto.CodeRange.End.Line,
@@ -352,7 +352,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 dbSourceIndicesAcc.Add(new DbSourceIndex(
                     elementId: methodIdCounter,
                     fileId: fileId,
-                    type: "METHOD",
+                    type: SourceCodeType.Method,
                     startLine: methodDto.CodeRange.Start.Line,
                     startColumn: methodDto.CodeRange.Start.Column,
                     endLine: methodDto.CodeRange.End.Line,

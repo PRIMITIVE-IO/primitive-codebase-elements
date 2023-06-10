@@ -10,13 +10,13 @@ namespace PrimitiveCodebaseElements.Primitive.db
     {
         public readonly int ElementId;
         public readonly int FileId;
-        public readonly string Type;
+        public readonly SourceCodeType Type;
         public readonly int StartLine;
         public readonly int StartColumn;
         public readonly int EndLine;
         public readonly int EndColumn;
 
-        public DbSourceIndex(int elementId, int fileId, string type, int startLine,
+        public DbSourceIndex(int elementId, int fileId, SourceCodeType type, int startLine,
             int startColumn, int endLine, int endColumn)
         {
             ElementId = elementId;
@@ -55,7 +55,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             {
                 cmd.AddParameter(System.Data.DbType.Int32, "@ElementId", sourceIndex.ElementId);
                 cmd.AddParameter(System.Data.DbType.Int32, "@FileId", sourceIndex.FileId);
-                cmd.AddParameter(System.Data.DbType.String, "@Type", sourceIndex.Type);
+                cmd.AddParameter(System.Data.DbType.Int32, "@Type", sourceIndex.Type);
                 cmd.AddParameter(System.Data.DbType.Int32, "@StartLine", sourceIndex.StartLine);
                 cmd.AddParameter(System.Data.DbType.Int32, "@StartColumn", sourceIndex.StartColumn);
                 cmd.AddParameter(System.Data.DbType.Int32, "@EndLine", sourceIndex.EndLine);
@@ -73,7 +73,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             CREATE TABLE source_index (
                         element_id   INTEGER NOT NULL,
                         file_id      INTEGER NOT NULL,
-                        type         TEXT    NOT NULL,
+                        type         INTEGER NOT NULL,
                         start_line   INTEGER NOT NULL,
                         start_column INTEGER NOT NULL,
                         end_line     INTEGER NOT NULL,
@@ -99,7 +99,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             return conn.Execute(query).TransformRows(row => new DbSourceIndex(
                 elementId: row.GetInt32("element_id"),
                 fileId: row.GetInt32("file_id"),
-                type: row.GetString("type"),
+                type: (SourceCodeType) row.GetInt32("type"),
                 startLine: row.GetInt32("start_line"),
                 startColumn: row.GetInt32("start_column"),
                 endLine: row.GetInt32("end_line"),

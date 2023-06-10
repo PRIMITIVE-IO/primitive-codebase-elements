@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using PrimitiveCodebaseElements.Primitive;
 using PrimitiveCodebaseElements.Primitive.db;
 using PrimitiveCodebaseElements.Primitive.db.converter;
 using PrimitiveCodebaseElements.Primitive.dto;
@@ -40,9 +41,9 @@ public class TableSetToDtoConverterTest
             },
             sourceIndices: new List<DbSourceIndex>
             {
-                new(432, 525, "METHOD", 1, 1, 1, 1),
-                new(433, 525, "METHOD", 2, 2, 2, 2),
-                new(423, 525, "CLASS", 2, 2, 2, 2)
+                new(432, 525, SourceCodeType.Method, 1, 1, 1, 1),
+                new(433, 525, SourceCodeType.Method, 2, 2, 2, 2),
+                new(423, 525, SourceCodeType.Class, 2, 2, 2, 2)
             }
         ));
 
