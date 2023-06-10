@@ -12,7 +12,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
     {
         public static List<DirectoryDto> ToDirectoryDto(TableSet tableSet)
         {
-            ILookup<string, FileDto> parentPathToFileDtos = ToFileDto(tableSet)
+            ILookup<string?, FileDto> parentPathToFileDtos = ToFileDto(tableSet)
                 .ToLookup(file => file.Path.SubstringBeforeLast("/"));
 
             return tableSet.Directories.Select(dir => new DirectoryDto(
@@ -32,6 +32,8 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
 
                 Dictionary<int, DbClass> classesById = tableSet.Classes.ToDictionary(it => it.Id);
                 
+                Dictionary<int, DbFile> filesById = tableSet.Files.ToDictionary(it => it.Id);
+                
                 ILookup<int, DbMethod> methodByClassId = tableSet.Methods
                     .Where(it => it.ParentClassId.HasValue)
                     .ToLookup(it => it.ParentClassId!.Value);
@@ -50,19 +52,26 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
 
                 Dictionary<int, DbType> types = tableSet.Types.ToDictionary(it => it.Id);
                 ILookup<int, DbArgument> argsByMethodId = tableSet.Arguments.ToLookup(it => it.MethodId);
-                Dictionary<int, string> methodSignaturesById = tableSet.Methods.ToDictionary(it => it.Id,
-                    it => Signature(it, classesById, argsByMethodId[it.Id].ToList(), types));
+                Dictionary<int, string> methodSignaturesById = tableSet.Methods.ToDictionary(
+                    it => it.Id,
+                    it => Signature(
+                        it,
+                        argsByMethodId[it.Id].ToList(),
+                        types,
+                        it.ParentClassId.HasValue
+                            ? classesById[it.ParentClassId.Value].Fqn
+                            : filesById[it.ParentFileId].Path));
 
                 Dictionary<int, DbSourceIndex> methodIndices = tableSet.SourceIndices
-                    .Where(it => it.Type == "METHOD")
+                    .Where(it => it.Type == SourceCodeType.Method)
                     .ToDictionary(it => it.ElementId);
 
                 Dictionary<int, DbSourceIndex> fieldIndices = tableSet.SourceIndices
-                    .Where(it => it.Type == "FIELD")
+                    .Where(it => it.Type == SourceCodeType.Field)
                     .ToDictionary(it => it.ElementId);
 
                 Dictionary<int, DbSourceIndex> classIndices = tableSet.SourceIndices
-                    .Where(it => it.Type == "CLASS")
+                    .Where(it => it.Type == SourceCodeType.Class)
                     .ToDictionary(it => it.ElementId);
 
                 ILookup<int, DbClassReference> classReferencesByClassId =
@@ -85,12 +94,12 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                                     it,
                                                     argsByMethodId[it.Id].ToList(),
                                                     types,
-                                                    methodIndices.ContainsKey(it.Id)
-                                                        ? methodIndices[it.Id]
+                                                    methodIndices.TryGetValue(it.Id, out DbSourceIndex? index)
+                                                        ? index
                                                         : new DbSourceIndex(
                                                             elementId: it.Id,
                                                             fileId: dbFile.Id,
-                                                            type: "METHOD",
+                                                            type: SourceCodeType.Method,
                                                             startLine: 0,
                                                             startColumn: 0,
                                                             endLine: 0,
@@ -138,7 +147,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                             dbFile.Path,
                                             packageName: PackageName(dbClass.Fqn),
                                             name: ClassName(dbClass.Fqn),
-                                            fullyQualifiedName: dbClass.Fqn,
+                                            fullyQualifiedName: UniqueClassFqn(dbClass, dbFile.Path),
                                             methods: methodDtos,
                                             fields: fieldDtos,
                                             modifier: (AccessFlags)dbClass.AccessFlags,
@@ -162,12 +171,12 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                         it,
                                         argsByMethodId[it.Id].ToList(),
                                         types,
-                                        methodIndices.ContainsKey(it.Id)
-                                            ? methodIndices[it.Id]
+                                        methodIndices.TryGetValue(it.Id, out DbSourceIndex? methodIndex)
+                                            ? methodIndex
                                             : new DbSourceIndex(
                                                 elementId: it.Id,
                                                 fileId: dbFile.Id,
-                                                type: "METHOD",
+                                                type: SourceCodeType.Method,
                                                 startLine: 0,
                                                 startColumn: 0,
                                                 endLine: 0,
@@ -214,21 +223,25 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
 
         static string Signature(
             DbMethod method,
-            IReadOnlyDictionary<int, DbClass> classes,
             IEnumerable<DbArgument> args,
-            IReadOnlyDictionary<int, DbType> types)
+            IReadOnlyDictionary<int, DbType> types,
+            string parentFqn)
         {
-            string argsString = args
-                .Select(it => types[it.TypeId].Signature)
-                .JoinToString(",");
+            List<ArgumentDto> arguments = args
+                .Select(it => new ArgumentDto(
+                    index: it.ArgIndex,
+                    name: it.Name,
+                    type: types[it.TypeId].Signature
+                ))
+                .ToList();
 
-            if (method.ParentClassId.HasValue)
-            {
-                string classFqn = classes[method.ParentClassId.Value].Fqn;
-                return $"{classFqn}.{method.Name}({argsString})";
-            }
-            
-            return $"{method.Name}({argsString})";
+
+            return MethodDto.MethodSignature(
+                (AccessFlags)method.AccessFlags,
+                parentFqn,
+                method.Name,
+                arguments,
+                types[method.ReturnTypeId].Signature);
         }
 
         static string? PackageName(string fqn)
@@ -287,7 +300,14 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                     ))
                     .ToList();
 
-                string methodSignature = MethodDto.MethodSignature(parentFqn, method.Name, args);
+                string returnSig = types[method.ReturnTypeId].Signature;
+
+                string methodSignature = MethodDto.MethodSignature(
+                    (AccessFlags)method.AccessFlags, 
+                    parentFqn, 
+                    method.Name,
+                    args, 
+                    returnSig);
 
                 List<MethodReferenceDto> methodReferenceDtos = methodReferences.SelectNotNull(it =>
                     {
@@ -313,7 +333,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                     name: method.Name,
                     accFlag: (AccessFlags)method.AccessFlags,
                     arguments: args,
-                    returnType: types[method.ReturnTypeId].Signature,
+                    returnType: returnSig,
                     codeRange: CodeRange(dbSourceIndex),
                     methodReferences: methodReferenceDtos,
                     cyclomaticScore: method.CyclomaticScore
@@ -348,6 +368,40 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 new CodeLocation(dbSourceIndex.StartLine, dbSourceIndex.StartColumn),
                 new CodeLocation(dbSourceIndex.EndLine, dbSourceIndex.EndColumn)
             );
+        }
+        
+        static string UniqueClassFqn(DbClass dbClass, string path)
+        {
+            switch ((SourceCodeLanguage)dbClass.Language)
+            {
+                case SourceCodeLanguage.Cpp:
+                case SourceCodeLanguage.C:
+                case SourceCodeLanguage.CWithClasses:
+                case SourceCodeLanguage.ObjC:
+                case SourceCodeLanguage.JavaScript:
+                case SourceCodeLanguage.TypeScript:
+                case SourceCodeLanguage.SQL:
+                case SourceCodeLanguage.Markdown:
+                case SourceCodeLanguage.HTML:
+                case SourceCodeLanguage.Python:
+                case SourceCodeLanguage.Scala:
+                case SourceCodeLanguage.Rust:
+                case SourceCodeLanguage.Go:
+                case SourceCodeLanguage.Solidity:
+                case SourceCodeLanguage.PlainText:
+                case SourceCodeLanguage.XML:
+                    // unique ClassFqns that include modifier and file path for non package controlled classes
+                    return $"{dbClass.AccessFlags}|{path}|{dbClass.Fqn}";
+
+                case SourceCodeLanguage.Java:
+                case SourceCodeLanguage.CSharp:
+                case SourceCodeLanguage.Kotlin:
+                    break;
+                default:
+                    break;
+            }
+
+            return dbClass.Fqn;
         }
     }
 }

@@ -37,10 +37,10 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             CyclomaticScore = cyclomaticScore;
         }
         
-        public static string MethodSignature(string classFqn, string methodName, List<ArgumentDto> arguments)
+        public static string MethodSignature(AccessFlags accessFlags, string parentFqnOrPath, string methodName, List<ArgumentDto> arguments, string returnType)
         {
-            string args = string.Join(",", arguments.Select(it => it.Type));
-            return $"{classFqn}.{methodName}({args})";
+            string args = string.Join(",", arguments.Select(it => it.Type + " " + it.Name));
+            return $"{accessFlags}|{parentFqnOrPath}.{methodName}({args}):{returnType}";
         }
 
         public MethodDto With(List<MethodReferenceDto> methodReferences)
