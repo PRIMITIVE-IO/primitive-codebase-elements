@@ -122,12 +122,12 @@ namespace PrimitiveCodebaseElements.Primitive.db.merger
             ));
 
             IEnumerable<DbSourceIndex> newSourceIndicesB = b.SourceIndices.Select(bSourceIndex => new DbSourceIndex(
-                elementId: bSourceIndex.ElementId + bSourceIndex.Type switch
+                elementId: bSourceIndex.ElementId + (SourceCodeType)bSourceIndex.Type switch
                 {
-                    "CLASS" => maxClassIdA,
-                    "METHOD" => maxMethodIdA,
-                    "FIELD" => maxFieldIdA,
-                    _ => throw new ArgumentOutOfRangeException(bSourceIndex.Type)
+                    SourceCodeType.Class => maxClassIdA,
+                    SourceCodeType.Method => maxMethodIdA,
+                    SourceCodeType.Field => maxFieldIdA,
+                    _ => throw new NotImplementedException()
                 },
                 fileId: bFileIdToNewFileId[bSourceIndex.FileId],
                 type: bSourceIndex.Type,

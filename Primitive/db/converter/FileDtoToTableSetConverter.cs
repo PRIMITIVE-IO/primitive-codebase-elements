@@ -32,11 +32,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             Dictionary<string, int> typeToId = types
                 .Select((type, id) => Tuple.Create(type, id))
                 .ToDictionary(it => it.Item1, it => it.Item2);
-
-            int classId = 1;
-            int methodId = 1;
-            int argumentId = 1;
-            int fieldId = 1;
+            
             List<DbFile> dbFiles = new List<DbFile>();
             List<DbClass> dbClasses = new List<DbClass>();
             List<DbMethod> dbMethods = new List<DbMethod>();
@@ -45,9 +41,9 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             List<DbType> dbTypes = typeToId.Select(it => new DbType(it.Value, it.Key)).ToList();
             List<DbSourceIndex> dbSourceIndices = new List<DbSourceIndex>();
 
-            Dictionary<string, int> classFqnToId = new Dictionary<string, int>();
-            Dictionary<string, int> methodSignatureToId = new Dictionary<string, int>();
-            Dictionary<string, int> truncatedMethodSignatureToId = new Dictionary<string, int>();
+            // because the solvers do not have an absolute id for the classes, the fqns and signatures are still required for matching
+            Dictionary<string, int> classFqnToId = new();
+            Dictionary<string, int> methodSignatureToId = new();
 
             foreach (FileDto fileDto in fileDtos)
             {
@@ -63,9 +59,6 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
 
                 ProcessMethods(
                     methodDtos: fileDto.Functions,
-                    methodSignatureToId: methodSignatureToId,
-                    methodIdCounter: ref methodId,
-                    truncatedMethodSignatureToId: truncatedMethodSignatureToId,
                     dbMethodsAcc: dbMethods,
                     parentFileId: fileId,
                     parentClassId: null,
@@ -74,13 +67,12 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                     dbArgumentsAcc: dbArguments,
                     dbSourceIndicesAcc: dbSourceIndices,
                     fileId: fileId,
-                    argumentIdCounter: ref argumentId
+                    methodSignatureToId: methodSignatureToId
                 );
 
                 ProcessFields(
                     fields: fileDto.Fields,
                     dbFieldsAcc: dbFields,
-                    fieldIdCounter: ref fieldId,
                     parentFileId: fileId,
                     parentClassId: null,
                     typeToId: typeToId,
@@ -91,16 +83,9 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
 
                 foreach (ClassDto classDto in fileDto.Classes)
                 {
-                    classFqnToId[classDto.FullyQualifiedName] = classId;
-                    int? parentClassId = null;
-                    if (!string.IsNullOrEmpty(classDto.ParentClassFqn))
-                    {
-                        parentClassId = classFqnToId[classDto.ParentClassFqn];
-                    }
-
                     dbClasses.Add(new DbClass(
-                        id: classId,
-                        parentClassId: parentClassId,
+                        id: classDto.ClassId,
+                        parentClassId: classDto.ParentClassId,
                         parentFileId: fileId,
                         fqn: classDto.FullyQualifiedName,
                         accessFlags: (int)classDto.Modifier,
@@ -110,43 +95,39 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
 
                     ProcessMethods(
                         methodDtos: classDto.Methods,
-                        methodSignatureToId: methodSignatureToId,
-                        methodIdCounter: ref methodId,
-                        truncatedMethodSignatureToId: truncatedMethodSignatureToId,
                         dbMethodsAcc: dbMethods,
                         parentFileId: fileId,
-                        parentClassId: classId,
+                        parentClassId: classDto.ClassId,
                         typeToId: typeToId,
                         fileDto: fileDto,
                         dbArgumentsAcc: dbArguments,
                         dbSourceIndicesAcc: dbSourceIndices,
                         fileId: fileId,
-                        argumentIdCounter: ref argumentId
+                        methodSignatureToId: methodSignatureToId
                     );
 
                     ProcessFields(
                         fields: classDto.Fields,
                         dbFieldsAcc: dbFields,
-                        fieldIdCounter: ref fieldId,
                         parentFileId: fileId,
-                        parentClassId: classId,
+                        parentClassId: classDto.ClassId,
                         typeToId: typeToId,
                         fileDto: fileDto,
                         dbSourceIndicesAcc: dbSourceIndices,
                         fileId: fileId
                     );
+                    
+                    classFqnToId.TryAdd(classDto.FullyQualifiedName, classDto.ClassId);
 
                     dbSourceIndices.Add(new DbSourceIndex(
-                        elementId: classId,
+                        elementId: classDto.ClassId,
                         fileId: fileId,
-                        type: "CLASS",
+                        type: SourceCodeType.Class,
                         startLine: classDto.CodeRange.Start.Line,
                         startColumn: classDto.CodeRange.Start.Column,
                         endLine: classDto.CodeRange.End.Line,
                         endColumn: classDto.CodeRange.End.Column
                     ));
-
-                    classId++;
                 }
             }
 
@@ -159,17 +140,21 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             {
                 foreach (ClassDto classDto in fileDto.Classes)
                 {
-                    foreach (ClassReferenceDto referencesFromThis in classDto.ReferencesFromThis)
+                    foreach (ClassReferenceDto referenceFromThis in classDto.ReferencesFromThis)
                     {
+                        if (!classFqnToId.ContainsKey(referenceFromThis.FromFqn) ||
+                            !classFqnToId.ContainsKey(referenceFromThis.ToFqn))
+                            continue;
+                        
                         classReferences.Add(new DbClassReference(
                             id: classReferenceId,
-                            type: (int)referencesFromThis.Type,
-                            fromId: classFqnToId[referencesFromThis.FromFqn],
-                            toId: classFqnToId[referencesFromThis.ToFqn],
-                            startLine: referencesFromThis.CodeRange.Start.Line,
-                            startColumn: referencesFromThis.CodeRange.Start.Column,
-                            endLine: referencesFromThis.CodeRange.End.Line,
-                            endColumn: referencesFromThis.CodeRange.End.Column
+                            type: (int)referenceFromThis.Type,
+                            fromId: referenceFromThis.FromId ?? classFqnToId[referenceFromThis.FromFqn],
+                            toId: referenceFromThis.ToId ?? classFqnToId[referenceFromThis.ToFqn],
+                            startLine: referenceFromThis.CodeRange.Start.Line,
+                            startColumn: referenceFromThis.CodeRange.Start.Column,
+                            endLine: referenceFromThis.CodeRange.End.Line,
+                            endColumn: referenceFromThis.CodeRange.End.Column
                         ));
 
                         classReferenceId++;
@@ -179,56 +164,14 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                     {
                         foreach (MethodReferenceDto methodReferenceDto in methodDto.MethodReferences)
                         {
-                            if (!methodSignatureToId.TryGetValue(methodReferenceDto.FromMethodSignature,
-                                    out int fromId))
-                            {
-                                PrimitiveLogger.Logger.Instance()
-                                    .Warn($"Cannot find method signature: {methodReferenceDto.FromMethodSignature}");
-                                if (methodReferenceDto.FromMethodSignature.Contains('('))
-                                {
-                                    // soft match
-                                    string truncatedFromSig =
-                                        methodReferenceDto.FromMethodSignature[
-                                            ..methodReferenceDto.FromMethodSignature.IndexOf('(')];
-                                    if (!truncatedMethodSignatureToId.TryGetValue(truncatedFromSig, out fromId))
-                                    {
-                                        continue;
-                                    }
-                                }
-                                else
-                                {
-                                    continue;
-                                }
-                            }
-
-                            if (!methodSignatureToId.TryGetValue(methodReferenceDto.ToMethodSignature, out int toId))
-                            {
-                                PrimitiveLogger.Logger.Instance()
-                                    .Warn(
-                                        $"Cannot find referenced method signature: {methodReferenceDto.ToMethodSignature}");
-
-                                if (methodReferenceDto.ToMethodSignature.Contains('('))
-                                {
-                                    // soft match
-                                    string truncatedFromSig =
-                                        methodReferenceDto.ToMethodSignature[
-                                            ..methodReferenceDto.ToMethodSignature.IndexOf('(')];
-                                    if (!truncatedMethodSignatureToId.TryGetValue(truncatedFromSig, out toId))
-                                    {
-                                        continue;
-                                    }
-                                }
-                                else
-                                {
-                                    continue;
-                                }
-                            }
+                            if (!methodSignatureToId.ContainsKey(methodReferenceDto.FromMethodSignature) ||
+                                !methodSignatureToId.ContainsKey(methodReferenceDto.ToMethodSignature)) continue;
 
                             methodReferences.Add(new DbMethodReference(
                                 id: methodReferenceId,
                                 type: (int)methodReferenceDto.Type,
-                                fromId: fromId,
-                                toId: toId,
+                                fromId: methodReferenceDto.FromMethodId ?? methodSignatureToId[methodReferenceDto.FromMethodSignature],
+                                toId: methodReferenceDto.ToMethodId ??  methodSignatureToId[methodReferenceDto.ToMethodSignature],
                                 startLine: methodReferenceDto.CodeRange.Start.Line,
                                 startColumn: methodReferenceDto.CodeRange.Start.Column,
                                 endLine: methodReferenceDto.CodeRange.End.Line,
@@ -258,7 +201,6 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
         static void ProcessFields(
             List<FieldDto> fields,
             List<DbField> dbFieldsAcc,
-            ref int fieldIdCounter,
             int parentFileId,
             int? parentClassId,
             Dictionary<string, int> typeToId,
@@ -270,7 +212,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             foreach (FieldDto fieldDto in fields)
             {
                 dbFieldsAcc.Add(new DbField(
-                    id: fieldIdCounter,
+                    id: fieldDto.FieldId,
                     parentClassId: parentClassId,
                     parentFileId: parentFileId,
                     name: fieldDto.Name,
@@ -279,24 +221,19 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                     language: (int)fileDto.Language
                 ));
                 dbSourceIndicesAcc.Add(new DbSourceIndex(
-                    elementId: fieldIdCounter,
+                    elementId: fieldDto.FieldId,
                     fileId: fileId,
-                    type: "FIELD",
+                    type: SourceCodeType.Field,
                     startLine: fieldDto.CodeRange.Start.Line,
                     startColumn: fieldDto.CodeRange.Start.Column,
                     endLine: fieldDto.CodeRange.End.Line,
                     endColumn: fieldDto.CodeRange.End.Column
                 ));
-
-                fieldIdCounter++;
             }
         }
 
         static void ProcessMethods(
             List<MethodDto> methodDtos,
-            Dictionary<string, int> methodSignatureToId,
-            ref int methodIdCounter,
-            Dictionary<string, int> truncatedMethodSignatureToId,
             List<DbMethod> dbMethodsAcc,
             int parentFileId,
             int? parentClassId,
@@ -305,27 +242,12 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             List<DbArgument> dbArgumentsAcc,
             List<DbSourceIndex> dbSourceIndicesAcc,
             int fileId,
-            ref int argumentIdCounter
-        )
+            Dictionary<string, int> methodSignatureToId)
         {
             foreach (MethodDto methodDto in methodDtos)
             {
-                if (!methodSignatureToId.TryAdd(methodDto.Signature, methodIdCounter))
-                {
-                    PrimitiveLogger.Logger.Instance().Warn($"Duplicated method {methodDto.Signature}");
-                }
-
-                if (methodDto.Signature.Contains('('))
-                {
-                    string truncatedMethodSignature = methodDto.Signature[..methodDto.Signature.IndexOf('(')];
-                    if (!truncatedMethodSignatureToId.ContainsKey(truncatedMethodSignature))
-                    {
-                        truncatedMethodSignatureToId.Add(truncatedMethodSignature, methodIdCounter);
-                    }
-                }
-
                 dbMethodsAcc.Add(new DbMethod(
-                    id: methodIdCounter,
+                    id: methodDto.MethodId,
                     parentClassId: parentClassId,
                     parentFileId: parentFileId,
                     name: methodDto.Name,
@@ -338,28 +260,27 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                 foreach (ArgumentDto argumentDto in methodDto.Arguments)
                 {
                     dbArgumentsAcc.Add(new DbArgument(
-                        id: argumentIdCounter,
-                        methodId: methodIdCounter,
+                        id: argumentDto.ArgumentId,
+                        methodId: methodDto.MethodId,
                         argIndex: argIndex,
                         name: argumentDto.Name,
                         typeId: typeToId[argumentDto.Type]
                     ));
-
-                    argumentIdCounter++;
+                    
                     argIndex++;
                 }
+                
+                methodSignatureToId.TryAdd(methodDto.Signature, methodDto.MethodId);
 
                 dbSourceIndicesAcc.Add(new DbSourceIndex(
-                    elementId: methodIdCounter,
+                    elementId: methodDto.MethodId,
                     fileId: fileId,
-                    type: "METHOD",
+                    type: SourceCodeType.Method,
                     startLine: methodDto.CodeRange.Start.Line,
                     startColumn: methodDto.CodeRange.Start.Column,
                     endLine: methodDto.CodeRange.End.Line,
                     endColumn: methodDto.CodeRange.End.Column
                 ));
-
-                methodIdCounter++;
             }
         }
     }

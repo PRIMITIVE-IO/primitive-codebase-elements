@@ -8,6 +8,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
     public class MethodDto
     {
         public readonly string Signature;
+        public readonly int MethodId;
         public readonly string Name;
         public readonly AccessFlags AccFlag;
         public readonly List<ArgumentDto> Arguments;
@@ -19,6 +20,7 @@ namespace PrimitiveCodebaseElements.Primitive.dto
 
         public MethodDto(
             string signature,
+            int methodId,
             string name,
             AccessFlags accFlag,
             List<ArgumentDto> arguments,
@@ -28,6 +30,12 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             int? cyclomaticScore = default)
         {
             Signature = signature;
+            MethodId = methodId;
+            if (methodId == -1)
+            {
+                MethodId = ElementIndexer.GetMethodIndex();
+            }
+
             Name = name;
             AccFlag = accFlag;
             Arguments = arguments;
@@ -37,16 +45,17 @@ namespace PrimitiveCodebaseElements.Primitive.dto
             CyclomaticScore = cyclomaticScore;
         }
         
-        public static string MethodSignature(string classFqn, string methodName, List<ArgumentDto> arguments)
+        public static string MethodSignature(AccessFlags accessFlags, string parentFqnOrPath, string methodName, List<ArgumentDto> arguments, string returnType)
         {
-            string args = string.Join(",", arguments.Select(it => it.Type));
-            return $"{classFqn}.{methodName}({args})";
+            string args = string.Join(",", arguments.Select(it => it.Type + " " + it.Name));
+            return $"{accessFlags}|{parentFqnOrPath}.{methodName}({args}):{returnType}";
         }
 
         public MethodDto With(List<MethodReferenceDto> methodReferences)
         {
             return new MethodDto(
                 name: Name,
+                methodId: MethodId,
                 accFlag: AccFlag,
                 arguments: Arguments,
                 returnType: ReturnType,
