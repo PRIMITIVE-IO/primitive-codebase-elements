@@ -6,12 +6,36 @@ namespace PrimitiveCodebaseElements.Primitive.dto
     public class MethodReferenceDto
     {
         public readonly CodeReferenceType Type;
-        public readonly string FromMethodSignature;
-
-        public readonly string ToMethodSignature;
+        
+        // use these values when reconstructing from sqlite
+        public readonly int? FromMethodId;
+        public readonly int? ToMethodId;
+        
+        // use these values when solving references in a parser
+        public readonly string? FromMethodSignature;
+        public readonly string? ToMethodSignature;
+        
         //line/column coordinates in file
         public readonly CodeRange CodeRange;
 
+        /// <summary>
+        /// Use this constructor when reconstructing references from a sqlite database analysis
+        /// </summary>
+        public MethodReferenceDto(
+            CodeReferenceType type,
+            int fromMethodId,
+            int toMethodId,
+            CodeRange codeRange)
+        {
+            Type = type;
+            FromMethodId = fromMethodId;
+            ToMethodId = toMethodId;
+            CodeRange = codeRange;
+        }
+        
+        /// <summary>
+        /// Use this constructor when solving references in a parser
+        /// </summary>
         public MethodReferenceDto(
             CodeReferenceType type,
             string fromMethodSignature,
