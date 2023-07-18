@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
+
 using PrimitiveCodebaseElements.Primitive.dto;
 
 namespace PrimitiveCodebaseElements.Primitive
 {
-    [PublicAPI]
+    
     public static class StringUtil
     {
         public static string SubstringAfterLast(this string s, string sub)

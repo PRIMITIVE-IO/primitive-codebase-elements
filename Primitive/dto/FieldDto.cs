@@ -1,8 +1,8 @@
-using JetBrains.Annotations;
+
 
 namespace PrimitiveCodebaseElements.Primitive.dto
 {
-    [PublicAPI]
+    
     public class FieldDto
     {
         public readonly string Name;

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Text;
-using JetBrains.Annotations;
+
 
 namespace PrimitiveCodebaseElements.Primitive.dto
 {
-    [PublicAPI]
+    
     public class CodeRange
     {
         public readonly CodeLocation Start;

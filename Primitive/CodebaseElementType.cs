@@ -1,8 +1,8 @@
-﻿using JetBrains.Annotations;
+﻿
 
 namespace PrimitiveCodebaseElements.Primitive
 {
-    [PublicAPI]
+    
     public enum CodebaseElementType
     {
         Unknown = -1,

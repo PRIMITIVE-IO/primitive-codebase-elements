@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using JetBrains.Annotations;
+
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
-    [PublicAPI]
+    
     public class DbMethod
     {
         public readonly int Id, ParentFileId, ReturnTypeId, AccessFlags;

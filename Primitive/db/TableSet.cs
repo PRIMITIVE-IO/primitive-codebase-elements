@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
+
 using PrimitiveCodebaseElements.Primitive.db.util;
 using static PrimitiveCodebaseElements.Primitive.db.util.SqLiteUtil;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
-    [PublicAPI]
+    
     public class TableSet
     {
         public readonly List<DbDirectory> Directories;

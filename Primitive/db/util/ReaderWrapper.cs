@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using JetBrains.Annotations;
+
 
 namespace PrimitiveCodebaseElements.Primitive.db.util
 {
-    [PublicAPI]
+    
     public class ReaderWrapper : IDisposable
     {
         readonly IDataReader reader;

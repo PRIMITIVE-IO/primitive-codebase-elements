@@ -1,8 +1,8 @@
-using JetBrains.Annotations;
+
 
 namespace PrimitiveCodebaseElements.Primitive.dto
 {
-    [PublicAPI]
+    
     public class MethodReferenceDto
     {
         public readonly CodeReferenceType Type;

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using JetBrains.Annotations;
+
 
 namespace PrimitiveCodebaseElements.Primitive.dto
 {
-    [PublicAPI]
+    
     public class FileDto
     {
         public readonly string Text;

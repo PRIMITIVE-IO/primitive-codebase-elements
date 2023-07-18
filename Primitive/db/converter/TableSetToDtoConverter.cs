@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
+
 using PrimitiveCodebaseElements.Primitive.dto;
 using PrimitiveLogger;
 
 namespace PrimitiveCodebaseElements.Primitive.db.converter
 {
-    [PublicAPI]
+    
     public static class TableSetToDtoConverter
     {
         public static List<DirectoryDto> ToDirectoryDto(TableSet tableSet)

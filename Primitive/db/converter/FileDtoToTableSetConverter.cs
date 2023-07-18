@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using JetBrains.Annotations;
+
 using PrimitiveCodebaseElements.Primitive.dto;
 
 namespace PrimitiveCodebaseElements.Primitive.db.converter
 {
-    [PublicAPI]
+    
     public static class FileDtoToTableSetConverter
     {
         public static TableSet ConvertToTableSet(List<FileDto> fileDtos, IReadOnlyDictionary<string, int> fileIdsByPath)
