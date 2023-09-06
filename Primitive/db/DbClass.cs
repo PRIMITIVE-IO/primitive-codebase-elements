@@ -8,18 +8,17 @@ namespace PrimitiveCodebaseElements.Primitive.db
     [PublicAPI]
     public class DbClass
     {
-        public readonly int Id, ParentFileId, AccessFlags, Language, IsTestClass;
+        public readonly int Id, ParentFileId, AccessFlags, IsTestClass;
         public readonly int? ParentClassId;
         public readonly string Fqn;
 
-        public DbClass(int id, int? parentClassId, int parentFileId, string fqn, int accessFlags, int language, int isTestClass)
+        public DbClass(int id, int? parentClassId, int parentFileId, string fqn, int accessFlags, int isTestClass)
         {
             Id = id;
             ParentClassId = parentClassId;
             ParentFileId = parentFileId;
             Fqn = fqn;
             AccessFlags = accessFlags;
-            Language = language;
             IsTestClass = isTestClass;
         }
 
@@ -29,7 +28,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           parent_file_id INTEGER NOT NULL, 
                           fqn TEXT NOT NULL, 
                           access_flags INTEGER NOT NULL,
-                          language INTEGER, 
                           is_test_class INTEGER NOT NULL, 
                           FOREIGN KEY(parent_class_id) REFERENCES classes(id) ON UPDATE CASCADE
                           FOREIGN KEY(parent_file_id) REFERENCES files(id) ON UPDATE CASCADE)";
@@ -44,7 +42,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           parent_file_id, 
                           fqn, 
                           access_flags, 
-                          language, 
                           is_test_class 
                       ) VALUES (  
                           @Id,
@@ -52,7 +49,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           @ParentFileId, 
                           @FQN, 
                           @AccessFlags, 
-                          @Language, 
                           @IsTestClass)";
 
             foreach (DbClass cls in classes)
@@ -63,7 +59,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 cmd.AddParameter(System.Data.DbType.String, "@FQN", cls.Fqn);
                 cmd.AddParameter(System.Data.DbType.Int32, "@AccessFlags", cls.AccessFlags);
                 cmd.AddParameter(System.Data.DbType.Int32, "@IsTestClass", cls.IsTestClass);
-                cmd.AddParameter(System.Data.DbType.Int32, "@Language", cls.Language);
 
                 cmd.ExecuteNonQuery();
             }
@@ -82,7 +77,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           parent_file_id, 
                           fqn, 
                           access_flags, 
-                          language, 
                           is_test_class 
                     FROM classes
                 ";
@@ -92,7 +86,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 parentFileId: row.GetInt32("parent_file_id"),
                 fqn: row.GetString("fqn"),
                 accessFlags: row.GetInt32("access_flags"),
-                language: row.GetInt32("language"),
                 isTestClass: row.GetInt32("is_test_class")
             ));
         }

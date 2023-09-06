@@ -8,11 +8,11 @@ namespace PrimitiveCodebaseElements.Primitive.db
     [PublicAPI]
     public class DbField
     {
-        public readonly int Id, ParentFileId, TypeId, AccessFlags, Language;
+        public readonly int Id, ParentFileId, TypeId, AccessFlags;
         public readonly int? ParentClassId;
         public readonly string Name;
 
-        public DbField(int id, int? parentClassId, int parentFileId, string name, int typeId, int accessFlags, int language)
+        public DbField(int id, int? parentClassId, int parentFileId, string name, int typeId, int accessFlags)
         {
             Id = id;
             ParentClassId = parentClassId;
@@ -20,7 +20,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
             Name = name;
             TypeId = typeId;
             AccessFlags = accessFlags;
-            Language = language;
         }
 
         // foreign keys are broken since a field and method can have either a class parent or a file parent
@@ -32,7 +31,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 name TEXT NOT NULL, 
                 type_id INTEGER NOT NULL, 
                 access_flags INTEGER NOT NULL,
-                language INTEGER,
                 FOREIGN KEY(parent_class_id) REFERENCES classes(id) ON UPDATE CASCADE, 
                 FOREIGN KEY(parent_file_id) REFERENCES files(id) ON UPDATE CASCADE, 
                 FOREIGN KEY(type_id) REFERENCES types(id) ON UPDATE CASCADE
@@ -50,16 +48,14 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           parent_file_id, 
                           name, 
                           type_id, 
-                          access_flags,
-                          language 
+                          access_flags
                       ) VALUES ( 
                           @Id,
                           @ParentClassId, 
                           @ParentFileId, 
                           @Name, 
                           @TypeId, 
-                          @AccessFlags,
-                          @Language)";
+                          @AccessFlags)";
 
             foreach (DbField field in fields)
             {
@@ -69,7 +65,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 cmd.AddParameter(System.Data.DbType.String, "@Name", field.Name);
                 cmd.AddParameter(System.Data.DbType.Int32, "@TypeId", field.TypeId);
                 cmd.AddParameter(System.Data.DbType.UInt32, "@AccessFlags", field.AccessFlags);
-                cmd.AddParameter(System.Data.DbType.Int32, "@Language", field.Language);
 
                 cmd.ExecuteNonQuery();
             }
@@ -88,8 +83,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           parent_file_id, 
                           name, 
                           type_id, 
-                          access_flags, 
-                          language 
+                          access_flags
                     FROM fields
                    ";
 
@@ -99,8 +93,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 parentFileId: row.GetInt32("parent_file_id"),
                 name: row.GetString("name"),
                 typeId: row.GetInt32("type_id"),
-                accessFlags: row.GetInt32("access_flags"),
-                language: row.GetInt32("language")
+                accessFlags: row.GetInt32("access_flags")
             ));
         }
     }

@@ -89,7 +89,6 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                         parentFileId: fileId,
                         fqn: classDto.FullyQualifiedName,
                         accessFlags: (int)classDto.Modifier,
-                        language: (int)fileDto.Language,
                         isTestClass: fileDto.IsTest ? 1 : 0
                     ));
 
@@ -217,8 +216,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                     parentFileId: parentFileId,
                     name: fieldDto.Name,
                     typeId: typeToId[fieldDto.Type],
-                    accessFlags: (int)fieldDto.AccFlag,
-                    language: (int)fileDto.Language
+                    accessFlags: (int)fieldDto.AccFlag
                 ));
                 dbSourceIndicesAcc.Add(new DbSourceIndex(
                     elementId: fieldDto.FieldId,
@@ -253,7 +251,6 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                     name: methodDto.Name,
                     returnTypeId: typeToId[methodDto.ReturnType],
                     accessFlags: (int)methodDto.AccFlag,
-                    language: (int)fileDto.Language,
                     cyclomaticScore: methodDto.CyclomaticScore
                 ));
                 int argIndex = 0;

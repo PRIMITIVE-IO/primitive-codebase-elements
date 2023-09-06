@@ -8,7 +8,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
     [PublicAPI]
     public class DbDiffField
     {
-        public readonly int Id, TypeId, AccessFlags, Language, BranchId;
+        public readonly int Id, TypeId, AccessFlags, BranchId;
         public readonly int? ParentFileId, ParentClassIdDiff, OriginalFieldId, ParentClassId, ParentFileIdDiff;
         public readonly string Name, SourceCode;
 
@@ -17,7 +17,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             string name,
             int typeId,
             int accessFlags,
-            string sourceCode, int language,
+            string sourceCode,
             int? originalFieldId, int branchId)
         {
             Id = id;
@@ -29,7 +29,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
             TypeId = typeId;
             AccessFlags = accessFlags;
             SourceCode = sourceCode;
-            Language = language;
             OriginalFieldId = originalFieldId;
             BranchId = branchId;
         }
@@ -45,7 +44,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                          type_id INTEGER NOT NULL,
                          access_flags INTEGER NOT NULL,
                          source_code TEXT,
-                         language INTEGER,
 						 original_field_id INT NULL,
 						 branch_id INT,
 						 FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE,
@@ -69,7 +67,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                         type_id,
                         access_flags,
                         source_code,
-                        language,
                         original_field_id,
                         branch_id
                       ) VALUES (
@@ -82,7 +79,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                         @TypeId,
                         @AccessFlags,
                         @SourceCode,
-                        @Language,
                         @OriginalFieldId,
                         @BranchId
                       )";
@@ -98,7 +94,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 cmd.AddParameter(System.Data.DbType.Int32, "@TypeId", dbDiffField.TypeId);
                 cmd.AddParameter(System.Data.DbType.Int32, "@AccessFlags", dbDiffField.AccessFlags);
                 cmd.AddParameter(System.Data.DbType.String, "@SourceCode", dbDiffField.SourceCode);
-                cmd.AddParameter(System.Data.DbType.Int32, "@Language", dbDiffField.Language);
                 cmd.AddParameter(System.Data.DbType.Int32, "@OriginalFieldId", dbDiffField.OriginalFieldId);
                 cmd.AddParameter(System.Data.DbType.Int32, "@BranchId", dbDiffField.BranchId);
                 cmd.ExecuteNonQuery();
@@ -122,7 +117,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                         type_id,
                         access_flags,
                         source_code,
-                        language,
                         original_field_id,
                         branch_id
                     FROM diff_fields
@@ -138,7 +132,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 typeId: row.GetInt32("type_id"),
                 accessFlags: row.GetInt32("access_flags"),
                 sourceCode: row.GetString("source_code"),
-                language: row.GetInt32("language"),
                 originalFieldId: row.GetIntOrNull("original_field_id"),
                 branchId: row.GetInt32("branch_id")
             ));

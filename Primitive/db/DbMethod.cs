@@ -9,12 +9,12 @@ namespace PrimitiveCodebaseElements.Primitive.db
     [PublicAPI]
     public class DbMethod
     {
-        public readonly int Id, ParentFileId, ReturnTypeId, AccessFlags, Language;
+        public readonly int Id, ParentFileId, ReturnTypeId, AccessFlags;
         public readonly int? CyclomaticScore, ParentClassId;
         public readonly string Name;
 
         public DbMethod(int id, int? parentClassId, int parentFileId, string name, int returnTypeId, int accessFlags,
-            int language, int? cyclomaticScore)
+            int? cyclomaticScore)
         {
             Id = id;
             ParentClassId = parentClassId;
@@ -22,7 +22,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
             Name = name;
             ReturnTypeId = returnTypeId;
             AccessFlags = accessFlags;
-            Language = language;
             CyclomaticScore = cyclomaticScore;
         }
 
@@ -35,7 +34,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 return_type_id INTEGER NOT NULL, 
                 access_flags INTEGER NOT NULL, 
                 field_id TEXT, 
-                language INTEGER,
                 cyclomatic_score INTEGER,                
                 FOREIGN KEY(parent_class_id) REFERENCES classes(id) ON UPDATE CASCADE,
                 FOREIGN KEY(parent_file_id) REFERENCES files(id) ON UPDATE CASCADE
@@ -53,7 +51,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           name, 
                           return_type_id, 
                           access_flags,
-                          language,
                           cyclomatic_score
                       ) VALUES ( 
                           @Id,
@@ -62,7 +59,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           @Name, 
                           @ReturnTypeId, 
                           @AccessFlags,
-                          @Language,
                           @CyclomaticScore
                       )";
 
@@ -80,7 +76,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 insertMethodCmd.AddParameter(System.Data.DbType.String, "@Name", method.Name);
                 insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@ReturnTypeId", method.ReturnTypeId);
                 insertMethodCmd.AddParameter(System.Data.DbType.UInt32, "@AccessFlags", method.AccessFlags);
-                insertMethodCmd.AddParameter(System.Data.DbType.Int32, "@Language", method.Language);
 
                 insertMethodCmd.ExecuteNonQuery();
             }
@@ -100,7 +95,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                         name, 
                         return_type_id, 
                         access_flags, 
-                        language,
                         cyclomatic_score
                     FROM methods
             ";
@@ -112,7 +106,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 name: row.GetString("name"),
                 returnTypeId: row.GetInt32("return_type_id"),
                 accessFlags: row.GetInt32("access_flags"),
-                language: row.GetInt32("language"),
                 cyclomaticScore: row.GetIntOrNull("cyclomatic_score")
             ));
         }

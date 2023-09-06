@@ -8,14 +8,14 @@ namespace PrimitiveCodebaseElements.Primitive.db
     [PublicAPI]
     public class DbDiffClass
     {
-        public readonly int Id, AccessFlags, Language, IsTestClass, BranchId;
+        public readonly int Id, AccessFlags, IsTestClass, BranchId;
         public readonly int? ParentFileId, ParentFileIdDiff, ParentClassId, ParentClassIdDiff;
         public readonly string Fqn, HeaderSource;
 
         public DbDiffClass(
             int id, int? parentClassId, int? parentFileId, int? parentClassIdDiff, int? parentFileIdDiff,
             string fqn, int accessFlags,
-            string headerSource, int language,
+            string headerSource,
             int isTestClass, int branchId)
         {
             Id = id;
@@ -25,7 +25,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
             Fqn = fqn;
             AccessFlags = accessFlags;
             HeaderSource = headerSource;
-            Language = language;
             IsTestClass = isTestClass;
             BranchId = branchId;
         }
@@ -39,7 +38,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                           fqn TEXT NOT NULL,
                           access_flags INTEGER NOT NULL,
                           header_source TEXT,
-                          language INTEGER,
                           is_test_class INTEGER NOT NULL,
 						  branch_id INTEGER NOT NULL,
                           FOREIGN KEY(parent_file_id) REFERENCES files(id) ON UPDATE CASCADE,
@@ -60,7 +58,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                         fqn,
                         access_flags,
                         header_source,
-                        language,
                         is_test_class,
                         branch_id
                       ) VALUES (
@@ -72,7 +69,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                         @Fqn,
                         @AccessFlags,
                         @HeaderSource,
-                        @Language,
                         @IsTestClass,
                         @BranchId
                       )";
@@ -87,7 +83,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 cmd.AddParameter(System.Data.DbType.String, "@Fqn", dbDiffClass.Fqn);
                 cmd.AddParameter(System.Data.DbType.Int32, "@AccessFlags", dbDiffClass.AccessFlags);
                 cmd.AddParameter(System.Data.DbType.String, "@HeaderSource", dbDiffClass.HeaderSource);
-                cmd.AddParameter(System.Data.DbType.Int32, "@Language", dbDiffClass.Language);
                 cmd.AddParameter(System.Data.DbType.Int32, "@IsTestClass", dbDiffClass.IsTestClass);
                 cmd.AddParameter(System.Data.DbType.Int32, "@BranchId", dbDiffClass.BranchId);
                 cmd.ExecuteNonQuery();
@@ -110,7 +105,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                         fqn,
                         access_flags,
                         header_source,
-                        language,
                         is_test_class,
                         branch_id
                     FROM diff_classes
@@ -125,7 +119,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 fqn: row.GetString("fqn"),
                 accessFlags: row.GetInt32("access_flags"),
                 headerSource: row.GetString("header_source"),
-                language: row.GetInt32("language"),
                 isTestClass: row.GetInt32("is_test_class"),
                 branchId: row.GetInt32("branch_id")
             ));

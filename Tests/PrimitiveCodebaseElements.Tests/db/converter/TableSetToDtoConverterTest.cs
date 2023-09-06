@@ -22,10 +22,10 @@ public class TableSetToDtoConverterTest
             },
             methods: new List<DbMethod>
             {
-                new(432, 1, 423, "f", 544, 0, 1, 10),
-                new(433, 1, 423, "g", 545, 0, 1, 10)
+                new(432, 1, 423, "f", 544, 0, 10),
+                new(433, 1, 423, "g", 545, 0, 10)
             },
-            classes: new List<DbClass> { new(423, 1, 525, "some.Cls", 0, 1, 0) },
+            classes: new List<DbClass> { new(423, 1, 525, "some.Cls", 0, 0) },
             files: new List<DbFile> { new(525, 283, "Cls.sc", "some/path", string.Empty, 1) },
             directories: new List<DbDirectory> { new(283, "some", 1, 1) },
             types: new List<DbType>

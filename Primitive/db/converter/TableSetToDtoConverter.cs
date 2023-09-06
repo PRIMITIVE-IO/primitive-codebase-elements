@@ -133,7 +133,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
                                             dbFile.Path,
                                             packageName: PackageName(dbClass.Fqn),
                                             name: ClassName(dbClass.Fqn),
-                                            fullyQualifiedName: UniqueClassFqn(dbClass, dbFile.Path),
+                                            fullyQualifiedName: UniqueClassFqn(dbClass, dbFile.Path, (SourceCodeLanguage) dbFile.Language),
                                             classId: dbClass.Id,
                                             methods: methodDtos,
                                             fields: fieldDtos,
@@ -336,9 +336,9 @@ namespace PrimitiveCodebaseElements.Primitive.db.converter
             );
         }
         
-        static string UniqueClassFqn(DbClass dbClass, string path)
+        static string UniqueClassFqn(DbClass dbClass, string path, SourceCodeLanguage dbFileLanguage)
         {
-            switch ((SourceCodeLanguage)dbClass.Language)
+            switch (dbFileLanguage)
             {
                 case SourceCodeLanguage.Cpp:
                 case SourceCodeLanguage.C:

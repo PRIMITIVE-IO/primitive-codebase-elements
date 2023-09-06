@@ -51,7 +51,6 @@ namespace PrimitiveCodebaseElements.Primitive.db.merger
                 parentFileId: bFileIdToNewFileId[dbClass.ParentFileId],
                 fqn: dbClass.Fqn,
                 accessFlags: dbClass.AccessFlags,
-                language: dbClass.Language,
                 isTestClass: dbClass.IsTestClass
             )).ToList();
 
@@ -63,8 +62,7 @@ namespace PrimitiveCodebaseElements.Primitive.db.merger
                 parentFileId: bFileIdToNewFileId[field.ParentFileId],
                 name: field.Name,
                 typeId: field.TypeId + maxTypeIdA,
-                accessFlags: field.AccessFlags,
-                language: field.Language
+                accessFlags: field.AccessFlags
             ));
 
             int maxMethodIdA = a.Methods.MaxOrDefault(it => it.Id);
@@ -76,7 +74,6 @@ namespace PrimitiveCodebaseElements.Primitive.db.merger
                 name: method.Name,
                 returnTypeId: method.ReturnTypeId + maxTypeIdA,
                 accessFlags: method.AccessFlags,
-                language: method.Language,
                 cyclomaticScore: method.CyclomaticScore
             ));
 

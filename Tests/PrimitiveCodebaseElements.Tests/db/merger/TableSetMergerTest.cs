@@ -21,8 +21,8 @@ public class TableSetMergerTest
             },
             classes: new List<DbClass>
             {
-                new(1, 4, 1, "classInX", 1, 1, 1),
-                new(2, 4, 2, "classInCommon", 1, 1, 1)
+                new(1, 4, 1, "classInX", 1,  1),
+                new(2, 4, 2, "classInCommon", 1, 1)
             }
         );
 
@@ -35,8 +35,8 @@ public class TableSetMergerTest
             },
             classes: new List<DbClass>
             {
-                new(1, 4, 1, "classInY", 1, 1, 1),
-                new(2, 4, 2, "classInCommon2", 1, 1, 1)
+                new(1, 4, 1, "classInY", 1, 1),
+                new(2, 4, 2, "classInCommon2", 1, 1)
             }
         );
 

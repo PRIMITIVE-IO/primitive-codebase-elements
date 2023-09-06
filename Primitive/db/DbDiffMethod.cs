@@ -8,7 +8,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
     [PublicAPI]
     public class DbDiffMethod
     {
-        public readonly int Id, BranchId, Language, ReturnTypeId, AccessFlags;
+        public readonly int Id, BranchId, ReturnTypeId, AccessFlags;
         public readonly int? ParentFileId, ParentClassIdDiff, OriginalMethodId, ParentClassId, ParentFileIdDiff;
         public readonly string Name, SourceCode;
         public readonly string? FieldId;
@@ -17,7 +17,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
             int id, int? parentClassId, int? parentFileId,
             string name, int returnTypeId, int accessFlags,
             string? fieldId,
-            string sourceCode, int language,
+            string sourceCode,
             int? parentClassIdDiff, int? parentFileIdDiff, int? originalMethodId, int branchId)
         {
             Id = id;
@@ -29,7 +29,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
             AccessFlags = accessFlags;
             FieldId = fieldId;
             SourceCode = sourceCode;
-            Language = language;
             ParentClassIdDiff = parentClassIdDiff;
             OriginalMethodId = originalMethodId;
             BranchId = branchId;
@@ -47,7 +46,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                          access_flags INTEGER NOT NULL, 
                          field_id TEXT, 
                          source_code TEXT, 
-                         language INTEGER,
 						 original_method_id INT NULL,
 						 branch_id INT NOT NULL,
 						 FOREIGN KEY(branch_id) REFERENCES branches(id) ON UPDATE CASCADE,
@@ -72,7 +70,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
 						access_flags,
 						field_id,
 						source_code,
-						language,
 						parent_class_id_diff,
 						original_method_id,
 						branch_id
@@ -87,7 +84,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
 						@AccessFlags,
 						@FieldId,
 						@SourceCode,
-						@Language,
 						@ParentClassIdDiff,
 						@OriginalMethodId,
 						@BranchId
@@ -105,7 +101,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 cmd.AddParameter(System.Data.DbType.Int32, "@AccessFlags", method.AccessFlags);
                 cmd.AddParameter(System.Data.DbType.String, "@FieldId", method.FieldId);
                 cmd.AddParameter(System.Data.DbType.String, "@SourceCode", method.SourceCode);
-                cmd.AddParameter(System.Data.DbType.Int32, "@Language", method.Language);
                 cmd.AddParameter(System.Data.DbType.Int32, "@OriginalMethodId", method.OriginalMethodId);
                 cmd.AddParameter(System.Data.DbType.Int32, "@BranchId", method.BranchId);
                 cmd.ExecuteNonQuery();
@@ -129,8 +124,7 @@ namespace PrimitiveCodebaseElements.Primitive.db
 						return_type_id,
 						access_flags,
 						field_id,
-						source_code,
-						language,						
+						source_code,					
 						original_method_id,
 						branch_id
                     FROM diff_methods
@@ -147,7 +141,6 @@ namespace PrimitiveCodebaseElements.Primitive.db
                 accessFlags: row.GetInt32("access_flags"),
                 fieldId: row.GetString("field_id"),
                 sourceCode: row.GetString("source_code"),
-                language: row.GetInt32("language"),
                 originalMethodId: row.GetIntOrNull("original_method_id"),
                 branchId: row.GetInt32("branch_id")
             ));
