@@ -14,7 +14,8 @@ namespace PrimitiveCodebaseElements.Primitive.db
         public readonly string Path;
         public readonly string SourceText;
         public readonly int Language;
-
+        
+        public List<float> Vector { get; set; } = new();
 
         public DbFile(int id, int directoryId, string name, string path, string sourceText, int language)
         {
