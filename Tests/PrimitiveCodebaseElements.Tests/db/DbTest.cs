@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SQLite;
 using System.IO;
 using FluentAssertions;
 using PrimitiveCodebaseElements.Primitive.db;
+using SQLite4Unity3d;
 using Xunit;
 using DbType = PrimitiveCodebaseElements.Primitive.db.DbType;
 
@@ -17,8 +16,7 @@ public class DbTest
         string dbPath = Path.GetTempFileName();
         try
         {
-            using IDbConnection conn = new SQLiteConnection($"URI=file:{dbPath}");
-            conn.Open();
+            SQLiteConnection conn = new SQLiteConnection($"URI=file:{dbPath}");
             // @formatter:off
             TableSet ts = new TableSet(
                 files: new List<DbFile> { new(id: 1, directoryId: 1, name: string.Empty, path: string.Empty, sourceText: string.Empty, language: 1) },
