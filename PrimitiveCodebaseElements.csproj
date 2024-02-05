@@ -10,7 +10,7 @@
         <Nullable>enable</Nullable>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <!-- Unity still requires .netstandard2.1. This will change in a future release -->
-        <TargetFrameworks>net7.0;netstandard2.1</TargetFrameworks>
+        <TargetFrameworks>netstandard2.1;net8.0</TargetFrameworks>
         <LangVersion>9</LangVersion>
     </PropertyGroup>
 
@@ -22,9 +22,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
+      <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-      <PackageReference Include="PrimitiveLogger" Version="0.3.4" />
+      <PackageReference Include="PrimitiveLogger" Version="0.3.5" />
     </ItemGroup>
 
     <PropertyGroup>
