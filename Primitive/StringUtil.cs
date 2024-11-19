@@ -183,7 +183,7 @@ namespace PrimitiveCodebaseElements.Primitive
         {
             if (location.Line == 1 && location.Column == 1) return location;
             if (location.Column > 1) return new CodeLocation(location.Line, location.Column - 1);
-            var lines = linesSupplier();
+            string[]? lines = linesSupplier();
             if (lines.Length > location.Line - 2) return new CodeLocation(location.Line - 1, lines[location.Line - 2].TrimEnd().Length);
             return location;
         }
@@ -204,7 +204,7 @@ namespace PrimitiveCodebaseElements.Primitive
                     lineCounter++;
                 }
 
-                if (currentChar == '\r' || currentChar == '\n')
+                if (currentChar is '\r' or '\n')
                 {
                     lastLineBreakIdx = i;
                 }

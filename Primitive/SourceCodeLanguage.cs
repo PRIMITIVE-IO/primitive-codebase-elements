@@ -33,9 +33,7 @@ namespace PrimitiveCodebaseElements.Primitive
         
         public static SourceCodeLanguage FromExtension(string ext)
         {
-            return ExtensionToLanguage.ContainsKey(ext) 
-                ? ExtensionToLanguage[ext] 
-                : SourceCodeLanguage.PlainText;
+            return ExtensionToLanguage.GetValueOrDefault(ext, SourceCodeLanguage.PlainText);
         }
     }
     
