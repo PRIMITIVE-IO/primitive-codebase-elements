@@ -1,9 +1,9 @@
 ﻿using System;
-using JetBrains.Annotations;
+
 
 namespace PrimitiveCodebaseElements.Primitive.dto
 {
-    [PublicAPI]
+    
     public class CodeLocation : IComparable<CodeLocation>
     {
         //1-based

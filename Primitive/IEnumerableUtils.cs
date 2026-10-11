@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
+
 
 namespace PrimitiveCodebaseElements.Primitive
 {
-    [PublicAPI]
+    
     public static class IEnumerableUtils
     {
         public static IEnumerable<TResult> SelectNotNull<TSource, TResult>(this IEnumerable<TSource> e,

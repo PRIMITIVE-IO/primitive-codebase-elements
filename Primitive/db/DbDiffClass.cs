@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
-using JetBrains.Annotations;
+
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db
 {
-    [PublicAPI]
+    
     public class DbDiffClass
     {
         public readonly int Id, AccessFlags, IsTestClass, BranchId;

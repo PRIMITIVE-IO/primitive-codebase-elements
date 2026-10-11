@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using JetBrains.Annotations;
+
 
 namespace PrimitiveCodebaseElements.Primitive
 {
-    [PublicAPI]
+    
     public class SourceCodeLanguageHelper
     {
         static readonly Dictionary<string, SourceCodeLanguage> ExtensionToLanguage =
@@ -37,7 +37,7 @@ namespace PrimitiveCodebaseElements.Primitive
         }
     }
     
-    [PublicAPI]
+    
     public enum SourceCodeLanguage
     {
         // These enum int values must match in:

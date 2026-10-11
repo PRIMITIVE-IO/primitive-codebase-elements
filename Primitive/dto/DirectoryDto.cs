@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using JetBrains.Annotations;
+
 
 namespace PrimitiveCodebaseElements.Primitive.dto
 {
-    [PublicAPI]
+    
     public class DirectoryDto
     {
         public readonly string Path;

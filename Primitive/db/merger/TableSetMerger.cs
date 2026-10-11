@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
+
 using PrimitiveCodebaseElements.Primitive.db.util;
 
 namespace PrimitiveCodebaseElements.Primitive.db.merger
 {
-    [PublicAPI]
+    
     public static class TableSetMerger
     {
         public static TableSet Merge(TableSet a, TableSet b)

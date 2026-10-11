@@ -1,5 +1,5 @@
 using System;
-using JetBrains.Annotations;
+
 
 namespace PrimitiveCodebaseElements.Primitive
 {
@@ -12,7 +12,7 @@ namespace PrimitiveCodebaseElements.Primitive
     /// means. For other languages, the native access flags have been mapped to match those defined for Java.</para>
     /// </summary>
     [Flags]
-    [PublicAPI]
+    
     public enum AccessFlags : uint
     {
         None = 0x0000,
@@ -30,7 +30,7 @@ namespace PrimitiveCodebaseElements.Primitive
         AccEnum = 0x4000
     }
 
-    [PublicAPI]
+    
     public static class AccessFlagsExtensions
     {
         /// <summary>

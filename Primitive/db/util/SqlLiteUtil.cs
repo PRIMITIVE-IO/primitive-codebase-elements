@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
+
 
 namespace PrimitiveCodebaseElements.Primitive.db.util
 {
-    [PublicAPI]
+    
     public static class SqLiteUtil
     {
         public static ReaderWrapper Execute(this IDbConnection conn, string sql, params Param[] parameters)
